@@ -15,11 +15,45 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { renderIcon } from "@/lib/icon-utils"
 
-const DividerSection = () => (
-  <div className="relative h-48 bg-fixed bg-cover" style={{ backgroundImage: "url('/hiwatari_cross.jpg')" }}>
-    <div className="absolute inset-0 bg-black/50"></div>
-  </div>
-)
+/* ------------------------------------------------------------------
+   DividerSection コンポーネント
+   ・ウィンドウサイズに応じて背景画像を切り替え
+     － 768px 未満なら hiwatari_sp.jpg
+     － 768px 以上なら hiwatari_cross.jpg
+------------------------------------------------------------------ */
+const DividerSection = () => {
+  const [bgImage, setBgImage] = useState<string>("")
+
+  useEffect(() => {
+    const updateBg = () => {
+      const width = window.innerWidth
+      if (width < 768) {
+        setBgImage("/hiwatari_sp.jpg")
+      } else {
+        setBgImage("/hiwatari_cross.jpg")
+      }
+    }
+
+    updateBg()
+    window.addEventListener("resize", updateBg)
+    return () => window.removeEventListener("resize", updateBg)
+  }, [])
+
+  const dividerStyle = {
+    height: "12rem", // h-48 相当
+    backgroundAttachment: "fixed" as const,
+    backgroundPosition: "right",
+    backgroundSize: "cover",
+    backgroundImage: `url(${bgImage})`,
+    position: "relative" as const,
+  }
+
+  return (
+    <div style={dividerStyle}>
+      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)" }}></div>
+    </div>
+  )
+}
 
 type HomeClientProps = {
   tourData: any
@@ -33,6 +67,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
     threshold: 0.5,
   })
   const [autoplay, setAutoplay] = useState<any>(null)
+  const [heroBg, setHeroBg] = useState<string>("")
 
   useEffect(() => {
     setShowChat(!heroInView)
@@ -42,7 +77,39 @@ export function HomeClient({ tourData }: HomeClientProps) {
     import("embla-carousel-autoplay").then((Autoplay) => {
       setAutoplay(Autoplay.default({ delay: 5000 }))
     })
+
+    const updateHeroBg = () => {
+      const width = window.innerWidth
+      if (width < 768) {
+        setHeroBg("/hiwatari_sp.jpg")
+      } else {
+        setHeroBg("/hiwatari_cross.jpg")
+      }
+    }
+
+    updateHeroBg()
+    window.addEventListener("resize", updateHeroBg)
+    return () => window.removeEventListener("resize", updateHeroBg)
   }, [heroInView])
+
+  // バナーのサイズ調整（デフォルト: 幅 360px, 高さ 96px → 比率 96/360）
+  const [bannerSize, setBannerSize] = useState({ width: 360, height: 96 })
+
+  useEffect(() => {
+    const updateBannerSize = () => {
+      const screenWidth = window.innerWidth
+      if (screenWidth < 360) {
+        // 画面幅に合わせ、高さは比率で計算
+        setBannerSize({ width: screenWidth, height: screenWidth * (96 / 360) })
+      } else {
+        setBannerSize({ width: 360, height: 96 })
+      }
+    }
+
+    updateBannerSize()
+    window.addEventListener("resize", updateBannerSize)
+    return () => window.removeEventListener("resize", updateBannerSize)
+  }, [])
 
   return (
     <div className="min-h-screen bg-[url('/washi_background.webp')]">
@@ -53,7 +120,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
         <div className="absolute inset-0 bg-black/50 z-10" />
         <div className="absolute inset-0 w-full h-full">
           <Image
-            src="/hiwatari_cross.jpg"
+            src={heroBg}
             alt="獅子舞の火渡り"
             fill
             className="object-cover"
@@ -241,12 +308,12 @@ export function HomeClient({ tourData }: HomeClientProps) {
       {/* Footer */}
       <Footer />
 
-      {/* Fixed Position Banner */}
+      {/* Fixed Position Banner (動的サイズ調整) */}
       {bannerVisible && (
         <div
           className={cn(
             "fixed rounded bottom-4 left-0 z-30 transition-opacity duration-300",
-            showBanner ? "opacity-100" : "opacity-0 pointer-events-none",
+            showBanner ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
         >
           <a href="https://www.town.furubira.lg.jp/" target="_blank" rel="noopener noreferrer">
@@ -260,7 +327,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
               >
                 <X className="h-4 w-4 text-gray-600" />
               </button>
-              <div className="relative h-24 w-[360px]">
+              <div style={{ position: "relative", width: `${bannerSize.width}px`, height: `${bannerSize.height}px` }}>
                 <Image
                   src="/banner.png"
                   alt="道の駅ふるびら たらこミュージアム"
@@ -281,7 +348,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
       <div
         className={cn(
           "fixed bottom-4 right-4 transition-opacity duration-500",
-          showChat ? "opacity-100" : "opacity-0 pointer-events-none",
+          showChat ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
       >
         <ChatWindow />
