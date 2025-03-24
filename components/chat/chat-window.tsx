@@ -87,7 +87,8 @@ export function ChatWindow() {
         timestamp: new Date().toISOString(),
       }
 
-      setMessages((prev) => [...prev, userMessage])
+      // ユーザーがメッセージを送信した瞬間に、直前のメッセージだけを保持
+      setMessages([userMessage])
       setMessage("")
       setIsLoading(true)
       setIsThinking(true)
@@ -127,20 +128,18 @@ export function ChatWindow() {
             break
           }
 
-          // 新しいチャンクを処理（シンプルなテキストストリーム）
           const chunk = decoder.decode(value)
 
-          // 最初のチャンクが来たら、考え中の状態をオフにして応答メッセージを追加
           if (isFirstChunk && chunk.trim() !== "") {
             isFirstChunk = false
             setIsThinking(false)
 
-            // 空の応答メッセージを追加（ストリーミング用）
             const assistantMessageId = nanoid()
             accumulatedContent = chunk
 
+            // 最新のユーザーとアシスタントメッセージだけを保持
             setMessages((prev) => [
-              ...prev,
+              prev[prev.length - 1], // 最新のユーザーメッセージ
               {
                 id: assistantMessageId,
                 role: "assistant",
@@ -150,10 +149,8 @@ export function ChatWindow() {
               },
             ])
           } else if (!isFirstChunk) {
-            // 2回目以降のチャンクは既存のメッセージを更新
             accumulatedContent += chunk
 
-            // メッセージを更新
             setMessages((prev) =>
               prev.map((msg) =>
                 msg.role === "assistant" && msg.isTyping ? { ...msg, content: accumulatedContent } : msg,
@@ -162,7 +159,6 @@ export function ChatWindow() {
           }
         }
 
-        // ストリーミング完了時にタイピング状態を解除
         setMessages((prev) => prev.map((msg) => (msg.isTyping ? { ...msg, isTyping: false } : msg)))
       } catch (error) {
         console.error("Error sending message:", error)
@@ -172,11 +168,10 @@ export function ChatWindow() {
           variant: "destructive",
         })
 
-        setIsThinking(false) // エラー時に考え中の状態をオフ
+        setIsThinking(false)
 
-        // エラーメッセージを追加
         setMessages((prev) => [
-          ...prev,
+          prev[prev.length - 1], // 最新のユーザーメッセージ
           {
             id: nanoid(),
             role: "assistant",
