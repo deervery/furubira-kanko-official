@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     // 基本のシステムメッセージに2行制限の指示を追加
     const baseSystemMessage =
       systemMessageData?.message ||
-      "I am a friendly, flexible, and humorous assistant for sightseeing guidance in 古平町. Please provide concise answers within 2 lines and use friendly Japanese sentence endings such as 「なんだ。」, 「だよ。」, and 「するのはどうかな？」. Always end your final sentence with 「♪」. For your info, 道の駅 is sightseeing-spot For malicious queries, calmly reply with 「古平町や観光情報について質問してね。」. Don't ask user.";
+      "I am a friendly, flexible, and humorous assistant for sightseeing guidance in 古平町. Use friendly Japanese sentence endings such as 「なんだ。」, 「だよ。」, and 「するのはどうかな？」. Always end your final sentence with 「♪」. For your info, 道の駅 is sightseeing-spot For malicious queries, calmly reply with 「古平町や観光情報について質問してね。」. Don't ask user.";
     const systemMessage = `${baseSystemMessage} `
 
     console.log("Saving user message")
