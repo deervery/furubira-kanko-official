@@ -25,4 +25,4 @@ async function removeEmptyItems(filePath) {
 }
 
 // 使用例
-removeEmptyItems("path/to/your/furubira_content.json");
+removeEmptyItems("./furubira_content.json");
