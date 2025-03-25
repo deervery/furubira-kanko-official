@@ -80,7 +80,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
 
     const updateHeroBg = () => {
       const width = window.innerWidth
-      if (width < 768) {
+      if (width < 1000) {
         setHeroBg("/hiwatari_sp.jpg")
       } else {
         setHeroBg("/hiwatari_cross.jpg")
@@ -120,7 +120,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
         <div className="absolute inset-0 bg-black/50 z-10" />
         <div className="absolute inset-0 w-full h-full">
           <Image
-            src={heroBg}
+            src={heroBg || "/setakamuy.png?height=1080&width=1920"}
             alt="獅子舞の火渡り"
             fill
             className="object-cover"
