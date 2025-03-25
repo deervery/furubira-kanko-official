@@ -1,28 +1,27 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
 
-export async function GET(request: NextRequest, { params }: { params: { sessionId: string } }) {
-  const sessionId = params.sessionId
+export async function GET(
+  request: NextRequest,
+  context: { params: Promise<{ sessionId: string }> }
+) {
+  const { sessionId } = await context.params;
 
   try {
     const { data: messages, error } = await supabase
       .from("chat")
-      .select("*")
+      .select("role,content")
       .eq("sessionId", sessionId)
-      .order("timestamp", { ascending: true })
+      .order("timestamp");
 
-    if (error) throw error
+    if (error) {
+      return Response.json({ error: "データの取得に失敗しました" }, { status: 500 });
+    }
 
-    return NextResponse.json(messages)
+    return Response.json({ messages });
   } catch (error) {
-    console.error("Error fetching messages:", error)
-    return NextResponse.json(
-      {
-        error: "Failed to fetch chat messages",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 },
-    )
+    console.error("Error fetching chat messages:", error);
+    return Response.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }
 
