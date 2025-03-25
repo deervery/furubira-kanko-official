@@ -25,6 +25,7 @@ export function Footer() {
                 { text: "イベント", path: "/events" },
                 { text: "買い物", path: "/shopping" },
                 { text: "アクセス", path: "/access" },
+                { text: "ふるさと納税", path: "/furusato" },
               ].map(({ text, path }) => (
                 <div key={path}>
                   <Link href={path} className="text-sm text-gray-400 hover:text-primary transition-colors">
