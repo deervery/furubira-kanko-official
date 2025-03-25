@@ -1,66 +1,70 @@
-import { streamText } from "ai"
-import { openai } from "@ai-sdk/openai"
-import { supabase } from "@/lib/supabase"
-import type { NextRequest } from "next/server"
+import { OpenAI } from "openai";
+import { supabase } from "@/lib/supabase";
+import type { NextRequest } from "next/server";
+import furubiraInfo from "@/scripts/furubira_info.json";
 
-const SYSTEM_PROMPT_JP = `
-  あなたは古平町の観光案内アシスタントです。最後は「♪」で終えてください。
-`
+// OpenAI APIのインスタンスを作成
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY // 環境変数から取得
+});
 
 export async function POST(request: NextRequest) {
-  const { content, sessionId, stream = true } = await request.json()
-  if (!content || !sessionId) 
-    return Response.json({ error: "ContentとsessionIdは必須です" }, { status: 400 })
+  const { content, sessionId } = await request.json();
 
-  await saveChat({ content, role: "user", sessionId })
-  const history = await fetchChatHistory(sessionId)
-  const messages = [{ role: "system", content: SYSTEM_PROMPT_JP }, ...history]
-
-  const { data: infos } = await supabase.from("furubira_info").select("title,content,embedding")
-  if (infos?.length) await appendRelevantInfo(messages, content, infos)
-
-  const result = streamText({ model: openai("gpt-4o"), messages })
-  if (!stream) {
-    const text = await result.text
-    await saveChat({ content: text, role: "assistant", sessionId })
-    return Response.json({ text })
+  if (!content || !sessionId) {
+    return Response.json({ error: "ContentとsessionIdは必須です" }, { status: 400 });
   }
-  result.text.then(text => saveChat({ content: text, role: "assistant", sessionId }))
-  return result.toTextStreamResponse()
-}
 
-async function appendRelevantInfo(messages: any[], query: string, infos: any[]) {
+  await saveChat({ content, role: "user", sessionId });
+
+  // システムプロンプトを設定
+  const furubira_info = JSON.stringify(furubiraInfo);
+
+  // 型を明示的に指定
+  const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+    {
+      role: "system",
+      content: `
+        文体を「だよ。」「なのかもしれないね。」「するのはどう？」「おすすめ！」「♪」（最終段落、文末のみ）にして。
+        出来るだけ最小のアウトプットにして。もし必要であれば最大5文くらいにして。
+        以下の情報を参考にしてください: ${furubira_info}
+      `
+    },
+    {
+      role: "user",
+      content: content
+    }
+  ];
+
   try {
-    const userEmbedding = (await openai.embedding("text-embedding-ada-002").doEmbed({ values: [query] })).embeddings[0]
-    let best: { info: { title: string; content: string; embedding: any } | null; sim: number } = { info: null, sim: 0 }
+    // OpenAI APIにリクエスト
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini", // モデルの指定（正しいことは確認済み）
+      messages: messages as any, // 型の適合を強制
+      temperature: 0.7
+    });
 
-    for (const info of infos) {
-      const dbEmbed = typeof info.embedding === "string" ? JSON.parse(info.embedding) : info.embedding
-      const sim = cosineSimilarity(userEmbedding, dbEmbed)
-      if (sim > best.sim) best = { info, sim }
-    }
+    const text = response.choices[0]?.message?.content || "";
 
-    if (best.info && best.sim > 0.75) {
-      messages.push({ role: "system", content: `【関連情報】\n${best.info.title}\n${best.info.content}` })
-    }
-  } catch {
-    // 無視
+    // 結果をSupabaseに保存
+    await saveChat({ content: text, role: "assistant", sessionId });
+
+    // 文字列として返す
+    return new Response(text);
+  } catch (error) {
+    console.error("OpenAI API エラー:", error);
+    return Response.json({ error: "OpenAI API呼び出しでエラーが発生しました" }, { status: 500 });
   }
 }
 
-function cosineSimilarity(a: number[], b: number[]) {
-  if (a.length !== b.length) return 0
-  const dot = a.reduce((s, v, i) => s + v * b[i], 0)
-  const norm = (v: number[]) => Math.sqrt(v.reduce((s, x) => s + x*x, 0))
-  const denom = norm(a) * norm(b)
-  return denom ? dot / denom : 0
-}
-
+// チャット履歴を保存
 async function saveChat(entry: { content: string; role: string; sessionId: string }) {
-  await supabase.from("chat").insert({ ...entry, timestamp: new Date().toISOString() })
-}
+  const { error } = await supabase.from("chat").insert({
+    ...entry,
+    timestamp: new Date().toISOString()
+  });
 
-async function fetchChatHistory(sessionId: string) {
-  const { data } = await supabase.from("chat").select("role,content").eq("sessionId", sessionId).order("timestamp")
-  return data?.map(({ role, content }) => ({ role, content })) ?? []
+  if (error) {
+    console.error("Supabaseエラー:", error);
+  }
 }
