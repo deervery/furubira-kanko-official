@@ -119,17 +119,19 @@ export function HomeClient({ tourData }: HomeClientProps) {
       <div ref={heroRef} className="relative h-screen">
         <div className="absolute inset-0 bg-black/50 z-10" />
         <div className="absolute inset-0 w-full h-full">
-          <Image
-            src={ heroBg }
-            alt="獅子舞の火渡り"
-            fill
-            className="object-cover"
-            priority
-            onError={(e) => {
-              const target = e.target as HTMLImageElement
-              target.src = "/setakamuy.png?height=1080&width=1920"
-            }}
-          />
+          {heroBg && (
+            <Image
+              src={heroBg}
+              alt="獅子舞の火渡り"
+              fill
+              className="object-cover"
+              priority
+              onError={(e) => {
+                const target = e.target as HTMLImageElement
+                target.src = "/setakamuy.png?height=1080&width=1920"
+              }}
+            />
+          )}
         </div>
         <div className="relative z-20 h-full flex flex-col items-center justify-center pr-0">
           <h1 className="writing-vertical-rl text-6xl font-bold mb-4 text-white drop-shadow-lg h-[400px]">
