@@ -120,7 +120,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
         <div className="absolute inset-0 bg-black/50 z-10" />
         <div className="absolute inset-0 w-full h-full">
           <Image
-            src={heroBg || "/setakamuy.png?height=1080&width=1920"}
+            src={ heroBg }
             alt="獅子舞の火渡り"
             fill
             className="object-cover"

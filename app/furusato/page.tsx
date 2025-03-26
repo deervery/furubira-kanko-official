@@ -19,28 +19,28 @@ const furusatoSites = [
     id: "rakuten",
     name: "楽天ふるさと納税",
     description: "楽天ポイントが貯まる・使えるふるさと納税サイト。",
-    url: "https://www.rakuten.co.jp/f014060-furubira/",
+    url: "https://www.rakuten.co.jp/f014061-furubira/?s-id=furusato_pc_area-hokkaido_f014061-furubira",
     logo: "/furusato/rakuten.png",
   },
   {
     id: "satofull",
     name: "さとふる",
     description: "手数料無料、専門コンシェルジュによるサポートが特徴のふるさと納税サイト。",
-    url: "https://www.satofull.jp/city-furubira-hokkaido/",
+    url: "https://www.satofull.jp/products/list.php?s4=%E5%8C%97%E6%B5%B7%E9%81%93&s3=%E5%8F%A4%E5%B9%B3%E7%94%BA://www.satofull.jp/city-furubira-hokkaido/",
     logo: "/furusato/satofull.png",
   },
   {
     id: "ana",
     name: "ANAのふるさと納税",
     description: "ANAのマイルが貯まるふるさと納税サイト。",
-    url: "https://furusato.ana.co.jp/products/list.php?area_id=1&pref_id=1&city_id=406",
+    url: "https://furusato.ana.co.jp/donation/top/01406",
     logo: "/furusato/ana.png",
   },
   {
     id: "furunavi",
     name: "ふるなび",
     description: "ふるさと納税をもっと身近に、もっと簡単に。",
-    url: "https://furunavi.jp/city_town.aspx?CityID=406",
+    url: "https://furunavi.jp/Municipal/Product/Search?municipalid=69",
     logo: "/furusato/furunavi.png",
   },
 ]
@@ -75,28 +75,24 @@ export default function Furusato() {
 
         <div className="grid gap-6 md:grid-cols-2">
           {furusatoSites.map((site) => (
-            <Card key={site.id} className="border-primary/20 hover:border-primary transition-colors">
+            <Card key={site.id} className="border-primary/20 hover:border-primary transition-colors overflow-hidden">
+              <div className="relative w-full h-[180px] bg-white">
+                <Image
+                  src={site.logo}
+                  alt={`${site.name}のロゴ`}
+                  fill
+                  className="object-cover w-full"
+                  priority
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement
+                  }}
+                />
+              </div>
               <CardContent className="p-6">
                 <div className="flex flex-col h-full">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="relative w-16 h-16 flex-shrink-0">
-                      <Image
-                        src={site.logo}
-                        alt={`${site.name}のロゴ`}
-                        fill
-                        className="object-contain"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-xl">{site.name}</h3>
-                    </div>
-                  </div>
-
+                  <h3 className="font-bold text-xl mb-4">{site.name}</h3>
                   <p className="text-gray-600 mb-4 flex-grow">{site.description}</p>
-
                   <Link
                     href={site.url}
                     target="_blank"
