@@ -10,7 +10,30 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "古平町観光協会",
   description: "北海道古平町の観光情報サイト",
-  generator: 'v0.dev'
+  generator: 'v0.dev',
+  openGraph: {
+    title: "古平町観光協会 | 熱く燃ゆる町",
+    description: "北海道古平町の観光情報サイト。天狗の火渡りや新鮮な海産物、温泉、宿泊施設など、古平町の魅力的な観光スポットをご紹介します。",
+    url: "https://curl-furubira.com",  // 自分のサイトURL
+    siteName: "古平町観光協会",
+    images: [
+      {
+        url: "/ogp.jpg",
+        width: 1200,
+        height: 630,
+        alt: "OGP Image",
+      },
+    ],
+    locale: "ja_JP",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "古平町観光協会",
+    description: "北海道古平町の観光情報サイト",
+    images: ["/ogp.jpg"],
+    site: "@your_twitter_handle",
+  },
 }
 
 export default function RootLayout({
