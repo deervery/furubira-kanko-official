@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/hooks/use-toast"
-import { Loader2, Plus, Pencil, Trash2 } from "lucide-react"
+import { Loader2, Plus, Pencil, Trash2, GripVertical } from "lucide-react"
 import { ShopForm } from "@/components/admin/shop-form"
 import {
   AlertDialog,
@@ -19,39 +19,123 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core"
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 
 type Shop = {
   id: string
   name: string
   description: string
-  type: string
   image_path?: string
   icon: string
+  url?: string
+  display_order: number
+  type: string
+}
+
+const SortableRow = ({ shop, onEdit, onDelete }: { shop: Shop; onEdit: (shop: Shop) => void; onDelete: (id: string) => void }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: shop.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <TableRow ref={setNodeRef} style={style} className={isDragging ? "bg-gray-100" : ""}>
+      <TableCell className="w-10">
+        <button {...attributes} {...listeners} className="cursor-grab">
+          <GripVertical className="h-4 w-4 text-gray-500" />
+        </button>
+      </TableCell>
+      <TableCell>{shop.name}</TableCell>
+      <TableCell>{shop.description}</TableCell>
+      <TableCell className="text-right">
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" size="icon" onClick={() => onEdit(shop)}>
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>削除の確認</AlertDialogTitle>
+                <AlertDialogDescription>
+                  このショップを削除してもよろしいですか？
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDelete(shop.id)}>
+                  削除
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </TableCell>
+    </TableRow>
+  )
 }
 
 export function ShopsList() {
   const [shops, setShops] = useState<Shop[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [editingShop, setEditingShop] = useState<Shop | null>(null)
   const { toast } = useToast()
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
+
   const fetchShops = async () => {
-    setIsLoading(true)
     try {
-      const { data, error } = await supabase.from("shops").select("*").order("name")
+      const { data, error } = await supabase
+        .from("shops")
+        .select("*")
+        .order("display_order", { ascending: true })
 
       if (error) throw error
-
       setShops(data || [])
-    } catch (error: any) {
+    } catch (error) {
+      console.error("Error fetching shops:", error)
       toast({
         title: "エラー",
-        description: error.message || "買い物スポットの取得に失敗しました",
+        description: "ショップの取得に失敗しました",
         variant: "destructive",
       })
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
@@ -61,113 +145,131 @@ export function ShopsList() {
 
   const handleEdit = (shop: Shop) => {
     setEditingShop(shop)
-    setIsFormOpen(true)
   }
 
   const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase.from("shops").delete().eq("id", id)
-
       if (error) throw error
-
+      setShops(shops.filter((shop) => shop.id !== id))
       toast({
-        title: "削除成功",
-        description: "買い物スポットを削除しました",
+        title: "成功",
+        description: "ショップを削除しました",
       })
-
-      fetchShops()
-    } catch (error: any) {
+    } catch (error) {
+      console.error("Error deleting shop:", error)
       toast({
-        title: "削除エラー",
-        description: error.message || "買い物スポットの削除に失敗しました",
+        title: "エラー",
+        description: "ショップの削除に失敗しました",
         variant: "destructive",
       })
     }
   }
 
-  const handleFormClose = (refreshData = false) => {
-    setIsFormOpen(false)
-    setEditingShop(null)
-    if (refreshData) {
-      fetchShops()
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (!over || active.id === over.id) return
+
+    const oldIndex = shops.findIndex((shop) => shop.id === active.id)
+    const newIndex = shops.findIndex((shop) => shop.id === over.id)
+
+    const newShops = arrayMove(shops, oldIndex, newIndex)
+    setShops(newShops)
+
+    // 表示順序を更新
+    try {
+      // 全てのアイテムのdisplay_orderを更新
+      const updates = newShops.map((shop, index) => ({
+        id: shop.id,
+        display_order: index,
+        // 既存のデータを保持
+        name: shop.name,
+        description: shop.description,
+        image_path: shop.image_path,
+        icon: shop.icon,
+        url: shop.url,
+        type: shop.type
+      }))
+
+      const { error } = await supabase.from("shops").upsert(updates)
+      if (error) throw error
+
+      toast({
+        title: "成功",
+        description: "表示順序を更新しました",
+      })
+    } catch (error) {
+      console.error("Error updating display order:", error)
+      toast({
+        title: "エラー",
+        description: "表示順序の更新に失敗しました",
+        variant: "destructive",
+      })
     }
   }
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    )
+  }
+
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">買い物スポット管理</h2>
-        <Button onClick={() => setIsFormOpen(true)}>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">ショップ一覧</h2>
+        <Button onClick={() => setEditingShop({} as Shop)}>
           <Plus className="h-4 w-4 mr-2" />
           新規作成
         </Button>
       </div>
 
       <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="flex justify-center items-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : (
+        <CardContent className="p-6">
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-10"></TableHead>
                   <TableHead>名前</TableHead>
                   <TableHead>説明</TableHead>
-                  <TableHead>種類</TableHead>
-                  <TableHead>アクション</TableHead>
+                  <TableHead className="text-right">操作</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {shops.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center py-4">
-                      買い物スポットがありません
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  shops.map((shop) => (
-                    <TableRow key={shop.id}>
-                      <TableCell className="font-medium">{shop.name}</TableCell>
-                      <TableCell className="max-w-xs truncate">{shop.description}</TableCell>
-                      <TableCell>{shop.type}</TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button variant="ghost" size="icon" onClick={() => handleEdit(shop)}>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>本当に削除しますか？</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  この操作は元に戻せません。「{shop.name}」を削除します。
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(shop.id)}>削除</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
+                <SortableContext items={shops.map((shop) => shop.id)} strategy={verticalListSortingStrategy}>
+                  {shops.map((shop) => (
+                    <SortableRow
+                      key={shop.id}
+                      shop={shop}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </SortableContext>
               </TableBody>
             </Table>
-          )}
+          </DndContext>
         </CardContent>
       </Card>
 
-      {isFormOpen && <ShopForm shop={editingShop} onClose={handleFormClose} />}
+      {editingShop && (
+        <ShopForm
+          shop={editingShop}
+          onClose={() => setEditingShop(null)}
+          onSave={() => {
+            setEditingShop(null)
+            fetchShops()
+          }}
+        />
+      )}
     </div>
   )
 }

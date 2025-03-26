@@ -7,21 +7,58 @@ import Image from "next/image"
 import type { AccommodationType } from "@/lib/site-data"
 import Link from "next/link"
 import { renderIcon } from "@/lib/icon-utils"
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
 
 interface AccommodationsClientProps {
   accommodationsData: AccommodationType[]
 }
 
 export function AccommodationsClient({ accommodationsData }: AccommodationsClientProps) {
+  const [accommodations, setAccommodations] = useState<AccommodationType[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchAccommodations = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("accommodations")
+          .select("*")
+          .order("display_order", { ascending: true })
+
+        if (error) throw error
+
+        setAccommodations(data)
+      } catch (error) {
+        console.error("Error fetching accommodations:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchAccommodations()
+  }, [])
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl font-bold mb-8 text-center">宿泊施設</h1>
+          <div className="text-center">読み込み中...</div>
+        </div>
+      </Layout>
+    )
+  }
+
   return (
     <Layout>
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold mb-8 text-center">宿泊施設</h1>
         <div className="grid gap-6 md:grid-cols-2">
-          {accommodationsData.length === 0 ? (
+          {accommodations.length === 0 ? (
             <p className="text-center col-span-2">宿泊施設がありません</p>
           ) : (
-            accommodationsData.map((accommodation) => (
+            accommodations.map((accommodation) => (
               <Card key={accommodation.id} className="shadow-lg">
                 <CardContent className="p-6 grid md:grid-cols-2 gap-6">
                   <div>

@@ -7,21 +7,58 @@ import Image from "next/image"
 import type { RestaurantType } from "@/lib/site-data"
 import Link from "next/link"
 import { renderIcon } from "@/lib/icon-utils"
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
 
 interface DiningClientProps {
   restaurantsData: RestaurantType[]
 }
 
 export function DiningClient({ restaurantsData }: DiningClientProps) {
+  const [restaurants, setRestaurants] = useState<RestaurantType[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("restaurants")
+          .select("*")
+          .order("display_order", { ascending: true })
+
+        if (error) throw error
+
+        setRestaurants(data)
+      } catch (error) {
+        console.error("Error fetching restaurants:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchRestaurants()
+  }, [])
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl font-bold mb-8 text-center">飲食店</h1>
+          <div className="text-center">読み込み中...</div>
+        </div>
+      </Layout>
+    )
+  }
+
   return (
     <Layout>
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold mb-8 text-center">飲食店</h1>
         <div className="grid gap-6 md:grid-cols-2">
-          {restaurantsData.length === 0 ? (
+          {restaurants.length === 0 ? (
             <p className="text-center col-span-2">飲食店がありません</p>
           ) : (
-            restaurantsData.map((restaurant) => (
+            restaurants.map((restaurant) => (
               <Card key={restaurant.id} className="shadow-lg">
                 <CardContent className="p-6 grid md:grid-cols-2 gap-6">
                   <div>

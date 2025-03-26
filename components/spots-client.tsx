@@ -7,14 +7,51 @@ import Image from "next/image"
 import type { SpotType } from "@/lib/site-data"
 import Link from "next/link"
 import { renderIcon } from "@/lib/icon-utils"
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
 
 interface SpotsClientProps {
   spotsData: SpotType[]
 }
 
 export function SpotsClient({ spotsData }: SpotsClientProps) {
+  const [spots, setSpots] = useState<SpotType[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchSpots = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("spots")
+          .select("*")
+          .order("display_order", { ascending: true })
+
+        if (error) throw error
+
+        setSpots(data)
+      } catch (error) {
+        console.error("Error fetching spots:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSpots()
+  }, [])
+
   const openGoogleMaps = (name: string, address: string) => {
     window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + " " + address)}`, "_blank")
+  }
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl font-bold mb-8 text-center">観光スポット</h1>
+          <div className="text-center">読み込み中...</div>
+        </div>
+      </Layout>
+    )
   }
 
   return (
@@ -22,10 +59,10 @@ export function SpotsClient({ spotsData }: SpotsClientProps) {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold mb-8 text-center">観光スポット</h1>
         <div className="grid gap-6 md:grid-cols-2">
-          {spotsData.length === 0 ? (
+          {spots.length === 0 ? (
             <p className="text-center col-span-2">観光スポットがありません</p>
           ) : (
-            spotsData.map((spot) => (
+            spots.map((spot) => (
               <Card key={spot.id} className="border-primary/20">
                 <CardContent className="p-6 grid md:grid-cols-2 gap-6">
                   <div>
