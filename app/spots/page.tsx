@@ -1,9 +1,22 @@
-import { getSpots } from "@/lib/cms-service"
-import { SpotsClient } from "@/components/spots-client"
+"use client"
 
-export default async function Spots() {
-  const spotsData = await getSpots()
+import { ItemListClient } from "@/components/item-list-client"
+import type { SpotType } from "@/lib/types"
 
-  return <SpotsClient spotsData={spotsData} />
+export default function SpotsPage() {
+  const renderExtra = (spot: SpotType) => (
+    <>
+      {spot.address && <p className="text-sm text-gray-500">{spot.address}</p>}
+      {spot.facilities && <p className="text-sm text-gray-500 mt-2">施設：{spot.facilities}</p>}
+    </>
+  )
+
+  return (
+    <ItemListClient<SpotType>
+      title="観光スポット"
+      tableName="spots"
+      renderExtra={renderExtra}
+    />
+  )
 }
 

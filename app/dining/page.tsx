@@ -1,9 +1,14 @@
-import { getRestaurants } from "@/lib/cms-service"
-import { DiningClient } from "@/components/dining-client"
+"use client"
 
-export default async function Dining() {
-  const restaurantsData = await getRestaurants()
+import { ItemListClient } from "@/components/item-list-client"
+import type { RestaurantType } from "@/lib/types"
 
-  return <DiningClient restaurantsData={restaurantsData} />
+export default function DiningPage() {
+  return (
+    <ItemListClient<RestaurantType>
+      title="飲食店"
+      tableName="restaurants"
+    />
+  )
 }
 

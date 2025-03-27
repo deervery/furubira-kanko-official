@@ -1,54 +1,13 @@
 import { Utensils, BedDouble, MapPin, Coffee, ShoppingBag, Calendar } from "lucide-react"
 import type React from "react"
+import type { SpotType, RestaurantType, AccommodationType, EventType, ShopType } from "./types"
 
-// 将来的にSupabase CMSから取得するデータ構造
-export type SpotType = {
-  id: string
-  name: string
-  description: string
-  address?: string
-  facilities?: string
-  image: string
-  icon: React.ReactNode
-  url?: string
-}
-
-export type RestaurantType = {
-  id: string
-  name: string
-  description: string
-  image: string
-  icon: React.ReactNode
-  url?: string
-}
-
-export type AccommodationType = {
-  id: string
-  name: string
-  description: string
-  image: string
-  icon: React.ReactNode
-  url?: string
-}
-
-export type EventType = {
-  id: string
-  name: string
-  description: string
-  date: string
-  image: string
-  icon: React.ReactNode
-  url?: string
-}
-
-export type ShopType = {
-  id: string
-  name: string
-  description: string
-  type: string
-  image: string
-  icon: React.ReactNode
-  url?: string
+export type {
+  SpotType,
+  RestaurantType,
+  AccommodationType,
+  EventType,
+  ShopType,
 }
 
 // 観光スポットデータ

@@ -1,9 +1,14 @@
-import { getAccommodations } from "@/lib/cms-service"
-import { AccommodationsClient } from "@/components/accommodations-client"
+"use client"
 
-export default async function Accommodations() {
-  const accommodationsData = await getAccommodations()
+import { ItemListClient } from "@/components/item-list-client"
+import type { AccommodationType } from "@/lib/types"
 
-  return <AccommodationsClient accommodationsData={accommodationsData} />
+export default function AccommodationsPage() {
+  return (
+    <ItemListClient<AccommodationType>
+      title="宿泊施設"
+      tableName="accommodations"
+    />
+  )
 }
 
