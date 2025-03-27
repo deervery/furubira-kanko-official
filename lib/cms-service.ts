@@ -151,7 +151,7 @@ export async function getTourData() {
 
       tourData[category.key] = {
         title: category.title,
-        timeRange: category.time_range,
+        timeRange: category.name,
         items,
       }
     })

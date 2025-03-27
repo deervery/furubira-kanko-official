@@ -1,75 +1,34 @@
 "use client"
 
-import { useAuth } from "@/lib/auth-provider"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AdminHeader } from "@/components/admin/admin-header"
-import { SpotsList } from "@/components/admin/spots-list"
-import { RestaurantsList } from "@/components/admin/restaurants-list"
-import { AccommodationsList } from "@/components/admin/accommodations-list"
-import { EventsList } from "@/components/admin/events-list"
-import { ShopsList } from "@/components/admin/shops-list"
-import { TourCategoriesList } from "@/components/admin/tour-categories-list"
-import { SystemMessageForm } from "@/components/admin/system-message-form"
+import { Card, CardContent } from "@/components/ui/card"
+import Link from "next/link"
+import { MapPin, Coffee, BedDouble, ShoppingBag, Calendar, ListTodo } from "lucide-react"
+
+const adminLinks = [
+  { href: "/admin/spots", icon: MapPin, text: "観光スポット管理" },
+  { href: "/admin/restaurants", icon: Coffee, text: "飲食店管理" },
+  { href: "/admin/accommodations", icon: BedDouble, text: "宿泊施設管理" },
+  { href: "/admin/shops", icon: ShoppingBag, text: "買い物管理" },
+  { href: "/admin/events", icon: Calendar, text: "イベント管理" },
+  { href: "/admin/tour-categories", icon: ListTodo, text: "ツアーカテゴリ管理" },
+]
 
 export default function AdminDashboard() {
-  const { user } = useAuth()
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AdminHeader />
-
-      <main className="container mx-auto py-6 px-4">
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>管理者ダッシュボード</CardTitle>
-            <CardDescription>古平町観光協会のウェブサイトコンテンツを管理します</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p>ログイン中: {user?.email}</p>
-          </CardContent>
-        </Card>
-
-        <Tabs defaultValue="spots">
-          <TabsList className="mb-4">
-            <TabsTrigger value="spots">観光スポット</TabsTrigger>
-            <TabsTrigger value="restaurants">飲食店</TabsTrigger>
-            <TabsTrigger value="accommodations">宿泊施設</TabsTrigger>
-            <TabsTrigger value="events">イベント</TabsTrigger>
-            <TabsTrigger value="shops">買い物</TabsTrigger>
-            <TabsTrigger value="tour-categories">ツアーカテゴリ</TabsTrigger>
-            <TabsTrigger value="system-message">システムメッセージ</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="spots">
-            <SpotsList />
-          </TabsContent>
-
-          <TabsContent value="restaurants">
-            <RestaurantsList />
-          </TabsContent>
-
-          <TabsContent value="accommodations">
-            <AccommodationsList />
-          </TabsContent>
-
-          <TabsContent value="events">
-            <EventsList />
-          </TabsContent>
-
-          <TabsContent value="shops">
-            <ShopsList />
-          </TabsContent>
-
-          <TabsContent value="tour-categories">
-            <TourCategoriesList />
-          </TabsContent>
-
-          <TabsContent value="system-message">
-            <SystemMessageForm />
-          </TabsContent>
-        </Tabs>
-      </main>
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-8">管理ダッシュボード</h1>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {adminLinks.map((link) => (
+          <Link key={link.href} href={link.href}>
+            <Card className="hover:bg-gray-50 transition-colors">
+              <CardContent className="flex items-center gap-4 p-6">
+                <link.icon className="h-6 w-6" />
+                <span className="text-lg font-medium">{link.text}</span>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
     </div>
   )
 }

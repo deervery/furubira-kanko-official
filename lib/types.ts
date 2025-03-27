@@ -23,4 +23,9 @@ export interface AccommodationType extends BaseItemType {}
 
 export interface EventType extends BaseItemType {
   date: string
+}
+
+export interface TourCategoryType extends BaseItemType {
+  key: string
+  name: string
 } 

@@ -5,6 +5,7 @@ import type React from "react"
 import { useAuth } from "@/lib/auth-provider"
 import { usePathname } from "next/navigation"
 import { Loader2 } from "lucide-react"
+import { AdminHeader } from "@/components/admin/admin-header"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { isLoading, user } = useAuth()
@@ -28,6 +29,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return null // AuthProviderがリダイレクトを処理するため
   }
 
-  return <>{children}</>
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <AdminHeader />
+      <main className="container mx-auto py-8">
+        {children}
+      </main>
+    </div>
+  )
 }
 
