@@ -190,13 +190,13 @@ export function HomeClient({ tourData }: HomeClientProps) {
 
           <Card className="rounded-lg shadow-lg w-full">
             <CardContent className="p-2 md:p-8 space-y-8 md:space-y-12">
-              {Object.entries(tourData).map(([category, { title, timeRange, items }]: [string, any]) => {
+              {Object.entries(tourData).map(([category, { name, description, items }]: [string, any]) => {
                 const randomStartIndex = Math.floor(Math.random() * items.length)
                 return (
                   <div key={category}>
                     <div className="mb-4 md:mb-6 px-2">
-                      <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1 md:mb-2">{title}</h3>
-                      <p className="text-s md:text-sm text-gray-500">{timeRange}</p>
+                      <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1 md:mb-2">{name}</h3>
+                      <p className="text-s md:text-sm text-gray-500">{description}</p>
                     </div>
                     <div className="relative w-full">
                       <Carousel

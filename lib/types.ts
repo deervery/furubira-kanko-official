@@ -1,4 +1,5 @@
 export interface BaseItemType {
+  image_path: string
   id: string
   name: string
   description: string

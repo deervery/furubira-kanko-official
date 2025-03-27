@@ -253,7 +253,7 @@ export function ItemsList<T extends BaseItemType>({
         <FormComponent
           item={editingItem}
           onClose={() => {
-            setEditingItem(undefined)
+            setEditingItem(null)
             fetchItems()
           }}
         />

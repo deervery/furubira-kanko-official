@@ -16,12 +16,18 @@ export default function SpotsAdminPage() {
     </>
   )
 
-  const renderExtraFields = ({ item, register }: { 
-    item: SpotType | null,
-    register: (value: string, setter: (value: string) => void) => any
+  const renderExtraFields = ({ 
+    item, 
+    register 
+  }: { 
+    item: SpotType | null
+    register: <V>(value: V, setter: (value: V) => void) => {
+      value: V
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+    }
   }) => {
-    const [address, setAddress] = useState(item?.address || "")
-    const [facilities, setFacilities] = useState(item?.facilities || "")
+    const [address, setAddress] = useState(item?.address ?? "")
+    const [facilities, setFacilities] = useState(item?.facilities ?? "")
 
     return (
       <>

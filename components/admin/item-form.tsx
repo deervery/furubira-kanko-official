@@ -21,10 +21,17 @@ interface ItemFormProps<T extends BaseItemType> {
   tableName: string
   defaultIcon?: string
   storageFolder: string
-  renderExtraFields?: (props: {
+  renderExtraFields?: ({
+    item,
+    register,
+  }: {
     item: T | null
-    register: (value: string, setter: (value: string) => void) => any
+    register: <V>(value: V, setter: (value: V) => void) => {
+      value: V
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+    }
   }) => React.ReactNode
+  nameField?: string
 }
 
 const iconOptions = [
@@ -45,6 +52,7 @@ export function ItemForm<T extends BaseItemType>({
   defaultIcon = "MapPin",
   storageFolder,
   renderExtraFields,
+  nameField,
 }: ItemFormProps<T>) {
   const [name, setName] = useState(item?.name || "")
   const [description, setDescription] = useState(item?.description || "")
@@ -90,9 +98,9 @@ export function ItemForm<T extends BaseItemType>({
     }
   }
 
-  const register = (value: string, setter: (value: string) => void) => ({
+  const register = <T,>(value: T, setter: (value: T) => void) => ({
     value,
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setter(e.target.value)
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setter(e.target.value as T)
   })
 
   const handleSubmit = async () => {
