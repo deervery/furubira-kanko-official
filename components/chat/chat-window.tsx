@@ -228,9 +228,16 @@ export function ChatWindow() {
           <ChatMessage key={msg.id} message={msg} />
         ))}
         {isThinking && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            考え中...
+          <div className="flex flex-col items-center mb-4">
+            <img 
+              src="/furuppy.gif" 
+              alt="考え中" 
+              className="w-48 h-48 object-contain mb-2"
+            />
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              考え中...
+            </div>
           </div>
         )}
       </ScrollArea>
