@@ -54,7 +54,7 @@ export const Header = () => {
                 className="object-contain"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement
-                  target.src = "/setakamuy.png?height=32&width=32"
+                  target.src = "/no_photo.jpg?height=32&width=32"
                 }}
               />
             </div>

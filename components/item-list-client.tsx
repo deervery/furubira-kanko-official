@@ -39,7 +39,7 @@ export function ItemListClient<T extends BaseItemType>({
           ...item,
           image: item.image_path 
             ? supabase.storage.from("cms-images").getPublicUrl(item.image_path).data.publicUrl
-            : "/setakamuy.png?height=300&width=400"
+            : "/no_photo.jpg?height=300&width=400"
         }))
 
         setItems(itemsWithImages)
@@ -98,7 +98,7 @@ export function ItemListClient<T extends BaseItemType>({
                       className="object-cover"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement
-                        target.src = "/setakamuy.png?height=300&width=400"
+                        target.src = "/no_photo.jpg?height=300&width=400"
                       }}
                     />
                   </div>

@@ -35,7 +35,7 @@ export const spotsData: SpotType[] = [
       "地元の新鮮な海産物や特産品を販売。レストランでは地元の食材を使用した料理を提供。観光情報コーナーも併設。",
     address: "古平町新地町41-1",
     facilities: "駐車場、トイレ、レストラン、物産販売所",
-    image: "/setakamuy.png",
+    image: "/no_photo.jpg",
     icon: <MapPin className="h-5 w-5 text-primary" />,
   },
 ]
@@ -78,14 +78,14 @@ export const accommodationsData: AccommodationType[] = [
     id: "chuo",
     name: "中央旅館",
     description: "古平町の中心にある、あたたかな雰囲気の旅館。",
-    image: "/setakamuy.png",
+    image: "/no_photo.jpg",
     icon: <BedDouble className="h-5 w-5 text-primary" />,
   },
   {
     id: "hori",
     name: "民宿ほり",
     description: "地元の食材を活かしたアットホームな家庭料理が特徴。",
-    image: "/setakamuy.png",
+    image: "/no_photo.jpg",
     icon: <BedDouble className="h-5 w-5 text-primary" />,
   },
   {
@@ -119,7 +119,7 @@ export const eventsData: EventType[] = [
     name: "ふるびらブルーマルシェ",
     description: "地元産品が集まる青空市。",
     date: "6月開催",
-    image: "/setakamuy.png",
+    image: "/no_photo.jpg",
     icon: <Calendar className="h-5 w-5 text-primary" />,
   },
   {

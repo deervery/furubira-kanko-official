@@ -128,7 +128,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
               priority
               onError={(e) => {
                 const target = e.target as HTMLImageElement
-                target.src = "/setakamuy.png?height=1080&width=1920"
+                target.src = "/no_photo.jpg?height=1080&width=1920"
               }}
             />
           )}
@@ -167,7 +167,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
                   className="object-cover"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement
-                    target.src = "/setakamuy.png?height=800&width=600"
+                    target.src = "/no_photo.jpg?height=800&width=600"
                   }}
                 />
               </div>
@@ -232,13 +232,13 @@ export function HomeClient({ tourData }: HomeClientProps) {
                                   </div>
                                   <div className="aspect-video rounded-lg overflow-hidden relative">
                                     <Image
-                                      src={item.image || "/setakamuy.png"}
+                                      src={item.image || "/no_photo.jpg"}
                                       alt={item.name}
                                       fill
                                       className="object-cover"
                                       onError={(e) => {
                                         const target = e.target as HTMLImageElement
-                                        target.src = "/setakamuy.png?height=300&width=400"
+                                        target.src = "/no_photo.jpg?height=300&width=400"
                                       }}
                                     />
                                   </div>
@@ -337,7 +337,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
                   className="object-cover"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement
-                    target.src = "/setakamuy.png?height=96&width=360"
+                    target.src = "/no_photo.jpg?height=96&width=360"
                   }}
                 />
               </div>

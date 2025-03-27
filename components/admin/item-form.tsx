@@ -259,7 +259,7 @@ export function ItemForm<T extends BaseItemType>({
                   className="object-contain"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement
-                    target.src = "/setakamuy.png?height=200&width=300"
+                    target.src = "/no_photo.jpg?height=200&width=300"
                   }}
                 />
               </div>

@@ -9,7 +9,7 @@ export function getIconComponent(iconName: string): string {
 
 // 画像パスからURLを取得する関数
 export function getImageUrl(imagePath: string | null | undefined): string {
-  if (!imagePath) return "/setakamuy.png"
+  if (!imagePath) return "/no_photo.jpg"
   return supabase.storage.from("cms-images").getPublicUrl(imagePath).data.publicUrl
 }
 
