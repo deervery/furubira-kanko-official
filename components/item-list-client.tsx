@@ -33,7 +33,16 @@ export function ItemListClient<T extends BaseItemType>({
           .order("display_order", { ascending: true })
 
         if (error) throw error
-        setItems(data)
+
+        // 画像URLを取得して各アイテムに追加
+        const itemsWithImages = data.map(item => ({
+          ...item,
+          image: item.image_path 
+            ? supabase.storage.from("cms-images").getPublicUrl(item.image_path).data.publicUrl
+            : "/setakamuy.png?height=300&width=400"
+        }))
+
+        setItems(itemsWithImages)
       } catch (error) {
         console.error(`Error fetching ${tableName}:`, error)
       } finally {
