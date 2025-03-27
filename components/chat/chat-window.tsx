@@ -37,8 +37,11 @@ export function ChatWindow() {
         if (!response.ok) throw new Error("Failed to load messages")
         const data = await response.json()
 
+        // データが配列でない場合は空配列として扱う
+        const messagesArray = Array.isArray(data) ? data : []
+
         // Ensure each message has the required properties
-        const validMessages = data
+        const validMessages = messagesArray
           .filter((msg: any) => msg && typeof msg.role === "string" && typeof msg.content === "string")
           .map((msg: any) => ({
             id: msg.id || nanoid(),

@@ -76,9 +76,10 @@ export function ItemsList<T extends BaseItemType>({
   renderExtraColumns,
   orderBy = "display_order"
 }: ItemsListProps<T>) {
+  const [showForm, setShowForm] = useState(false)
   const [items, setItems] = useState<T[]>([])
   const [loading, setLoading] = useState(true)
-  const [editingItem, setEditingItem] = useState<T | null>(null)
+  const [selectedItem, setSelectedItem] = useState<T | null>(null)
   const { toast } = useToast()
 
   const sensors = useSensors(
@@ -113,8 +114,22 @@ export function ItemsList<T extends BaseItemType>({
     fetchItems()
   }, [])
 
+  const handleCloseForm = (refreshData?: boolean) => {
+    setShowForm(false)
+    setSelectedItem(null)
+    if (refreshData) {
+      fetchItems()
+    }
+  }
+
+  const handleCreateNew = () => {
+    setSelectedItem(null)
+    setShowForm(true)
+  }
+
   const handleEdit = (item: T) => {
-    setEditingItem(item)
+    setSelectedItem(item)
+    setShowForm(true)
   }
 
   const handleDelete = async (id: string) => {
@@ -179,84 +194,82 @@ export function ItemsList<T extends BaseItemType>({
 
   return (
     <Card>
-      <CardContent className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">{title}管理</h2>
-          <Button onClick={() => setEditingItem(null)}>
-            <Plus className="h-4 w-4 mr-2" />
-            新規作成
-          </Button>
-        </div>
-
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead style={{ width: 50 }}></TableHead>
-                <TableHead>名前</TableHead>
-                <TableHead>説明</TableHead>
-                {renderExtraColumns && <TableHead>追加情報</TableHead>}
-                <TableHead style={{ width: 100 }}>操作</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <SortableContext items={items} strategy={verticalListSortingStrategy}>
-                {items.map((item) => (
-                  <SortableItem key={item.id} id={item.id}>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.description}</TableCell>
-                    {renderExtraColumns && <TableCell>{renderExtraColumns(item)}</TableCell>}
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(item)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>削除の確認</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                本当に「{item.name}」を削除しますか？この操作は取り消せません。
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDelete(item.id)}>
-                                削除
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </TableCell>
-                  </SortableItem>
-                ))}
-              </SortableContext>
-            </TableBody>
-          </Table>
-        </DndContext>
-      </CardContent>
-      {editingItem !== undefined && (
-        <FormComponent
-          item={editingItem}
-          onClose={() => {
-            setEditingItem(null)
-            fetchItems()
-          }}
+      {showForm ? (
+        <FormComponent 
+          item={selectedItem}
+          onClose={handleCloseForm}
         />
+      ) : (
+        <CardContent className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">{title}管理</h2>
+            <Button onClick={handleCreateNew}>
+              <Plus className="h-4 w-4 mr-2" />
+              新規作成
+            </Button>
+          </div>
+
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead style={{ width: 50 }}></TableHead>
+                  <TableHead>名前</TableHead>
+                  <TableHead>説明</TableHead>
+                  {renderExtraColumns && <TableHead>追加情報</TableHead>}
+                  <TableHead style={{ width: 100 }}>操作</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <SortableContext items={items} strategy={verticalListSortingStrategy}>
+                  {items.map((item) => (
+                    <SortableItem key={item.id} id={item.id}>
+                      <TableCell>{item.name}</TableCell>
+                      <TableCell>{item.description}</TableCell>
+                      {renderExtraColumns && <TableCell>{renderExtraColumns(item)}</TableCell>}
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(item)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>削除の確認</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  本当に「{item.name}」を削除しますか？この操作は取り消せません。
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDelete(item.id)}>
+                                  削除
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </TableCell>
+                    </SortableItem>
+                  ))}
+                </SortableContext>
+              </TableBody>
+            </Table>
+          </DndContext>
+        </CardContent>
       )}
     </Card>
   )

@@ -60,7 +60,7 @@ export const Header = () => {
             </div>
             <span className="text-xl">古平町観光協会</span>
           </Link>
-          <nav className="hidden lg:flex space-x-4">
+          <nav className="hidden xl:flex space-x-4">
             {navigationItems.map(({ text, path, icon: Icon }) => (
               <Link key={text} href={path}>
                 <Button variant="ghost" className="flex items-center space-x-1 text-white hover:bg-primary/20">
@@ -70,7 +70,7 @@ export const Header = () => {
               </Link>
             ))}
           </nav>
-          <div className="lg:hidden">
+          <div className="xl:hidden">
             <Sheet>
               <SheetTrigger asChild>
                 <Button
