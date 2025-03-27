@@ -25,7 +25,6 @@ interface ItemFormProps<T extends BaseItemType> {
     item: T | null
     register: (value: string, setter: (value: string) => void) => any
   }) => React.ReactNode
-  nameField?: string
 }
 
 const iconOptions = [
@@ -46,9 +45,8 @@ export function ItemForm<T extends BaseItemType>({
   defaultIcon = "MapPin",
   storageFolder,
   renderExtraFields,
-  nameField = "name"
 }: ItemFormProps<T>) {
-  const [name, setName] = useState(item?.[nameField] || "")
+  const [name, setName] = useState(item?.name || "")
   const [description, setDescription] = useState(item?.description || "")
   const [icon, setIcon] = useState(item?.icon || defaultIcon)
   const [image, setImage] = useState<File | null>(null)
@@ -141,13 +139,13 @@ export function ItemForm<T extends BaseItemType>({
       }
 
       const itemData = {
-        [nameField]: name,
+        name,
         description,
         icon,
         image_path: updatedImagePath,
         url,
         ...Object.fromEntries(
-          Object.entries({ [nameField]: name, description, icon, image_path: updatedImagePath, url })
+          Object.entries({ name, description, icon, image_path: updatedImagePath, url })
             .filter(([_, value]) => value !== undefined)
         )
       }
