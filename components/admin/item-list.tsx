@@ -1,4 +1,5 @@
 "use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
@@ -78,7 +79,7 @@ export function ItemsList<T extends BaseItemType>({
 }: ItemsListProps<T>) {
   const [items, setItems] = useState<T[]>([])
   const [loading, setLoading] = useState(true)
-  const [editingItem, setEditingItem] = useState<T | null>(null)
+  const [editingItem, setEditingItem] = useState<T | null | undefined>(undefined)
   const { toast } = useToast()
 
   const sensors = useSensors(
@@ -253,7 +254,7 @@ export function ItemsList<T extends BaseItemType>({
         <FormComponent
           item={editingItem}
           onClose={() => {
-            setEditingItem(null)
+            setEditingItem(undefined)
             fetchItems()
           }}
         />

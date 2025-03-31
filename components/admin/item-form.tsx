@@ -63,6 +63,7 @@ export function ItemForm<T extends BaseItemType>({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [url, setUrl] = useState(item?.url || "")
   const { toast } = useToast()
+  const [open, setOpen] = useState(true)
 
   useEffect(() => {
     if (imagePath) {
@@ -146,14 +147,16 @@ export function ItemForm<T extends BaseItemType>({
         }
       }
 
+      const display_order = 0;
       const itemData = {
         name,
         description,
         icon,
         image_path: updatedImagePath,
         url,
+        display_order: display_order,
         ...Object.fromEntries(
-          Object.entries({ name, description, icon, image_path: updatedImagePath, url })
+          Object.entries({ name, description, icon, image_path: updatedImagePath, url, display_order: display_order })
             .filter(([_, value]) => value !== undefined)
         )
       }
@@ -174,6 +177,7 @@ export function ItemForm<T extends BaseItemType>({
         })
       }
 
+      setOpen(false)
       onClose(true)
     } catch (error: any) {
       toast({
@@ -187,7 +191,10 @@ export function ItemForm<T extends BaseItemType>({
   }
 
   return (
-    <Dialog open={true} onOpenChange={() => onClose()}>
+    <Dialog open={open} onOpenChange={(value) => {
+      setOpen(value)
+      if (!value) onClose()
+    }}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>{item ? `${title}を編集` : `新規${title}`}</DialogTitle>
@@ -276,9 +283,6 @@ export function ItemForm<T extends BaseItemType>({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onClose()}>
-            キャンセル
-          </Button>
           <Button onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting ? (
               <>
