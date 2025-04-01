@@ -68,6 +68,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
   })
   const [autoplay, setAutoplay] = useState<any>(null)
   const [heroBg, setHeroBg] = useState<string>("")
+  const [heroImageVersion] = useState(Date.now())
 
   useEffect(() => {
     setShowChat(!heroInView)
