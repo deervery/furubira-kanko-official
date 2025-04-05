@@ -2,15 +2,17 @@ import { supabase } from "@/lib/supabase"
 import type { SpotType, RestaurantType, AccommodationType, EventType, ShopType } from "@/lib/site-data"
 import type React from "react"
 
+// 画像URLを生成する関数を追加
+function getImageUrl(imagePath: string | null): string {
+  if (!imagePath) {
+    return "/no_photo.jpg?height=300&width=400"
+  }
+  return supabase.storage.from("cms-images").getPublicUrl(imagePath).data.publicUrl
+}
+
 // アイコン名を文字列として返す関数
 export function getIconComponent(iconName: string): string {
   return iconName;
-}
-
-// 画像パスからURLを取得する関数
-export function getImageUrl(imagePath: string | null | undefined): string {
-  if (!imagePath) return "/no_photo.jpg"
-  return supabase.storage.from("cms-images").getPublicUrl(imagePath).data.publicUrl
 }
 
 // 観光スポットデータを取得
@@ -28,9 +30,11 @@ export async function getSpots(): Promise<SpotType[]> {
     description: spot.description,
     address: spot.address,
     facilities: spot.facilities,
+    image_path: spot.image_path,
     image: getImageUrl(spot.image_path),
     icon: spot.icon,
     url: spot.url,
+    display_order: spot.display_order || 0
   }))
 }
 
@@ -47,9 +51,11 @@ export async function getRestaurants(): Promise<RestaurantType[]> {
     id: restaurant.id,
     name: restaurant.name,
     description: restaurant.description,
+    image_path: restaurant.image_path,
     image: getImageUrl(restaurant.image_path),
     icon: restaurant.icon,
     url: restaurant.url,
+    display_order: restaurant.display_order || 0
   }))
 }
 
@@ -66,9 +72,11 @@ export async function getAccommodations(): Promise<AccommodationType[]> {
     id: accommodation.id,
     name: accommodation.name,
     description: accommodation.description,
+    image_path: accommodation.image_path,
     image: getImageUrl(accommodation.image_path),
     icon: accommodation.icon,
     url: accommodation.url,
+    display_order: accommodation.display_order || 0
   }))
 }
 
@@ -86,9 +94,11 @@ export async function getEvents(): Promise<EventType[]> {
     name: event.name,
     description: event.description,
     date: event.date,
+    image_path: event.image_path,
     image: getImageUrl(event.image_path),
     icon: event.icon,
     url: event.url,
+    display_order: event.display_order || 0
   }))
 }
 
@@ -106,9 +116,11 @@ export async function getShops(): Promise<ShopType[]> {
     name: shop.name,
     description: shop.description,
     type: shop.type,
+    image_path: shop.image_path,
     image: getImageUrl(shop.image_path),
     icon: shop.icon,
     url: shop.url,
+    display_order: shop.display_order || 0
   }))
 }
 

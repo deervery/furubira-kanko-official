@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Image from "next/image"
 import type { BaseItemType } from "@/lib/types"
 
-interface ItemFormProps<T extends BaseItemType> {
+interface ItemFormProps<T extends BaseItemType & { date?: string }> {
   item: T | null
   onClose: (refreshData?: boolean) => void
   title: string
@@ -44,7 +44,7 @@ const iconOptions = [
   { value: "ShoppingBag", label: "買い物", icon: <ShoppingBag className="h-4 w-4" /> },
 ]
 
-export function ItemForm<T extends BaseItemType>({ 
+export function ItemForm<T extends BaseItemType & { date?: string }>({ 
   item,
   onClose,
   title,
@@ -62,6 +62,7 @@ export function ItemForm<T extends BaseItemType>({
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [url, setUrl] = useState(item?.url || "")
+  const [date, setDate] = useState(item?.date || "")
   const { toast } = useToast()
   const [open, setOpen] = useState(true)
 
@@ -99,9 +100,14 @@ export function ItemForm<T extends BaseItemType>({
     }
   }
 
-  const register = <T,>(value: T, setter: (value: T) => void) => ({
+  const register = <V,>(value: V, setter: (value: V) => void) => ({
     value,
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setter(e.target.value as T)
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setter(e.target.value as V)
+      if (e.target.id === 'date') {
+        setDate(e.target.value)
+      }
+    }
   })
 
   const handleSubmit = async () => {
@@ -152,14 +158,13 @@ export function ItemForm<T extends BaseItemType>({
         name,
         description,
         icon,
-        image_path: updatedImagePath,
-        url,
-        display_order: display_order,
-        ...Object.fromEntries(
-          Object.entries({ name, description, icon, image_path: updatedImagePath, url, display_order: display_order })
-            .filter(([_, value]) => value !== undefined)
-        )
+        image_path: updatedImagePath || null,
+        url: url || null,
+        display_order: item?.display_order ?? 0,
+        date,
       }
+
+      console.log('Submitting data:', itemData)
 
       if (item) {
         const { error } = await supabase.from(tableName).update(itemData).eq("id", item.id)

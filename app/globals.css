@@ -52,12 +52,12 @@
 @layer base {
   * {
     @apply border-border;
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif;
+    font-family: "Yu Mincho";
   }
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif;
+    font-family: "Yu Mincho";
   }
 }
 
@@ -65,6 +65,12 @@
   .writing-vertical-rl {
     writing-mode: vertical-rl;
     text-orientation: upright;
+  }
+}
+
+@layer components {
+  .border-border {
+    border-color: var(--border);
   }
 }
 

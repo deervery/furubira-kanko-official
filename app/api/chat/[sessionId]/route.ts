@@ -18,7 +18,7 @@ export async function GET(
       return Response.json({ error: "データの取得に失敗しました" }, { status: 500 });
     }
 
-    return Response.json({ messages });
+    return Response.json(messages);
   } catch (error) {
     console.error("Error fetching chat messages:", error);
     return Response.json({ error: "サーバーエラーが発生しました" }, { status: 500 });

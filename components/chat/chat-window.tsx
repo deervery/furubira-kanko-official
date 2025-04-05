@@ -37,8 +37,11 @@ export function ChatWindow() {
         if (!response.ok) throw new Error("Failed to load messages")
         const data = await response.json()
 
+        // データが配列でない場合は空配列として扱う
+        const messagesArray = Array.isArray(data) ? data : []
+
         // Ensure each message has the required properties
-        const validMessages = data
+        const validMessages = messagesArray
           .filter((msg: any) => msg && typeof msg.role === "string" && typeof msg.content === "string")
           .map((msg: any) => ({
             id: msg.id || nanoid(),
@@ -225,9 +228,16 @@ export function ChatWindow() {
           <ChatMessage key={msg.id} message={msg} />
         ))}
         {isThinking && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            考え中...
+          <div className="flex flex-col items-center mb-4">
+            <img 
+              src="/furuppy.gif" 
+              alt="考え中" 
+              className="w-48 h-48 object-contain mb-2"
+            />
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              考え中...
+            </div>
           </div>
         )}
       </ScrollArea>
