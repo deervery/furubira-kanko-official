@@ -138,7 +138,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
 
       {/* Hero Section */}
       <div ref={heroRef} className="relative h-screen">
-        <div className="absolute inset-0 bg-black/50 z-10" />
+        <div className="absolute inset-0 bg-black/10 z-10" />
         <div className="absolute inset-0 w-full h-full">
           {heroBg && (
             <Image
