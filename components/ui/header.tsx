@@ -24,9 +24,13 @@ export const Header = () => {
   const { ref: heroRef, inView: heroInView } = useInView({
     threshold: 0.2,
   })
+  const [headerVisible, setHeaderVisible] = useState(false)
 
   useEffect(() => {
     setIsScrolled(!heroInView)
+    if (heroInView) {
+      setHeaderVisible(true)
+    }
   }, [heroInView])
 
   return (
@@ -34,8 +38,9 @@ export const Header = () => {
       <div ref={heroRef} />
       <header
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-colors duration-300",
-          isScrolled ? "bg-black/90 backdrop-blur-sm border-none" : "",
+          "fixed top-0 left-0 right-0 z-50 transition-opacity duration-1000",
+          headerVisible ? 'opacity-100' : 'opacity-0',
+          isScrolled ? "bg-black/90 backdrop-blur-sm border-none" : ""
         )}
       >
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">

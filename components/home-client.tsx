@@ -69,6 +69,11 @@ export function HomeClient({ tourData }: HomeClientProps) {
   const [autoplay, setAutoplay] = useState<any>(null)
   const [heroBg, setHeroBg] = useState<string>("")
   const [heroImageVersion] = useState(Date.now())
+  const [captionVisible, setCaptionVisible] = useState(false)
+  const [imageVisible, setImageVisible] = useState(false)
+  const [headerVisible, setHeaderVisible] = useState(false)
+  const [bannerSize, setBannerSize] = useState({ width: 360, height: 96 })
+  const [bannerImageVisible, setBannerImageVisible] = useState(false)
 
   useEffect(() => {
     setShowChat(!heroInView)
@@ -93,9 +98,24 @@ export function HomeClient({ tourData }: HomeClientProps) {
     return () => window.removeEventListener("resize", updateHeroBg)
   }, [heroInView])
 
-  // バナーのサイズ調整（デフォルト: 幅 360px, 高さ 96px → 比率 96/360）
-  const [bannerSize, setBannerSize] = useState({ width: 360, height: 96 })
+  useEffect(() => {
+    if (heroBg) {
+      setCaptionVisible(true)
+      setImageVisible(true)
+      setHeaderVisible(true)
+    }
+  }, [heroBg])
 
+  useEffect(() => {
+    if (heroBg) {
+      const timer = setTimeout(() => {
+        setBannerImageVisible(true)
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [heroBg])
+
+  // バナーのサイズ調整（デフォルト: 幅 360px, 高さ 96px → 比率 96/360）
   useEffect(() => {
     const updateBannerSize = () => {
       const screenWidth = window.innerWidth
@@ -114,7 +134,9 @@ export function HomeClient({ tourData }: HomeClientProps) {
 
   return (
     <div className="min-h-screen bg-[url('/washi_background.webp')]">
-      <Header />
+      <div className={`transition-opacity duration-1000 ${headerVisible ? 'opacity-100' : 'opacity-0'}`}>
+        <Header />
+      </div>
 
       {/* Hero Section */}
       <div ref={heroRef} className="relative h-screen">
@@ -125,7 +147,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
               src={heroBg}
               alt="獅子舞の火渡り"
               fill
-              className="object-cover"
+              className={`object-cover transition-opacity duration-1000 ${imageVisible ? 'opacity-100' : 'opacity-0'}`}
               priority
               onError={(e) => {
                 const target = e.target as HTMLImageElement
@@ -135,7 +157,9 @@ export function HomeClient({ tourData }: HomeClientProps) {
           )}
         </div>
         <div className="relative z-20 h-full flex flex-col items-center justify-center pr-0">
-          <h1 className="writing-vertical-rl text-6xl font-bold mb-4 text-white drop-shadow-lg h-[400px]">
+          <h1
+            className={`writing-vertical-rl text-6xl font-bold mb-4 text-white drop-shadow-lg h-[400px] transition-opacity duration-1000 ${captionVisible ? 'opacity-100' : 'opacity-0'}`}
+          >
             熱く燃ゆる町
           </h1>
         </div>
@@ -316,7 +340,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
         <div
           className={cn(
             "fixed rounded bottom-4 left-0 z-30 transition-opacity duration-300",
-            showBanner ? "opacity-100" : "opacity-0 pointer-events-none"
+            bannerImageVisible ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
         >
           <a href="https://www.town.furubira.lg.jp/" target="_blank" rel="noopener noreferrer">
