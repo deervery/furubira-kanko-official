@@ -52,12 +52,12 @@
 @layer base {
   * {
     @apply border-border;
-    font-family: "Yu Mincho";
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif;
   }
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
-    font-family: "Yu Mincho";
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif;
   }
 }
 
