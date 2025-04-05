@@ -162,7 +162,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
         </div>
         <div className="relative z-20 h-full flex flex-col items-center justify-center pr-0">
           <h1
-            className={`writing-vertical-rl text-6xl font-bold mb-4 text-white drop-shadow-lg h-[400px] transition-opacity duration-1000 ${captionVisible ? 'opacity-100' : 'opacity-0'}`}
+            className={`writing-vertical-rl text-6xl mb-4 text-white drop-shadow-lg h-[400px] transition-opacity duration-1000 ${captionVisible ? 'opacity-100' : 'opacity-0'}`}
           >
             熱く燃ゆる町
           </h1>
