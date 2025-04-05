@@ -100,8 +100,6 @@ export function HomeClient({ tourData }: HomeClientProps) {
 
   useEffect(() => {
     if (heroBg) {
-      setCaptionVisible(true)
-      setImageVisible(true)
       setHeaderVisible(true)
     }
   }, [heroBg])
@@ -149,9 +147,15 @@ export function HomeClient({ tourData }: HomeClientProps) {
               fill
               className={`object-cover transition-opacity duration-1000 ${imageVisible ? 'opacity-100' : 'opacity-0'}`}
               priority
+              onLoadingComplete={() => {
+                setImageVisible(true);
+                setTimeout(() => {
+                  setCaptionVisible(true);
+                }, 1000); // 画像のフェードイン完了後、1秒の遅延を設定（必要に応じて調整してください）
+              }}
               onError={(e) => {
-                const target = e.target as HTMLImageElement
-                target.src = "/no_photo.jpg?height=1080&width=1920"
+                const target = e.target as HTMLImageElement;
+                target.src = "/no_photo.jpg?height=1080&width=1920";
               }}
             />
           )}
