@@ -347,7 +347,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
             bannerImageVisible ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
         >
-          <a href="https://www.town.furubira.lg.jp/" target="_blank" rel="noopener noreferrer">
+          <a href="https://www.furubira-tarakomuseum.com/" target="_blank" rel="noopener noreferrer">
             <div className="relative bg-white/90 rounded-tr-lg shadow-lg hover:bg-white transition-colors flex items-center gap-4">
               <button
                 onClick={(e) => {
