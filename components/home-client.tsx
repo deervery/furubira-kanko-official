@@ -328,7 +328,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
       <Footer />
 
       {/* Fixed Position Banner (動的サイズ調整) */}
-      {heroInView && bannerVisible && (
+      {heroInView && bannerVisible && captionVisible && (
         <div className="fixed rounded bottom-4 left-0 z-30 transition-opacity duration-300 group opacity-100">
           <a href="https://www.furubira-tarakomuseum.com/" target="_blank" rel="noopener noreferrer">
             <div className="relative bg-white/90 rounded-tr-lg shadow-lg hover:bg-white transition-colors flex items-center gap-4">
