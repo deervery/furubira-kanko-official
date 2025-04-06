@@ -61,8 +61,6 @@ type HomeClientProps = {
 
 export function HomeClient({ tourData }: HomeClientProps) {
   const [showChat, setShowChat] = useState(false)
-  const [showBanner, setShowBanner] = useState(true)
-  const [bannerVisible, setBannerVisible] = useState(true)
   const { ref: heroRef, inView: heroInView } = useInView({
     threshold: 0.5,
   })
@@ -73,11 +71,10 @@ export function HomeClient({ tourData }: HomeClientProps) {
   const [imageVisible, setImageVisible] = useState(false)
   const [headerVisible, setHeaderVisible] = useState(false)
   const [bannerSize, setBannerSize] = useState({ width: 360, height: 96 })
-  const [bannerImageVisible, setBannerImageVisible] = useState(false)
+  const [bannerVisible, setBannerVisible] = useState(true)
 
   useEffect(() => {
     setShowChat(!heroInView)
-    setShowBanner(heroInView)
 
     // Dynamic import for autoplay
     import("embla-carousel-autoplay").then((Autoplay) => {
@@ -101,15 +98,6 @@ export function HomeClient({ tourData }: HomeClientProps) {
   useEffect(() => {
     if (heroBg) {
       setHeaderVisible(true)
-    }
-  }, [heroBg])
-
-  useEffect(() => {
-    if (heroBg) {
-      const timer = setTimeout(() => {
-        setBannerImageVisible(true)
-      }, 2000)
-      return () => clearTimeout(timer)
     }
   }, [heroBg])
 
@@ -340,21 +328,16 @@ export function HomeClient({ tourData }: HomeClientProps) {
       <Footer />
 
       {/* Fixed Position Banner (動的サイズ調整) */}
-      {bannerVisible && (
-        <div
-          className={cn(
-            "fixed rounded bottom-4 left-0 z-30 transition-opacity duration-300",
-            bannerImageVisible ? "opacity-100" : "opacity-0 pointer-events-none"
-          )}
-        >
+      {heroInView && bannerVisible && (
+        <div className="fixed rounded bottom-4 left-0 z-30 transition-opacity duration-300 group opacity-100">
           <a href="https://www.furubira-tarakomuseum.com/" target="_blank" rel="noopener noreferrer">
             <div className="relative bg-white/90 rounded-tr-lg shadow-lg hover:bg-white transition-colors flex items-center gap-4">
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  setBannerVisible(false)
+                  e.preventDefault();
+                  setBannerVisible(false);
                 }}
-                className="absolute -top-3 -right-3 bg-white rounded-full p-1 shadow-md hover:bg-gray-100 z-40"
+                className="absolute -top-3 -right-3 bg-white rounded-full p-1 shadow-md hover:bg-gray-100 z-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               >
                 <X className="h-4 w-4 text-gray-600" />
               </button>
@@ -365,8 +348,8 @@ export function HomeClient({ tourData }: HomeClientProps) {
                   fill
                   className="object-cover"
                   onError={(e) => {
-                    const target = e.target as HTMLImageElement
-                    target.src = "/no_photo.jpg?height=96&width=360"
+                    const target = e.target as HTMLImageElement;
+                    target.src = "/no_photo.jpg?height=96&width=360";
                   }}
                 />
               </div>
