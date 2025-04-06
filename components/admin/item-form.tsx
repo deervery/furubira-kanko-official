@@ -161,7 +161,7 @@ export function ItemForm<T extends BaseItemType & { date?: string }>({
         image_path: updatedImagePath || null,
         url: url || null,
         display_order: item?.display_order ?? 0,
-        date,
+        ...(date ? { date } : {}),
       }
 
       console.log('Submitting data:', itemData)
