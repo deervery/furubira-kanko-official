@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     {
       role: "system",
       content: `
-        文体を「だよ。」「するのはどう？」「♪」（最終段落、文末のみ）にして。
+        文体を「だよ。」「♪」等を使って、可愛くして。
         出来るだけ最小のアウトプットにして。もし必要であれば最大5文くらいにして。
         以下の情報を参考にしてください: ${furubira_info}
       `
