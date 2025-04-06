@@ -64,6 +64,8 @@ export function HomeClient({ tourData }: HomeClientProps) {
   const { ref: heroRef, inView: heroInView } = useInView({
     threshold: 0.5,
   })
+  const { ref: introRef, inView: introInView } = useInView({ threshold: 0.2, triggerOnce: true });
+  const [introDelayed, setIntroDelayed] = useState(false);
   const [autoplay, setAutoplay] = useState<any>(null)
   const [heroBg, setHeroBg] = useState<string>("")
   const [heroImageVersion] = useState(Date.now())
@@ -118,6 +120,15 @@ export function HomeClient({ tourData }: HomeClientProps) {
     return () => window.removeEventListener("resize", updateBannerSize)
   }, [])
 
+  useEffect(() => {
+    if (introInView) {
+      const timer = setTimeout(() => setIntroDelayed(true), 500); // 500ms遅延
+      return () => clearTimeout(timer);
+    } else {
+      setIntroDelayed(false);
+    }
+  }, [introInView]);
+
   return (
     <div className="min-h-screen bg-black">
       <div className={`transition-opacity duration-1000 ${headerVisible ? 'opacity-100' : 'opacity-0'}`}>
@@ -158,16 +169,16 @@ export function HomeClient({ tourData }: HomeClientProps) {
       </div>
 
       {/* Introduction Section */}
-      <section className="py-12 md:py-20 bg-black">
+      <section ref={introRef} className="py-12 md:py-20 bg-black">
         <div className="text-center mb-16">
-          <div className="inline-block px-12">
+          <div className={`inline-block px-12 transition-opacity duration-1000 ${introDelayed ? 'opacity-100' : 'opacity-0'}`}>
             <p className="text-s md:text-sm text-white mb-1 md:mb-2">-FIRE WALKING RITUAL-</p>
             <h2 className="text-2xl md:text-4xl font-bold text-white">天狗の火渡り</h2>
           </div>
         </div>
         <div className="mx-auto max-w-3xl px-4 w-full">
           <div className="flex flex-col md:flex-row gap-6 md:gap-12 items-center">
-            <div className="space-y-4 md:space-y-6 order-2 md:order-1 w-full md:w-1/2">
+            <div className={`space-y-4 md:space-y-6 order-2 md:order-1 w-full md:w-1/2 transition-opacity duration-1000 ${introDelayed ? 'opacity-100' : 'opacity-0'}`}>
               <p className="text-sm text-white">
                 古平町は、北海道の日本海側に位置する漁業の町です。300年以上の歴史を持つ「天狗の火渡り」は、
                 漁師たちの大漁と安全を祈願する神聖な儀式として、今日まで大切に受け継がれてきました。
@@ -175,7 +186,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
                 古平の夜空を照らし続けています。
               </p>
             </div>
-            <div className="w-full md:w-1/2 order-1 md:order-2 aspect-[3/4] relative">
+            <div className={`w-full md:w-1/2 order-1 md:order-2 aspect-[3/4] relative transition-opacity duration-1000 ${introDelayed ? 'opacity-100' : 'opacity-0'}`}>
               <div className="relative w-full h-full">
                 <Image
                   src="/hiwatari_tengu.jpg"
@@ -183,8 +194,8 @@ export function HomeClient({ tourData }: HomeClientProps) {
                   fill
                   className="object-cover"
                   onError={(e) => {
-                    const target = e.target as HTMLImageElement
-                    target.src = "/no_photo.jpg?height=800&width=600"
+                    const target = e.target as HTMLImageElement;
+                    target.src = "/no_photo.jpg?height=800&width=600";
                   }}
                 />
               </div>
