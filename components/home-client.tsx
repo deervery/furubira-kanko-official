@@ -119,7 +119,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[url('/washi_background.webp')]">
+    <div className="min-h-screen bg-black">
       <div className={`transition-opacity duration-1000 ${headerVisible ? 'opacity-100' : 'opacity-0'}`}>
         <Header />
       </div>
@@ -196,7 +196,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
       <DividerSection />
 
       {/* Tour Proposal Section */}
-      <section className="py-12 md:py-20 bg-primary/5">
+      <section className="py-12 md:py-20 bg-primary/5 bg-[url('/washi_background.webp')]">
         <div className="w-full mx-auto px-4 max-w-3xl">
           <div className="text-center mb-8 md:mb-16">
             <div className="inline-block px-6 md:px-12">
@@ -279,7 +279,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
       <DividerSection />
 
       {/* Map Section */}
-      <section className="py-12 md:py-20">
+      <section className="py-12 md:py-20 bg-[url('/washi_background.webp')]">
         <div className="w-full mx-auto px-4 max-w-3xl">
           <div className="text-center mb-8 md:mb-16">
             <div className="inline-block px-6 md:px-12">
