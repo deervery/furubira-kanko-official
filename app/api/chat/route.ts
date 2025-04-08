@@ -37,22 +37,79 @@ export async function POST(request: NextRequest) {
   ];
 
   try {
-    // OpenAI APIにリクエスト
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // モデルの指定（正しいことは確認済み）
-      messages: messages as any, // 型の適合を強制
-      temperature: 0.7
+    // ストリーミングレスポンスを作成
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          // OpenAI APIにストリーミングリクエスト
+          const stream = await openai.chat.completions.create({
+            model: "gpt-4o-mini", // モデルの指定
+            messages: messages as any, // 型の適合を強制
+            temperature: 0.7,
+            stream: true, // ストリーミングを有効化
+          });
+
+          let fullResponse = "";
+
+          for await (const chunk of stream) {
+            const content = chunk.choices[0]?.delta?.content || "";
+            fullResponse += content;
+            
+            // ストリーミングで出力
+            if (content) {
+              controller.enqueue(new TextEncoder().encode(content));
+            }
+          }
+
+          // 完了したレスポンスをSupabaseに保存
+          if (fullResponse) {
+            await saveChat({ content: fullResponse, role: "assistant", sessionId });
+          }
+          
+          controller.close();
+        } catch (error) {
+          console.error("OpenAI ストリーミング エラー:", error);
+          
+          // エラーの詳細情報をログに出力
+          if (error instanceof Error) {
+            console.error("エラーメッセージ:", error.message);
+            console.error("エラースタック:", error.stack);
+            
+            if ('status' in error) {
+              console.error("ステータスコード:", (error as any).status);
+            }
+          }
+          
+          // エラーメッセージをクライアントに送信
+          controller.enqueue(new TextEncoder().encode("申し訳ありません、エラーが発生しました。"));
+          controller.close();
+        }
+      },
     });
 
-    const text = response.choices[0]?.message?.content || "";
-
-    // 結果をSupabaseに保存
-    await saveChat({ content: text, role: "assistant", sessionId });
-
-    // 文字列として返す
-    return new Response(text);
+    // ストリーミングレスポンスを返す
+    return new Response(stream);
   } catch (error) {
     console.error("OpenAI API エラー:", error);
+    
+    // エラーの詳細情報をログに出力
+    if (error instanceof Error) {
+      console.error("エラーメッセージ:", error.message);
+      console.error("エラースタック:", error.stack);
+      
+      if ('status' in error) {
+        console.error("ステータスコード:", (error as any).status);
+      }
+      
+      if ('response' in error) {
+        try {
+          console.error("レスポンス:", JSON.stringify((error as any).response, null, 2));
+        } catch (e) {
+          console.error("レスポンスのシリアライズに失敗:", e);
+        }
+      }
+    }
+    
     return Response.json({ error: "OpenAI API呼び出しでエラーが発生しました" }, { status: 500 });
   }
 }
