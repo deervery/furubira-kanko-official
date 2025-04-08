@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     {
       role: "system",
       content: `
-        文体を「だよ。」「♪」等を使って、可愛くして。
+        ポジティブな文には「♪」、ちょっと残念だったり、申し訳ないときは、「だよ。」「だね。」を使ってください。
         出来るだけ最小のアウトプットにして。もし必要であれば最大5文くらいにして。
         以下の情報を参考にしてください: ${furubira_info}
       `
