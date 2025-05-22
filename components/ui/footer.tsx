@@ -42,11 +42,11 @@ export function Footer() {
             <div className="space-y-2">
               <p className="text-sm text-gray-400 flex items-center gap-2">
                 <Phone className="h-4 w-4" />
-                0135-42-2144
+                0135-48-9840(役場産業課観光室内)
               </p>
               <p className="text-sm text-gray-400 flex items-center gap-2">
                 <Mail className="h-4 w-4" />
-                info@furubira.com
+                shoukankou@furubira.lg.jp
               </p>
               <p className="text-sm text-gray-400 mt-2">
                 〒046-0121
