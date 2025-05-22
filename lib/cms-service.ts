@@ -157,7 +157,7 @@ export async function getTourData() {
           items = accommodations
           break
         case "shopping":
-          items = shops.slice(0, 4) // 表示数を制限
+          items = shops
           break
       }
 
