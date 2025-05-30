@@ -51,7 +51,7 @@ export function Footer() {
               <p className="text-sm text-gray-400 mt-2">
                 〒046-0121
                 <br />
-                北海道古平郡古平町大字浜町932-2
+                北海道古平郡古平町大字浜町50番地
               </p>
             </div>
           </div>

@@ -18,7 +18,6 @@ export function getIconComponent(iconName: string): string {
 // 観光スポットデータを取得
 export async function getSpots(): Promise<SpotType[]> {
   const { data, error } = await supabase.from("spots").select("*").order("name")
-  //なぜかアイテムが残り続けている問題が発生している。
   if (error) {
     console.error("Error fetching spots:", error)
     return []
