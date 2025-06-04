@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Phone, Mail } from "lucide-react"
+import { Phone, Mail, Clock } from "lucide-react"
 
 export function Footer() {
   return (
@@ -34,6 +34,33 @@ export function Footer() {
                 </div>
               ))}
             </nav>
+            
+            {/* External Links */}
+            <div className="mt-6">
+              <h5 className="text-sm font-semibold mb-2 text-gray-300">関連リンク</h5>
+              <div className="space-y-2">
+                <div>
+                  <a
+                    href="https://www.town.furubira.lg.jp/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-gray-400 hover:text-primary transition-colors"
+                  >
+                    古平町
+                  </a>
+                </div>
+                <div>
+                  <a
+                    href="https://www.furubira-tarakomuseum.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-gray-400 hover:text-primary transition-colors"
+                  >
+                    道の駅ふるびらたらこミュージアム
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Contact Information */}
@@ -42,11 +69,15 @@ export function Footer() {
             <div className="space-y-2">
               <p className="text-sm text-gray-400 flex items-center gap-2">
                 <Phone className="h-4 w-4" />
-                0135-48-9840(役場産業課観光室内)
+                0135-48-9840<br />(役場産業課観光室内)
               </p>
               <p className="text-sm text-gray-400 flex items-center gap-2">
                 <Mail className="h-4 w-4" />
                 shoukankou@furubira.lg.jp
+              </p>
+              <p className="text-sm text-gray-400 flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                平日 8:45~17:30
               </p>
               <p className="text-sm text-gray-400 mt-2">
                 〒046-0121
