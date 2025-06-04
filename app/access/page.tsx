@@ -26,7 +26,7 @@ export default function Access() {
           </CardContent>
         </Card>
 
-        <Card className="border-primary/20">
+        {/* <Card className="border-primary/20">
           <CardContent className="p-6">
             <h2 className="text-2xl font-bold mb-4">観光案内所・観光協会</h2>
             <div className="space-y-4">
@@ -44,7 +44,7 @@ export default function Access() {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         <div className="mt-8 aspect-video rounded-lg overflow-hidden shadow-lg">
           <iframe
