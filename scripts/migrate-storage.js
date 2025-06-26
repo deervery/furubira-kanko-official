@@ -1,23 +1,43 @@
+require('dotenv').config();
+
 const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
 
 admin.initializeApp({
-  storageBucket: "YOUR_STORAGE_BUCKET_URL" // 例: your-project-id.appspot.com
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET
 });
 
 const bucket = admin.storage().bucket();
-const imageDirectory = path.join(__dirname, '..', 'tmp', 'image_data'); // 解凍した画像を置くフォルダ
+const baseImageDirectory = path.join(__dirname, '..', 'tmp', 'image_data');
 
-fs.readdirSync(imageDirectory).forEach(file => {
-  const filePath = path.join(imageDirectory, file);
+function uploadDirectory(directoryPath) {
+  const files = fs.readdirSync(directoryPath, { withFileTypes: true });
 
-  bucket.upload(filePath, {
-    destination: `images/${file}`, // Storage内の保存先パス
-    public: true // publicに設定して直接URLでアクセスできるようにする場合
-  }).then(() => {
-    console.log(`${file} uploaded successfully.`);
-  }).catch(err => {
-    console.error(`Error uploading ${file}:`, err);
+  files.forEach(file => {
+    const fullPath = path.join(directoryPath, file.name);
+
+    if (file.isDirectory()) {
+      // もし項目がディレクトリなら、その中で再度この関数を呼び出す
+      uploadDirectory(fullPath);
+    } else {
+      // 項目がファイルなら、アップロード処理を行う
+      
+      // Storage内の保存パスを計算 (例: accommodations/image1.jpg)
+      const destinationPath = path.relative(baseImageDirectory, fullPath)
+                                  .replace(/\\/g, '/'); // Windowsのパス区切り文字を置換
+
+      bucket.upload(fullPath, {
+        destination: destinationPath,
+      }).then(() => {
+        console.log(`✅ Uploaded: ${destinationPath}`);
+      }).catch(err => {
+        console.error(`❌ FAILED to upload ${destinationPath}:`, err);
+      });
+    }
   });
-});
+}
+
+console.log('Starting image migration...');
+uploadDirectory(baseImageDirectory);
+console.log('...Image migration script finished.');
