@@ -9,8 +9,14 @@ async function getImageUrl(imagePath: string | null): Promise<string> {
   if (!imagePath) {
     return "/no_photo.jpg?height=300&width=400"
   }
+  
+  // 画像パスが既にURLの場合はそのまま返す
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath
+  }
+  
   try {
-    const imageRef = ref(storage, `cms-images/${imagePath}`)
+    const imageRef = ref(storage, imagePath)
     return await getDownloadURL(imageRef)
   } catch (error) {
     console.error("Error getting image URL:", error)
