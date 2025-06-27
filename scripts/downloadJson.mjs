@@ -1,25 +1,35 @@
-import { createClient } from "@supabase/supabase-js";
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
 import fs from "fs/promises";
 import dotenv from "dotenv";
 
 // 環境変数を読み込む
 dotenv.config();
 
-// Supabaseの設定
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Firebaseの設定
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 async function fetchDataAndSave() {
   try {
-    console.log("Fetching data from Supabase...");
+    console.log("Fetching data from Firestore...");
 
-    // Supabaseからデータを取得
-    const { data, error } = await supabase
-      .from("furubira_info")
-      .select("title, content");
-
-    if (error) throw error;
+    // Firestoreからデータを取得
+    const querySnapshot = await getDocs(collection(db, "furubira_info"));
+    const data = querySnapshot.docs.map(doc => ({
+      title: doc.data().title,
+      content: doc.data().content,
+    }));
 
     // JSONファイルとして保存
     const jsonData = JSON.stringify(data, null, 2);
