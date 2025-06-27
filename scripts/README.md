@@ -23,8 +23,8 @@
 ### 3. コスト面の懸念
 
 - ICL 方式では、情報をプロンプトに含めるため **トークン数が増え、費用が高くなる** 可能性があります。
-- ただし、gpt-4o-mini を使用すれば、RAG（Supabase × gpt-4o）と比較してコストを抑えつつ運用できる可能性があります。
-- 今後、**RAG（Supabase）× gpt-4o との比較検討** を継続する予定です。
+- ただし、gpt-4o-mini を使用すれば、RAG（Firestore × gpt-4o）と比較してコストを抑えつつ運用できる可能性があります。
+- 今後、**RAG（Firestore）× gpt-4o との比較検討** を継続する予定です。
 
 ### 4. ストリーミング処理の問題
 
@@ -39,7 +39,7 @@
 
 ### `scripts/downloadJson.mjs`
 
-- **目的**: Supabase の`furubira_info`テーブルからすべての行を取得し、JSON データ (`furubira_info.json`) に変換する。
+- **目的**: Firestore の`furubira_info`コレクションからすべてのドキュメントを取得し、JSON データ (`furubira_info.json`) に変換する。
 - **出力**: `furubira_info.json` (title, content を含む)
 
 ### `scripts/scrapePage.mjs`
@@ -72,27 +72,37 @@
 ### **RAG（埋め込み検索）を使用する場合**
 
 - `scripts/insertData.mjs`
-  - **目的**: `furubira_content.json` のデータを Supabase に挿入し、ベクトル検索を可能にする。
+  - **目的**: `furubira_content.json` のデータを Firestore に挿入し、ベクトル検索を可能にする。
   - **処理方法**:
     1. `text-embedding-ada-002` で各`content`をベクトル化 (`embedding`生成)。
-    2. `title, content, embedding` を Supabase (`furubira_info`テーブル) に保存。
+    2. `title, content, embedding` を Firestore (`furubira_info`コレクション) に保存。
 - `app/api/chat/route.ts`
-  - **目的**: Supabase のデータベースと連携し、最も類似度の高い情報を検索し、回答を生成する。
+  - **目的**: Firestore のデータベースと連携し、最も類似度の高い情報を検索し、回答を生成する。
 
 ### **ICL（プロンプト内に情報を埋め込む）を使用する場合**
 
 - `app/api/chat/route.ts`
   - **目的**: `furubira_content.json` を直接読み込み、システムプロンプトに含める。
 
+### 4. データ移行
+
+### `scripts/migrate-firestore.js`
+
+- **目的**: CSVファイルからFirestoreへのデータ移行を行う。
+- **処理方法**: 
+  1. `tmp/csv_data`ディレクトリ内のCSVファイルを読み込み
+  2. データ型を適切に変換（文字列→数値、日付→Timestamp等）
+  3. Firestoreの対応するコレクションに保存
+
 ## 今後の検討
 
 - **ICL 方式のトークン数削減方法** の模索（情報量を最適化しつつ、適切な回答を維持する）。
 - **RAG 方式の精度向上**（類似度検索のチューニング、ストリーミング処理の見直し）。
-- **ICL（gpt-4o-mini） vs. RAG（Supabase × gpt-4o） の比較** を継続し、最適な運用方針を決定する。
+- **ICL（gpt-4o-mini） vs. RAG（Firestore × gpt-4o） の比較** を継続し、最適な運用方針を決定する。
 
 ## 連携技術
 
-- **Supabase**（データベース、埋め込み検索）
+- **Firebase Firestore**（データベース、埋め込み検索）
 - **OpenAI GPT-4o / GPT-4o-mini**（AI モデル）
 - **Next.js API**（チャットエンドポイント）
 - **npm `ai`**（ストリーミング処理）
