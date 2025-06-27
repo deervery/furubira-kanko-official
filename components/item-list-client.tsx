@@ -7,13 +7,35 @@ import Image from "next/image"
 import Link from "next/link"
 import { renderIcon } from "@/lib/icon-utils"
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { db, storage } from "@/lib/firebase"
+import { collection, query, orderBy, getDocs } from "firebase/firestore"
+import { ref, getDownloadURL } from "firebase/storage"
 import type { BaseItemType } from "@/lib/types"
 
 interface ItemListClientProps<T extends BaseItemType> {
   title: string
   tableName: string
   renderExtra?: (item: T) => React.ReactNode
+}
+
+// 画像URLを生成する関数
+async function getImageUrl(imagePath: string | null): Promise<string> {
+  if (!imagePath) {
+    return "/no_photo.jpg?height=300&width=400"
+  }
+
+  // 画像パスが既にURLの場合はそのまま返す
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath
+  }
+  
+  try {
+    const imageRef = ref(storage, imagePath)
+    return await getDownloadURL(imageRef)
+  } catch (error) {
+    console.error("Error getting image URL:", error)
+    return "/no_photo.jpg?height=300&width=400"
+  }
 }
 
 export function ItemListClient<T extends BaseItemType>({ 
@@ -27,20 +49,26 @@ export function ItemListClient<T extends BaseItemType>({
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const { data, error } = await supabase
-          .from(tableName)
-          .select("*")
-          .order("display_order", { ascending: true })
-
-        if (error) throw error
+        const q = query(
+          collection(db, tableName),
+          orderBy("display_order", "asc")
+        );
+        const querySnapshot = await getDocs(q);
+        const data = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as T[];
 
         // 画像URLを取得して各アイテムに追加
-        const itemsWithImages = data.map(item => ({
-          ...item,
-          image: item.image_path 
-            ? supabase.storage.from("cms-images").getPublicUrl(item.image_path).data.publicUrl
-            : "/no_photo.jpg?height=300&width=400"
-        }))
+        const itemsWithImages = await Promise.all(
+          data.map(async (item) => {
+            const imageUrl = await getImageUrl(item.image_path);
+            return {
+              ...item,
+              image: imageUrl
+            };
+          })
+        );
 
         setItems(itemsWithImages)
       } catch (error) {
