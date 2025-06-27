@@ -56,7 +56,13 @@ const csvDirectory = path.join(__dirname, '..', 'tmp', 'csv_data');
 
 fs.readdirSync(csvDirectory).forEach(file => {
   if (path.extname(file) === '.csv') {
-    const collectionName = path.basename(file, '.csv'); // ファイル名をコレクション名とする
+    let collectionName = path.basename(file, '.csv'); // ファイル名をコレクション名とする
+    
+    // フォルダ名末尾が_rowsの場合は削除
+    if (collectionName.endsWith('_rows')) {
+      collectionName = collectionName.slice(0, -5); // '_rows'の5文字を削除
+    }
+    
     const collectionRef = db.collection(collectionName);
     console.log(`Migrating ${file} to ${collectionName} collection...`);
 
