@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { OpenAI } from "openai";
-import { createClient } from "@supabase/supabase-js";
+import { db } from "@/lib/firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 const openAi = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,19 +23,15 @@ export async function POST(req: NextRequest) {
 
     const embedding = embeddingResponse.data[0].embedding;
 
-    // Supabaseにデータを挿入
-    const { error } = await supabase
-      .from("furubira_info")
-      .insert([
-        {
-          title,
-          content,
-          embedding
-        }
-      ]);
-
-    if (error) {
-      console.error(`Error inserting data: ${error.message}`);
+    // Firestoreにデータを挿入
+    try {
+      await addDoc(collection(db, "furubira_info"), {
+        title,
+        content,
+        embedding
+      });
+    } catch (error) {
+      console.error(`Error inserting data: ${error}`);
       return NextResponse.json({ error: "Failed to insert data" }, { status: 500 });
     }
 

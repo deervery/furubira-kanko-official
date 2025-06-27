@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { supabase } from "@/lib/supabase"
+import { db } from "@/lib/firebase"
+import { collection, query, where, orderBy, getDocs } from "firebase/firestore"
 
 export async function GET(
   request: NextRequest,
@@ -8,15 +9,17 @@ export async function GET(
   const { sessionId } = await context.params;
 
   try {
-    const { data: messages, error } = await supabase
-      .from("chat")
-      .select("role,content")
-      .eq("sessionId", sessionId)
-      .order("timestamp");
-
-    if (error) {
-      return Response.json({ error: "データの取得に失敗しました" }, { status: 500 });
-    }
+    const q = query(
+      collection(db, "chat"),
+      where("sessionId", "==", sessionId),
+      orderBy("timestamp", "asc")
+    );
+    
+    const querySnapshot = await getDocs(q);
+    const messages = querySnapshot.docs.map(doc => ({
+      role: doc.data().role,
+      content: doc.data().content,
+    }));
 
     return Response.json(messages);
   } catch (error) {
