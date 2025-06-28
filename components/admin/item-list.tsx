@@ -44,7 +44,7 @@ interface ItemsListProps<T extends BaseItemType> {
   tableName: string
   FormComponent: React.ComponentType<{ item: T | null; onClose: () => void }>
   renderExtraColumns?: (item: T) => React.ReactNode
-  orderBy?: string
+  orderByField?: string
 }
 
 interface SortableItemProps {
@@ -76,7 +76,7 @@ export function ItemsList<T extends BaseItemType>({
   tableName,
   FormComponent,
   renderExtraColumns,
-  orderBy = "display_order"
+  orderByField = "display_order"
 }: ItemsListProps<T>) {
   const [showForm, setShowForm] = useState(false)
   const [items, setItems] = useState<T[]>([])
@@ -95,7 +95,7 @@ export function ItemsList<T extends BaseItemType>({
     try {
       const q = query(
         collection(db, tableName),
-        orderBy(orderBy, "asc")
+        orderBy(orderByField, "asc")
       );
       const querySnapshot = await getDocs(q);
       const data = querySnapshot.docs.map(doc => ({
