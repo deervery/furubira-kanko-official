@@ -237,7 +237,7 @@ export function ItemsList<T extends BaseItemType>({
                     <SortableItem key={item.id} id={item.id}>
                       <TableCell>{item.name}</TableCell>
                       <TableCell>{item.description}</TableCell>
-                      {renderExtraColumns && <TableCell>{renderExtraColumns(item)}</TableCell>}
+                      {renderExtraColumns && renderExtraColumns(item)}
                       <TableCell>
                         <div className="flex gap-2">
                           <Button
