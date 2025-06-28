@@ -1,13 +1,27 @@
-import { supabase } from "@/lib/supabase"
+import { db, storage } from "@/lib/firebase"
+import { collection, getDocs, orderBy, query } from "firebase/firestore"
+import { ref, getDownloadURL } from "firebase/storage"
 import type { SpotType, RestaurantType, AccommodationType, EventType, ShopType } from "@/lib/site-data"
 import type React from "react"
 
 // 画像URLを生成する関数を追加
-function getImageUrl(imagePath: string | null): string {
+async function getImageUrl(imagePath: string | null): Promise<string> {
   if (!imagePath) {
     return "/no_photo.jpg?height=300&width=400"
   }
-  return supabase.storage.from("cms-images").getPublicUrl(imagePath).data.publicUrl
+  
+  // 画像パスが既にURLの場合はそのまま返す
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath
+  }
+  
+  try {
+    const imageRef = ref(storage, imagePath)
+    return await getDownloadURL(imageRef)
+  } catch (error) {
+    console.error("Error getting image URL:", error)
+    return "/no_photo.jpg?height=300&width=400"
+  }
 }
 
 // アイコン名を文字列として返す関数
@@ -17,110 +31,156 @@ export function getIconComponent(iconName: string): string {
 
 // 観光スポットデータを取得
 export async function getSpots(): Promise<SpotType[]> {
-  const { data, error } = await supabase.from("spots").select("*").order("name")
-  if (error) {
+  try {
+    const spotsRef = collection(db, "spots")
+    const q = query(spotsRef, orderBy("name"))
+    const querySnapshot = await getDocs(q)
+    
+    const spots = await Promise.all(
+      querySnapshot.docs.map(async (doc) => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          name: data.name,
+          description: data.description,
+          address: data.address,
+          facilities: data.facilities,
+          image_path: data.image_path,
+          image: await getImageUrl(data.image_path),
+          icon: data.icon,
+          url: data.url,
+          display_order: data.display_order || 0
+        }
+      })
+    )
+    
+    return spots
+  } catch (error) {
     console.error("Error fetching spots:", error)
     return []
   }
-
-  return data.map((spot) => ({
-    id: spot.id,
-    name: spot.name,
-    description: spot.description,
-    address: spot.address,
-    facilities: spot.facilities,
-    image_path: spot.image_path,
-    image: getImageUrl(spot.image_path),
-    icon: spot.icon,
-    url: spot.url,
-    display_order: spot.display_order || 0
-  }))
 }
 
 // 飲食店データを取得
 export async function getRestaurants(): Promise<RestaurantType[]> {
-  const { data, error } = await supabase.from("restaurants").select("*").order("name")
-
-  if (error) {
+  try {
+    const restaurantsRef = collection(db, "restaurants")
+    const q = query(restaurantsRef, orderBy("name"))
+    const querySnapshot = await getDocs(q)
+    
+    const restaurants = await Promise.all(
+      querySnapshot.docs.map(async (doc) => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          name: data.name,
+          description: data.description,
+          image_path: data.image_path,
+          image: await getImageUrl(data.image_path),
+          icon: data.icon,
+          url: data.url,
+          display_order: data.display_order || 0
+        }
+      })
+    )
+    
+    return restaurants
+  } catch (error) {
     console.error("Error fetching restaurants:", error)
     return []
   }
-
-  return data.map((restaurant) => ({
-    id: restaurant.id,
-    name: restaurant.name,
-    description: restaurant.description,
-    image_path: restaurant.image_path,
-    image: getImageUrl(restaurant.image_path),
-    icon: restaurant.icon,
-    url: restaurant.url,
-    display_order: restaurant.display_order || 0
-  }))
 }
 
 // 宿泊施設データを取得
 export async function getAccommodations(): Promise<AccommodationType[]> {
-  const { data, error } = await supabase.from("accommodations").select("*").order("name")
-
-  if (error) {
+  try {
+    const accommodationsRef = collection(db, "accommodations")
+    const q = query(accommodationsRef, orderBy("name"))
+    const querySnapshot = await getDocs(q)
+    
+    const accommodations = await Promise.all(
+      querySnapshot.docs.map(async (doc) => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          name: data.name,
+          description: data.description,
+          image_path: data.image_path,
+          image: await getImageUrl(data.image_path),
+          icon: data.icon,
+          url: data.url,
+          display_order: data.display_order || 0
+        }
+      })
+    )
+    
+    return accommodations
+  } catch (error) {
     console.error("Error fetching accommodations:", error)
     return []
   }
-
-  return data.map((accommodation) => ({
-    id: accommodation.id,
-    name: accommodation.name,
-    description: accommodation.description,
-    image_path: accommodation.image_path,
-    image: getImageUrl(accommodation.image_path),
-    icon: accommodation.icon,
-    url: accommodation.url,
-    display_order: accommodation.display_order || 0
-  }))
 }
 
 // イベントデータを取得
 export async function getEvents(): Promise<EventType[]> {
-  const { data, error } = await supabase.from("events").select("*").order("name")
-
-  if (error) {
+  try {
+    const eventsRef = collection(db, "events")
+    const q = query(eventsRef, orderBy("name"))
+    const querySnapshot = await getDocs(q)
+    
+    const events = await Promise.all(
+      querySnapshot.docs.map(async (doc) => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          name: data.name,
+          description: data.description,
+          date: data.date,
+          image_path: data.image_path,
+          image: await getImageUrl(data.image_path),
+          icon: data.icon,
+          url: data.url,
+          display_order: data.display_order || 0
+        }
+      })
+    )
+    
+    return events
+  } catch (error) {
     console.error("Error fetching events:", error)
     return []
   }
-
-  return data.map((event) => ({
-    id: event.id,
-    name: event.name,
-    description: event.description,
-    date: event.date,
-    image_path: event.image_path,
-    image: getImageUrl(event.image_path),
-    icon: event.icon,
-    url: event.url,
-    display_order: event.display_order || 0
-  }))
 }
 
 // 買い物スポットデータを取得
 export async function getShops(): Promise<ShopType[]> {
-  const { data, error } = await supabase.from("shops").select("*").order("name")
-
-  if (error) {
+  try {
+    const shopsRef = collection(db, "shops")
+    const q = query(shopsRef, orderBy("name"))
+    const querySnapshot = await getDocs(q)
+    
+    const shops = await Promise.all(
+      querySnapshot.docs.map(async (doc) => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          name: data.name,
+          description: data.description,
+          type: data.type,
+          image_path: data.image_path,
+          image: await getImageUrl(data.image_path),
+          icon: data.icon,
+          url: data.url,
+          display_order: data.display_order || 0
+        }
+      })
+    )
+    
+    return shops
+  } catch (error) {
     console.error("Error fetching shops:", error)
     return []
   }
-
-  return data.map((shop) => ({
-    id: shop.id,
-    name: shop.name,
-    description: shop.description,
-    type: shop.type,
-    image_path: shop.image_path,
-    image: getImageUrl(shop.image_path),
-    icon: shop.icon,
-    url: shop.url,
-    display_order: shop.display_order || 0
-  }))
 }
 
 // ツアーデータを取得
@@ -133,16 +193,13 @@ export async function getTourData() {
       getShops(),
     ])
 
-    const { data: categories, error } = await supabase.from("tour_categories").select("*")
-
-    if (error) {
-      console.error("Error fetching tour categories:", error)
-      return {}
-    }
+    const tourCategoriesRef = collection(db, "tour_categories")
+    const querySnapshot = await getDocs(tourCategoriesRef)
 
     const tourData: Record<string, any> = {}
 
-    categories.forEach((category) => {
+    querySnapshot.docs.forEach((doc) => {
+      const category = doc.data()
       let items: any[] = []
 
       switch (category.key) {

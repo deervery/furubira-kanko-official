@@ -1,13 +1,23 @@
 import "dotenv/config";
 import { OpenAI } from "openai";
-import { createClient } from "@supabase/supabase-js";
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 import fs from "fs";
 
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
 
 // JSONファイルからデータを読み込む
 const furubiraData = JSON.parse(
@@ -24,19 +34,16 @@ export async function insertFurubiraData() {
 
     const embedding = embeddingResponse.data[0].embedding;
 
-    // Supabase にデータを挿入
-    const { error } = await supabase.from("furubira_info").insert([
-      {
+    // Firestore にデータを挿入
+    try {
+      await addDoc(collection(db, "furubira_info"), {
         title: item.title,
         content: item.content,
         embedding,
-      },
-    ]);
-
-    if (error) {
-      console.error(`Error inserting data: ${error.message}`);
-    } else {
+      });
       console.log(`Inserted: ${item.title}`);
+    } catch (error) {
+      console.error(`Error inserting data: ${error.message}`);
     }
   }
 }

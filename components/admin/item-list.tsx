@@ -2,7 +2,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase"
+import { db } from "@/lib/firebase"
+import { collection, query, orderBy, getDocs, deleteDoc, doc, writeBatch } from "firebase/firestore"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -43,7 +44,7 @@ interface ItemsListProps<T extends BaseItemType> {
   tableName: string
   FormComponent: React.ComponentType<{ item: T | null; onClose: () => void }>
   renderExtraColumns?: (item: T) => React.ReactNode
-  orderBy?: string
+  orderByField?: string
 }
 
 interface SortableItemProps {
@@ -75,7 +76,7 @@ export function ItemsList<T extends BaseItemType>({
   tableName,
   FormComponent,
   renderExtraColumns,
-  orderBy = "display_order"
+  orderByField = "display_order"
 }: ItemsListProps<T>) {
   const [showForm, setShowForm] = useState(false)
   const [items, setItems] = useState<T[]>([])
@@ -92,12 +93,16 @@ export function ItemsList<T extends BaseItemType>({
 
   const fetchItems = async () => {
     try {
-      const { data, error } = await supabase
-        .from(tableName)
-        .select("*")
-        .order(orderBy, { ascending: true })
-
-      if (error) throw error
+      const q = query(
+        collection(db, tableName),
+        orderBy(orderByField, "asc")
+      );
+      const querySnapshot = await getDocs(q);
+      const data = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as T[];
+      
       setItems(data || [])
     } catch (error) {
       console.error(`Error fetching ${tableName}:`, error)
@@ -135,8 +140,8 @@ export function ItemsList<T extends BaseItemType>({
 
   const handleDelete = async (id: string) => {
     try {
-      const { error } = await supabase.from(tableName).delete().eq("id", id)
-      if (error) throw error
+      const docRef = doc(db, tableName, id);
+      await deleteDoc(docRef);
       setItems(items.filter((item) => item.id !== id))
       toast({
         title: "成功",
@@ -163,13 +168,14 @@ export function ItemsList<T extends BaseItemType>({
     setItems(newItems)
 
     try {
-      const updates = newItems.map((item, index) => ({
-        ...item,
-        display_order: index,
-      }))
-
-      const { error } = await supabase.from(tableName).upsert(updates)
-      if (error) throw error
+      const batch = writeBatch(db);
+      
+      newItems.forEach((item, index) => {
+        const docRef = doc(db, tableName, item.id);
+        batch.update(docRef, { display_order: index });
+      });
+      
+      await batch.commit();
 
       toast({
         title: "成功",
@@ -231,7 +237,7 @@ export function ItemsList<T extends BaseItemType>({
                     <SortableItem key={item.id} id={item.id}>
                       <TableCell>{item.name}</TableCell>
                       <TableCell>{item.description}</TableCell>
-                      {renderExtraColumns && <TableCell>{renderExtraColumns(item)}</TableCell>}
+                      {renderExtraColumns && renderExtraColumns(item)}
                       <TableCell>
                         <div className="flex gap-2">
                           <Button

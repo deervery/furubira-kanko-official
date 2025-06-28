@@ -2,7 +2,9 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase"
+import { db, storage } from "@/lib/firebase"
+import { doc, updateDoc, addDoc, collection } from "firebase/firestore"
+import { ref, uploadBytes, deleteObject, getDownloadURL } from "firebase/storage"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -68,8 +70,17 @@ export function ItemForm<T extends BaseItemType & { date?: string }>({
 
   useEffect(() => {
     if (imagePath) {
-      const imageUrl = supabase.storage.from("cms-images").getPublicUrl(imagePath).data.publicUrl
-      setImagePreview(imageUrl)
+      const getImageUrl = async () => {
+        try {
+          const imageRef = ref(storage, imagePath);
+          const imageUrl = await getDownloadURL(imageRef);
+          setImagePreview(imageUrl);
+        } catch (error) {
+          console.error("Error getting image URL:", error);
+          setImagePreview("/no_photo.jpg?height=200&width=300");
+        }
+      };
+      getImageUrl();
     }
   }, [imagePath])
 
@@ -128,18 +139,15 @@ export function ItemForm<T extends BaseItemType & { date?: string }>({
       if (image) {
         try {
           const fileName = `${storageFolder}/${Date.now()}-${image.name.replace(/[^a-zA-Z0-9.]/g, '_')}`
+          const storageRef = ref(storage, fileName);
           
-          const { data, error: uploadError } = await supabase.storage
-            .from("cms-images")
-            .upload(fileName, image, {
-              cacheControl: '3600',
-              upsert: true
-            })
-    
-          if (uploadError) throw uploadError
+          await uploadBytes(storageRef, image, {
+            cacheControl: '3600'
+          });
     
           if (item?.image_path && item.image_path !== fileName) {
-            await supabase.storage.from("cms-images").remove([item.image_path])
+            const oldImageRef = ref(storage, item.image_path);
+            await deleteObject(oldImageRef);
           }
     
           updatedImagePath = fileName
@@ -150,6 +158,7 @@ export function ItemForm<T extends BaseItemType & { date?: string }>({
             description: err instanceof Error ? err.message : "画像のアップロードに失敗しました",
             variant: "destructive",
           })
+          return; // 処理を中断させるためにreturnを追加
         }
       }
 
@@ -167,15 +176,14 @@ export function ItemForm<T extends BaseItemType & { date?: string }>({
       console.log('Submitting data:', itemData)
 
       if (item) {
-        const { error } = await supabase.from(tableName).update(itemData).eq("id", item.id)
-        if (error) throw error
+        const docRef = doc(db, tableName, item.id);
+        await updateDoc(docRef, itemData);
         toast({
           title: "更新成功",
           description: `${title}を更新しました`,
         })
       } else {
-        const { error } = await supabase.from(tableName).insert(itemData)
-        if (error) throw error
+        await addDoc(collection(db, tableName), itemData);
         toast({
           title: "作成成功",
           description: `${title}を作成しました`,

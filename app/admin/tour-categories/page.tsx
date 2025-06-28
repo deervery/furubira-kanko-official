@@ -56,7 +56,7 @@ export default function TourCategoriesAdminPage() {
       tableName="tour_categories"
       FormComponent={FormComponent}
       renderExtraColumns={renderExtraColumns}
-      orderBy="key"
+      orderByField="key"
     />
   )
 } 

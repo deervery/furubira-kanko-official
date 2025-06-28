@@ -1,5 +1,6 @@
 import { OpenAI } from "openai";
-import { supabase } from "@/lib/supabase";
+import { db } from "@/lib/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import type { NextRequest } from "next/server";
 import furubiraInfo from "@/scripts/furubira_info.json";
 
@@ -9,34 +10,40 @@ const openai = new OpenAI({
 });
 
 export async function POST(request: NextRequest) {
-  const { content, sessionId } = await request.json();
-
-  if (!content || !sessionId) {
-    return Response.json({ error: "ContentとsessionIdは必須です" }, { status: 400 });
-  }
-
-  await saveChat({ content, role: "user", sessionId });
-
-  // システムプロンプトを設定
-  const furubira_info = JSON.stringify(furubiraInfo);
-
-  // 型を明示的に指定
-  const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
-    {
-      role: "system",
-      content: `
-        ポジティブな文には「♪」、ちょっと残念だったり、申し訳ないときは、「だよ。」「だね。」を使ってください。
-        出来るだけ最小のアウトプットにして。もし必要であれば最大5文くらいにして。
-        以下の情報を参考にしてください: ${furubira_info}
-      `
-    },
-    {
-      role: "user",
-      content: content
-    }
-  ];
-
   try {
+    const { content, sessionId } = await request.json();
+
+    if (!content || !sessionId) {
+      return Response.json({ error: "ContentとsessionIdは必須です" }, { status: 400 });
+    }
+
+    // Firebaseの接続テスト
+    if (!db) {
+      console.error("Firebase DB is not initialized");
+      return Response.json({ error: "Firebase DB is not initialized" }, { status: 500 });
+    }
+
+    await saveChat({ content, role: "user", sessionId });
+
+    // システムプロンプトを設定
+    const furubira_info = JSON.stringify(furubiraInfo);
+
+    // 型を明示的に指定
+    const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+      {
+        role: "system",
+        content: `
+          ポジティブな文には「♪」、ちょっと残念だったり、申し訳ないときは、「だよ。」「だね。」を使ってください。
+          出来るだけ最小のアウトプットにして。もし必要であれば最大5文くらいにして。
+          以下の情報を参考にしてください: ${furubira_info}
+        `
+      },
+      {
+        role: "user",
+        content: content
+      }
+    ];
+
     // ストリーミングレスポンスを作成
     const stream = new ReadableStream({
       async start(controller) {
@@ -61,7 +68,7 @@ export async function POST(request: NextRequest) {
             }
           }
 
-          // 完了したレスポンスをSupabaseに保存
+          // 完了したレスポンスをFirestoreに保存
           if (fullResponse) {
             await saveChat({ content: fullResponse, role: "assistant", sessionId });
           }
@@ -116,12 +123,17 @@ export async function POST(request: NextRequest) {
 
 // チャット履歴を保存
 async function saveChat(entry: { content: string; role: string; sessionId: string }) {
-  const { error } = await supabase.from("chat").insert({
-    ...entry,
-    timestamp: new Date().toISOString()
-  });
-
-  if (error) {
-    console.error("Supabaseエラー:", error);
+  try {
+    if (!db) {
+      console.error("Firebase DB is not available for saving chat");
+      return;
+    }
+    
+    await addDoc(collection(db, "chat"), {
+      ...entry,
+      timestamp: serverTimestamp()
+    });
+  } catch (error) {
+    console.error("Firestoreエラー:", error);
   }
 }

@@ -1,13 +1,17 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { supabase } from "@/lib/supabase"
+import { db } from "@/lib/firebase"
+import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore"
 
 export async function GET() {
   try {
-    const { data, error } = await supabase.from("system_message").select("*").single()
+    const docRef = doc(db, "system_message", "default");
+    const docSnap = await getDoc(docRef);
 
-    if (error) throw error
-
-    return NextResponse.json({ message: data.message })
+    if (docSnap.exists()) {
+      return NextResponse.json({ message: docSnap.data().message })
+    } else {
+      return NextResponse.json({ message: "" })
+    }
   } catch (error) {
     console.error("Failed to fetch system message", error)
     return NextResponse.json({ error: "システムメッセージの取得に失敗しました" }, { status: 500 })
@@ -23,13 +27,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "無効なメッセージです" }, { status: 400 })
     }
 
-    const { data, error } = await supabase.from("system_message").update({ message }).eq("id", 1).select().single()
-
-    if (error) throw error
+    const docRef = doc(db, "system_message", "default");
+    await setDoc(docRef, { message }, { merge: true });
 
     return NextResponse.json({
       message: "システムメッセージが更新されました",
-      data,
+      data: { message },
     })
   } catch (error) {
     console.error("System Message Update Error:", error)
