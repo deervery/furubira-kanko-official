@@ -9,6 +9,8 @@ import { renderIcon } from "@/lib/icon-utils"
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import type { BaseItemType } from "@/lib/types"
+import { useI18n } from "@/components/i18n/i18n-provider"
+import { t } from "@/lib/i18n/t"
 
 interface ItemListClientProps<T extends BaseItemType> {
   title: string
@@ -21,6 +23,7 @@ export function ItemListClient<T extends BaseItemType>({
   tableName,
   renderExtra 
 }: ItemListClientProps<T>) {
+  const { lang, messages } = useI18n()
   const [items, setItems] = useState<T[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -35,8 +38,8 @@ export function ItemListClient<T extends BaseItemType>({
         if (error) throw error
 
         // 画像URLを取得して各アイテムに追加
-        const itemsWithImages = data.map(item => ({
-          ...item,
+        const itemsWithImages = data.map((item: any) => ({
+          ...localizeItem(item, lang),
           image: item.image_path 
             ? supabase.storage.from("cms-images").getPublicUrl(item.image_path).data.publicUrl
             : "/no_photo.jpg?height=300&width=400"
@@ -51,14 +54,14 @@ export function ItemListClient<T extends BaseItemType>({
     }
 
     fetchItems()
-  }, [tableName])
+  }, [tableName, lang])
 
   if (loading) {
     return (
       <Layout>
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold mb-8 text-center">{title}</h1>
-          <div className="text-center">読み込み中...</div>
+          <div className="text-center">{t(messages, "common.loading")}</div>
         </div>
       </Layout>
     )
@@ -70,7 +73,7 @@ export function ItemListClient<T extends BaseItemType>({
         <h1 className="text-4xl font-bold mb-8 text-center">{title}</h1>
         <div className="grid gap-6 md:grid-cols-2">
           {items.length === 0 ? (
-            <p className="text-center col-span-2">{title}がありません</p>
+            <p className="text-center col-span-2">{t(messages, "common.no_items")}</p>
           ) : (
             items.map((item) => (
               <Card key={item.id} className="border-primary/20">
@@ -85,7 +88,7 @@ export function ItemListClient<T extends BaseItemType>({
                     {item.url && (
                       <Link href={item.url} target="_blank" rel="noopener noreferrer">
                         <Button variant="outline" className="mt-4">
-                          詳しくはこちら
+                          {t(messages, "cms.see_more_details_here")}
                         </Button>
                       </Link>
                     )}
@@ -111,3 +114,13 @@ export function ItemListClient<T extends BaseItemType>({
     </Layout>
   )
 } 
+
+function localizeItem<TItem extends Record<string, any>>(item: TItem, lang: string): TItem {
+  if (lang !== "en") return item
+
+  const out: Record<string, any> = { ...item }
+  if (typeof item.name_en === "string" && item.name_en.trim()) out.name = item.name_en
+  if (typeof item.description_en === "string" && item.description_en.trim()) out.description = item.description_en
+  if (typeof item.date_en === "string" && item.date_en.trim()) out.date = item.date_en
+  return out as TItem
+}

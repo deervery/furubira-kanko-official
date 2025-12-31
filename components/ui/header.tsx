@@ -8,18 +8,27 @@ import { useEffect, useState } from "react"
 import { useInView } from "react-intersection-observer"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { usePathname, useSearchParams } from "next/navigation"
+
+import { useI18n } from "@/components/i18n/i18n-provider"
+import { t } from "@/lib/i18n/t"
+import { isLang, type Lang } from "@/lib/i18n/lang"
 
 const navigationItems = [
-  { text: "観光スポット", path: "/spots", icon: MapPin },
-  { text: "宿泊施設", path: "/accommodations", icon: Bed },
-  { text: "飲食店", path: "/dining", icon: Coffee },
-  { text: "イベント", path: "/events", icon: Calendar },
-  { text: "アクセス", path: "/access", icon: Compass },
-  { text: "買い物", path: "/shopping", icon: ShoppingBag },
-  { text: "ふるさと納税", path: "/furusato", icon: Gift },
+  { key: "header.tourist_spot", path: "/spots", icon: MapPin },
+  { key: "header.accommodations", path: "/accommodations", icon: Bed },
+  { key: "header.restaurants", path: "/dining", icon: Coffee },
+  { key: "header.events", path: "/events", icon: Calendar },
+  { key: "header.access", path: "/access", icon: Compass },
+  { key: "header.shopping", path: "/shopping", icon: ShoppingBag },
+  { key: "header.tax_donation", path: "/furusato", icon: Gift },
 ]
 
 export const Header = () => {
+  const { lang, messages } = useI18n()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
   const [isScrolled, setIsScrolled] = useState(false)
   const { ref: heroRef, inView: heroInView } = useInView({
     threshold: 0.2,
@@ -33,6 +42,24 @@ export const Header = () => {
     }
   }, [heroInView])
 
+  const withLang = (path: string) => {
+    if (path === "/") return `/${lang}`
+    return `/${lang}${path}`
+  }
+
+  const switchLangHref = (to: Lang) => {
+    const parts = pathname.split("/").filter(Boolean)
+    if (parts.length > 0 && isLang(parts[0])) {
+      parts[0] = to
+      const nextPath = "/" + parts.join("/")
+      const qs = searchParams.toString()
+      return qs ? `${nextPath}?${qs}` : nextPath
+    }
+    const qs = searchParams.toString()
+    const nextPath = pathname === "/" ? `/${to}` : `/${to}${pathname}`
+    return qs ? `${nextPath}?${qs}` : nextPath
+  }
+
   return (
     <>
       <div ref={heroRef} />
@@ -45,7 +72,7 @@ export const Header = () => {
       >
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link
-            href="/"
+            href={withLang("/")}
             className={cn(
               "flex items-center gap-1 hover:opacity-80 transition-colors",
               isScrolled ? "text-white" : "text-white",
@@ -63,17 +90,36 @@ export const Header = () => {
                 }}
               />
             </div>
-            <span className="text-xl">古平町観光協会</span>
+            <span className="text-xl">{t(messages, "header.furubira_tourism_association")}</span>
           </Link>
-          <nav className="hidden xl:flex space-x-4">
-            {navigationItems.map(({ text, path, icon: Icon }) => (
-              <Link key={text} href={path}>
+          <nav className="hidden xl:flex items-center space-x-4">
+            {navigationItems.map(({ key, path, icon: Icon }) => (
+              <Link key={key} href={withLang(path)}>
                 <Button variant="ghost" className="flex items-center space-x-1 text-white hover:bg-primary/20">
                   <Icon className="h-5 w-5" />
-                  <span>{text}</span>
+                  <span>{t(messages, key)}</span>
                 </Button>
               </Link>
             ))}
+            <div className="flex items-center gap-1 pl-2 border-l border-white/20">
+              <Link href={switchLangHref("ja")}>
+                <Button
+                  variant="ghost"
+                  className={cn("text-white hover:bg-primary/20 px-2", lang === "ja" ? "font-bold underline" : "")}
+                >
+                  JA
+                </Button>
+              </Link>
+              <span className="text-white/60">|</span>
+              <Link href={switchLangHref("en")}>
+                <Button
+                  variant="ghost"
+                  className={cn("text-white hover:bg-primary/20 px-2", lang === "en" ? "font-bold underline" : "")}
+                >
+                  EN
+                </Button>
+              </Link>
+            </div>
           </nav>
           <div className="xl:hidden">
             <Sheet>
@@ -88,16 +134,30 @@ export const Header = () => {
               </SheetTrigger>
               <SheetContent>
                 <SheetHeader>
-                  <SheetTitle className="text-2xl">古平町観光案内</SheetTitle>
+                  <SheetTitle className="text-2xl">{t(messages, "footer.tourist_information")}</SheetTitle>
                 </SheetHeader>
                 <div className="py-4 space-y-2">
-                  {navigationItems.map(({ text, path }) => (
-                    <Link key={text} href={path}>
+                  {navigationItems.map(({ key, path }) => (
+                    <Link key={key} href={withLang(path)}>
                       <Button variant="ghost" className="w-full justify-start text-lg">
-                        {text}
+                        {t(messages, key)}
                       </Button>
                     </Link>
                   ))}
+                  <div className="pt-4 mt-4 border-t">
+                    <div className="flex items-center gap-2">
+                      <Link href={switchLangHref("ja")} className="flex-1">
+                        <Button variant="outline" className={cn("w-full", lang === "ja" ? "font-bold" : "")}>
+                          JA
+                        </Button>
+                      </Link>
+                      <Link href={switchLangHref("en")} className="flex-1">
+                        <Button variant="outline" className={cn("w-full", lang === "en" ? "font-bold" : "")}>
+                          EN
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>

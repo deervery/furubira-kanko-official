@@ -10,6 +10,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChatMessage } from "./chat-message"
 import { Loader2, MinimizeIcon, MaximizeIcon, SendIcon } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useI18n } from "@/components/i18n/i18n-provider"
+import { t } from "@/lib/i18n/t"
 
 interface ChatMessageType {
   id: string
@@ -20,6 +22,7 @@ interface ChatMessageType {
 }
 
 export function ChatWindow() {
+  const { messages: i18nMessages } = useI18n()
   const [isMinimized, setIsMinimized] = useState(true)
   const [message, setMessage] = useState("")
   const [sessionId] = useState(() => nanoid())
@@ -56,7 +59,7 @@ export function ChatWindow() {
             {
               id: nanoid(),
               role: "assistant",
-              content: "こんにちは！古平町の観光について気軽に質問してね！",
+              content: t(i18nMessages, "chat.welcome"),
               timestamp: new Date().toISOString(),
             },
           ])
@@ -70,14 +73,14 @@ export function ChatWindow() {
           {
             id: nanoid(),
             role: "assistant",
-            content: "こんにちは！古平町の観光について気軽に質問してね！",
+            content: t(i18nMessages, "chat.welcome"),
             timestamp: new Date().toISOString(),
           },
         ])
       }
     }
     loadMessages()
-  }, [sessionId])
+  }, [sessionId, i18nMessages])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -111,11 +114,11 @@ export function ChatWindow() {
         console.log("Response status:", response.status)
 
         if (!response.ok) {
-          throw new Error("応答の取得に失敗しました")
+          throw new Error(t(i18nMessages, "chat.error_response_failed"))
         }
 
         if (!response.body) {
-          throw new Error("レスポンスボディがありません")
+          throw new Error(t(i18nMessages, "chat.error_no_body"))
         }
 
         // テキストストリームを読み込む
@@ -166,8 +169,8 @@ export function ChatWindow() {
       } catch (error) {
         console.error("Error sending message:", error)
         toast({
-          title: "エラー",
-          description: error instanceof Error ? error.message : "メッセージの送信に失敗しました",
+          title: t(i18nMessages, "chat.error_title"),
+          description: error instanceof Error ? error.message : t(i18nMessages, "chat.error_send_failed"),
           variant: "destructive",
         })
 
@@ -178,7 +181,7 @@ export function ChatWindow() {
           {
             id: nanoid(),
             role: "assistant",
-            content: "申し訳ありません、エラーが発生しました。",
+            content: t(i18nMessages, "chat.error_generic"),
             timestamp: new Date().toISOString(),
           },
         ])
@@ -204,7 +207,7 @@ export function ChatWindow() {
         onClick={() => setIsMinimized(false)}
       >
         <MaximizeIcon className="mr-2 h-4 w-4" />
-        ふるびらAIガイドに質問する
+        {t(i18nMessages, "chat.button_label")}
       </Button>
     )
   }
@@ -212,7 +215,7 @@ export function ChatWindow() {
   return (
     <Card className="fixed bottom-4 right-4 w-[350px] h-[500px] flex flex-col shadow-lg overflow-hidden p-0">
       <div className="py-3 px-4 flex justify-between items-center bg-primary text-white w-full">
-        <h3 className="font-semibold">ふるびらAIガイド</h3>
+        <h3 className="font-semibold">{t(i18nMessages, "chat.title")}</h3>
         <Button
           variant="ghost"
           size="icon"
@@ -231,12 +234,12 @@ export function ChatWindow() {
           <div className="flex flex-col items-center mb-4">
             <img 
               src="/furuppy.gif" 
-              alt="考え中" 
+              alt={t(i18nMessages, "chat.thinking_alt")}
               className="w-48 h-48 object-contain mb-2"
             />
             <div className="flex items-center gap-2 text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
-              考え中...
+              {t(i18nMessages, "chat.thinking")}
             </div>
           </div>
         )}
@@ -246,7 +249,7 @@ export function ChatWindow() {
         <Input
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="古平町や観光について聞きたいこと"
+          placeholder={t(i18nMessages, "chat.placeholder")}
           disabled={isLoading}
         />
         <Button type="submit" size="icon" disabled={isLoading} className="bg-primary hover:bg-primary/80">

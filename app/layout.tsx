@@ -1,9 +1,11 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
+import { headers } from "next/headers"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/lib/auth-provider"
+import { DEFAULT_LANG, isLang } from "@/lib/i18n/lang"
 import Script from 'next/script'
 
 const inter = Inter({ subsets: ["latin"] })
@@ -53,8 +55,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const langFromHeader = headers().get("x-lang")
+  const lang = isLang(langFromHeader) ? langFromHeader : DEFAULT_LANG
+
   return (
-    <html lang="ja" suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       <head>
         <Script strategy="afterInteractive" src="https://www.googletagmanager.com/gtag/js?id=G-S3TJ1KJS6X" />
         <Script id="google-analytics" strategy="afterInteractive">
@@ -76,5 +81,3 @@ export default function RootLayout({
 }
 
 
-
-import './globals.css'

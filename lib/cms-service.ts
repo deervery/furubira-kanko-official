@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase"
 import type { SpotType, RestaurantType, AccommodationType, EventType, ShopType } from "@/lib/site-data"
 import type React from "react"
+import { DEFAULT_LANG, isLang, type Lang } from "@/lib/i18n/lang"
 
 // 画像URLを生成する関数を追加
 function getImageUrl(imagePath: string | null): string {
@@ -16,7 +17,7 @@ export function getIconComponent(iconName: string): string {
 }
 
 // 観光スポットデータを取得
-export async function getSpots(): Promise<SpotType[]> {
+export async function getSpots(lang: Lang = DEFAULT_LANG): Promise<SpotType[]> {
   const { data, error } = await supabase.from("spots").select("*").order("name")
   if (error) {
     console.error("Error fetching spots:", error)
@@ -25,10 +26,10 @@ export async function getSpots(): Promise<SpotType[]> {
 
   return data.map((spot) => ({
     id: spot.id,
-    name: spot.name,
-    description: spot.description,
+    name: lang === "en" ? (spot.name_en || spot.name) : spot.name,
+    description: lang === "en" ? (spot.description_en || spot.description) : spot.description,
     address: spot.address,
-    facilities: spot.facilities,
+    facilities: lang === "en" ? (spot.facilities_en || spot.facilities) : spot.facilities,
     image_path: spot.image_path,
     image: getImageUrl(spot.image_path),
     icon: spot.icon,
@@ -38,7 +39,7 @@ export async function getSpots(): Promise<SpotType[]> {
 }
 
 // 飲食店データを取得
-export async function getRestaurants(): Promise<RestaurantType[]> {
+export async function getRestaurants(lang: Lang = DEFAULT_LANG): Promise<RestaurantType[]> {
   const { data, error } = await supabase.from("restaurants").select("*").order("name")
 
   if (error) {
@@ -48,8 +49,8 @@ export async function getRestaurants(): Promise<RestaurantType[]> {
 
   return data.map((restaurant) => ({
     id: restaurant.id,
-    name: restaurant.name,
-    description: restaurant.description,
+    name: lang === "en" ? (restaurant.name_en || restaurant.name) : restaurant.name,
+    description: lang === "en" ? (restaurant.description_en || restaurant.description) : restaurant.description,
     image_path: restaurant.image_path,
     image: getImageUrl(restaurant.image_path),
     icon: restaurant.icon,
@@ -59,7 +60,7 @@ export async function getRestaurants(): Promise<RestaurantType[]> {
 }
 
 // 宿泊施設データを取得
-export async function getAccommodations(): Promise<AccommodationType[]> {
+export async function getAccommodations(lang: Lang = DEFAULT_LANG): Promise<AccommodationType[]> {
   const { data, error } = await supabase.from("accommodations").select("*").order("name")
 
   if (error) {
@@ -69,8 +70,8 @@ export async function getAccommodations(): Promise<AccommodationType[]> {
 
   return data.map((accommodation) => ({
     id: accommodation.id,
-    name: accommodation.name,
-    description: accommodation.description,
+    name: lang === "en" ? (accommodation.name_en || accommodation.name) : accommodation.name,
+    description: lang === "en" ? (accommodation.description_en || accommodation.description) : accommodation.description,
     image_path: accommodation.image_path,
     image: getImageUrl(accommodation.image_path),
     icon: accommodation.icon,
@@ -80,7 +81,7 @@ export async function getAccommodations(): Promise<AccommodationType[]> {
 }
 
 // イベントデータを取得
-export async function getEvents(): Promise<EventType[]> {
+export async function getEvents(lang: Lang = DEFAULT_LANG): Promise<EventType[]> {
   const { data, error } = await supabase.from("events").select("*").order("name")
 
   if (error) {
@@ -90,9 +91,9 @@ export async function getEvents(): Promise<EventType[]> {
 
   return data.map((event) => ({
     id: event.id,
-    name: event.name,
-    description: event.description,
-    date: event.date,
+    name: lang === "en" ? (event.name_en || event.name) : event.name,
+    description: lang === "en" ? (event.description_en || event.description) : event.description,
+    date: lang === "en" ? (event.date_en || event.date) : event.date,
     image_path: event.image_path,
     image: getImageUrl(event.image_path),
     icon: event.icon,
@@ -124,12 +125,13 @@ export async function getShops(): Promise<ShopType[]> {
 }
 
 // ツアーデータを取得
-export async function getTourData() {
+export async function getTourData(langInput?: string | Lang) {
+  const lang: Lang = isLang(langInput as string) ? (langInput as Lang) : DEFAULT_LANG
   try {
     const [spots, restaurants, accommodations, shops] = await Promise.all([
-      getSpots(),
-      getRestaurants(),
-      getAccommodations(),
+      getSpots(lang),
+      getRestaurants(lang),
+      getAccommodations(lang),
       getShops(),
     ])
 

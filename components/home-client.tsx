@@ -14,6 +14,8 @@ import Image from "next/image"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { renderIcon } from "@/lib/icon-utils"
+import { useI18n } from "@/components/i18n/i18n-provider"
+import { t } from "@/lib/i18n/t"
 
 /* ------------------------------------------------------------------
    DividerSection コンポーネント
@@ -60,6 +62,7 @@ type HomeClientProps = {
 }
 
 export function HomeClient({ tourData }: HomeClientProps) {
+  const { messages } = useI18n()
   const [showChat, setShowChat] = useState(false)
   const { ref: heroRef, inView: heroInView } = useInView({
     threshold: 0.5,
@@ -129,6 +132,9 @@ export function HomeClient({ tourData }: HomeClientProps) {
     }
   }, [introInView]);
 
+  const introKey =
+    "home.furubira_town_is_a_fishing_community_located_on_hokkaidos_sea_of_japan_coast_the_tengu_firewalking_ritual_with_over_300_years_of_history_has_been_cherished_and_passed_down_to_this_day_as_a_sacred_ceremony_praying_for_fishermens_bountiful_catches_and_safety_the_sight_of_tengu_in_vermilion_robes_walking_over_flames_continues_to_illuminate_kobiras_night_sky_symbolizing_the_prayers_and_wishes_of_the_townspeople_kobira_town_is_a_fishing_community_located_on_hokkaidos_sea_of_japan_coast_the_tengu_firewalking_ritual_with_over_300_years_of_history_has_been_cherished_and_passed_down_to_this_day_as_a_sacred_ceremony_praying_for_fishermens_bountiful_catches_and_safety_the_sight_of_tengu_clad_in_vermilion_robes_walking_over_flames_continues_to_illuminate_kobiras_night_sky_symbolizing_the_prayers_and_wishes_of_the_townspeople_translated_with_deepl_com_free_version"
+
   return (
     <div className="min-h-screen bg-black">
       <div className={`transition-opacity duration-1000 ${headerVisible ? 'opacity-100' : 'opacity-0'}`}>
@@ -163,7 +169,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
           <h1
             className={`writing-vertical-rl text-6xl mb-4 text-white drop-shadow-lg h-[400px] transition-opacity duration-1000 ${captionVisible ? 'opacity-100' : 'opacity-0'}`}
           >
-            熱く燃ゆる町
+            {t(messages, "home.hero_title")}
           </h1>
         </div>
       </div>
@@ -173,17 +179,14 @@ export function HomeClient({ tourData }: HomeClientProps) {
         <div className="text-center mb-16">
           <div className={`inline-block px-12 transition-opacity duration-1000 ${introDelayed ? 'opacity-100' : 'opacity-0'}`}>
             <p className="text-s md:text-sm text-white mb-1 md:mb-2">-FIRE WALKING RITUAL-</p>
-            <h2 className="text-2xl md:text-4xl font-bold text-white">天狗の火渡り</h2>
+            <h2 className="text-2xl md:text-4xl font-bold text-white">{t(messages, "home.fire_walking_ritual")}</h2>
           </div>
         </div>
         <div className="mx-auto max-w-3xl px-4 w-full">
           <div className="flex flex-col md:flex-row gap-6 md:gap-12 items-center">
             <div className={`space-y-4 md:space-y-6 order-2 md:order-1 w-full md:w-1/2 transition-opacity duration-1000 ${introDelayed ? 'opacity-100' : 'opacity-0'}`}>
               <p className="text-sm text-white">
-                古平町は、北海道の日本海側に位置する漁業の町です。300年以上の歴史を持つ「天狗の火渡り」は、
-                漁師たちの大漁と安全を祈願する神聖な儀式として、今日まで大切に受け継がれてきました。
-                朱色の装束に身を包んだ天狗が炎の上を渡る姿は、町の人々の祈りと願いの象徴として、
-                古平の夜空を照らし続けています。
+                {t(messages, introKey)}
               </p>
             </div>
             <div className={`w-full md:w-1/2 order-1 md:order-2 aspect-[3/4] relative transition-opacity duration-1000 ${introDelayed ? 'opacity-100' : 'opacity-0'}`}>
@@ -212,7 +215,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
           <div className="text-center mb-8 md:mb-16">
             <div className="inline-block px-6 md:px-12">
               <p className="text-s md:text-md text-gray-500 mb-1 md:mb-2">-TOUR PROPOSAL-</p>
-              <h2 className="text-2xl md:text-4xl font-bold">旅行プラン</h2>
+              <h2 className="text-2xl md:text-4xl font-bold">{t(messages, "home.explore_furubira")}</h2>
             </div>
           </div>
 
@@ -249,12 +252,12 @@ export function HomeClient({ tourData }: HomeClientProps) {
                                     {item.url ? (
                                       <Link href={item.url} target="_blank" rel="noopener noreferrer">
                                         <Button variant="outline" size="sm" className="w-full">
-                                          詳しくはこちら
+                                          {t(messages, "cms.see_more_details_here")}
                                         </Button>
                                       </Link>
                                     ) : (
                                       <Button variant="outline" size="sm" className="w-full" disabled>
-                                        詳しくはこちら
+                                        {t(messages, "cms.see_more_details_here")}
                                       </Button>
                                     )}
                                   </div>
@@ -295,7 +298,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
           <div className="text-center mb-8 md:mb-16">
             <div className="inline-block px-6 md:px-12">
               <p className="text-s md:text-sm text-gray-500 mb-1 md:mb-2">-ACCESS-</p>
-              <h2 className="text-2xl md:text-4xl font-bold">アクセス</h2>
+              <h2 className="text-2xl md:text-4xl font-bold">{t(messages, "home.access")}</h2>
             </div>
           </div>
 
@@ -303,18 +306,18 @@ export function HomeClient({ tourData }: HomeClientProps) {
             <CardContent className="p-4 md:p-6">
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-xl font-bold mb-2">自動車でのアクセス</h3>
+                  <h3 className="text-xl font-bold mb-2">{t(messages, "home.access_by_car")}</h3>
                   <ul className="space-y-2 text-gray-600">
-                    <li>札幌から車で約2時間（道央自動車道余市ICから約40分）</li>
-                    <li>小樽から車で約1時間</li>
+                    <li>{t(messages, "home.about_2_hours_by_car_from_sapporo_about_40_minutes_from_the_yoichi_ic_on_the_d_expressway")}</li>
+                    <li>{t(messages, "home.about_1_hour_by_car_from_otaru")}</li>
                   </ul>
                 </div>
 
                 <div>
-                  <h3 className="text-xl font-bold mb-2">駐車場情報</h3>
+                  <h3 className="text-xl font-bold mb-2">{t(messages, "home.parking_information")}</h3>
                   <ul className="space-y-2 text-gray-600">
-                    <li>古平町観光協会付近に無料駐車場あり</li>
-                    <li>各観光スポット近くにも駐車スペースあり</li>
+                    <li>{t(messages, "home.free_parking_is_available_near_the_furubira_town_hall")}</li>
+                    <li>{t(messages, "home.parking_spaces_are_also_available_near_each_sightseeing_spot")}</li>
                   </ul>
                 </div>
               </div>
@@ -324,7 +327,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
           <div className="rounded-lg overflow-hidden shadow-lg">
             <iframe
               src="https://maps.google.com/maps?q=〒046-0121%20北海道古平郡古平町浜町50番地%20古平町役場&output=embed"
-              title="古平町役場の地図"
+              title={t(messages, "accessPage.map_title")}
               className="w-full h-96 object-cover"
               allowFullScreen
               loading="lazy"
