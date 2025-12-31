@@ -6,7 +6,16 @@ import { useI18n } from "@/components/i18n/i18n-provider"
 import { t } from "@/lib/i18n/t"
 
 export default function Access() {
-  const { messages } = useI18n()
+  const { lang, messages } = useI18n()
+
+  // Note: Google Maps place labels depend on Google's data. Using an English query + hl=en
+  // improves the chance that the UI and place name appear in English.
+  const mapQuery =
+    lang === "en"
+      ? "Furubira Town Hall, Hokkaido, Japan"
+      : "〒046-0121 北海道古平郡古平町浜町50番地 古平町役場"
+
+  const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed&hl=${lang}`
 
   return (
     <Layout>
@@ -31,7 +40,7 @@ export default function Access() {
 
         <div className="mt-8 aspect-video rounded-lg overflow-hidden shadow-lg">
           <iframe
-            src="https://maps.google.com/maps?q=〒046-0121%20北海道古平郡古平町浜町50番地%20古平町役場&output=embed"
+            src={mapSrc}
             title={t(messages, "accessPage.map_title")}
             className="w-full h-96 object-cover"
             allowFullScreen

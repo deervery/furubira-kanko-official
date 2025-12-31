@@ -90,17 +90,43 @@ export const Header = () => {
                 }}
               />
             </div>
-            <span className="text-xl">{t(messages, "header.furubira_tourism_association")}</span>
+            <span
+              className={cn(
+                "whitespace-nowrap leading-none",
+                // Keep the original header layout, but scale down typography in English
+                // to avoid wrapping/clipping within the fixed-height header.
+                lang === "en" ? "text-base sm:text-lg" : "text-xl"
+              )}
+              title={t(messages, "header.furubira_tourism_association")}
+            >
+              {t(messages, "header.furubira_tourism_association")}
+            </span>
           </Link>
-          <nav className="hidden xl:flex items-center space-x-4">
-            {navigationItems.map(({ key, path, icon: Icon }) => (
-              <Link key={key} href={withLang(path)}>
-                <Button variant="ghost" className="flex items-center space-x-1 text-white hover:bg-primary/20">
-                  <Icon className="h-5 w-5" />
-                  <span>{t(messages, key)}</span>
-                </Button>
-              </Link>
-            ))}
+          <nav
+            className={cn(
+              "hidden xl:flex items-center",
+              // Slightly tighter spacing in English to prevent overflow.
+              lang === "en" ? "space-x-2" : "space-x-4"
+            )}
+          >
+            {navigationItems.map(({ key, path, icon: Icon }) => {
+              const label = t(messages, key)
+              return (
+                <Link key={key} href={withLang(path)}>
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      "flex items-center space-x-1 text-white hover:bg-primary/20",
+                      // Reduce font size/padding in English to fit long labels.
+                      lang === "en" ? "px-2 text-sm" : ""
+                    )}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span className="whitespace-nowrap">{label}</span>
+                  </Button>
+                </Link>
+              )
+            })}
             <div className="flex items-center gap-1 pl-2 border-l border-white/20">
               <Link href={switchLangHref("ja")}>
                 <Button

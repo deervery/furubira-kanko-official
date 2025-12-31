@@ -62,7 +62,7 @@ type HomeClientProps = {
 }
 
 export function HomeClient({ tourData }: HomeClientProps) {
-  const { messages } = useI18n()
+  const { lang, messages } = useI18n()
   const [showChat, setShowChat] = useState(false)
   const { ref: heroRef, inView: heroInView } = useInView({
     threshold: 0.5,
@@ -326,7 +326,11 @@ export function HomeClient({ tourData }: HomeClientProps) {
 
           <div className="rounded-lg overflow-hidden shadow-lg">
             <iframe
-              src="https://maps.google.com/maps?q=〒046-0121%20北海道古平郡古平町浜町50番地%20古平町役場&output=embed"
+              src={`https://www.google.com/maps?q=${encodeURIComponent(
+                lang === "en"
+                  ? "Furubira Town Hall, Hokkaido, Japan"
+                  : "〒046-0121 北海道古平郡古平町浜町50番地 古平町役場"
+              )}&output=embed&hl=${lang}`}
               title={t(messages, "accessPage.map_title")}
               className="w-full h-96 object-cover"
               allowFullScreen
