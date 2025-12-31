@@ -9,21 +9,25 @@ export function generateStaticParams(): Array<{ lang: Lang }> {
   return [{ lang: "ja" }, { lang: "en" }]
 }
 
-export default function LangLayout({
+export default async function LangLayout({
   children,
   params,
 }: Readonly<{
   children: React.ReactNode
-  params: { lang: string }
+  // Next.js 16: params can be a Promise in some cases (especially with streaming).
+  // Accept both shapes to be robust.
+  params: { lang: string } | Promise<{ lang: string }>
 }>) {
-  if (!isLang(params.lang)) {
+  const { lang } = await Promise.resolve(params)
+
+  if (!isLang(lang)) {
     notFound()
   }
 
-  const messages = getMessages(params.lang)
+  const messages = getMessages(lang)
 
   return (
-    <I18nProvider lang={params.lang} messages={messages}>
+    <I18nProvider lang={lang} messages={messages}>
       {children}
     </I18nProvider>
   )

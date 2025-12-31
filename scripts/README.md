@@ -84,6 +84,31 @@
 - `app/api/chat/route.ts`
   - **目的**: `furubira_content.json` を直接読み込み、システムプロンプトに含める。
 
+---
+
+## 翻訳辞書（`locales/messages.json`）の同期（Excel基準）
+
+英語対応の Excel（`英語対応_translationPj.xlsx`）を「正」とし、Excel に存在しない **日本語文** を持つエントリは `locales/messages.json` から削除できます。
+
+### 実行コマンド
+
+```bash
+npm run prune-translations:excel-ja
+```
+
+### 何が起きるか
+
+- Excel の「日本語」列の文字列を抽出（空・重複は除外）
+- `messages.json` の `ja` 側の値（日本語文字列）と照合
+- Excel に存在しない日本語文のキーを **ja/en 両方から削除**
+- `locales/messages.json.bak.<timestamp>` を作ってから書き換え
+- `docs/translation-prune-report.<timestamp>.md` に削除一覧を出力
+
+### 注意
+
+- 削除したキーが UI で参照されている場合、表示が崩れる（キー文字が出る等）可能性があります。
+- 戻したい場合はバックアップ（`locales/messages.json.bak.<timestamp>`）を `locales/messages.json` に戻してください。
+
 ## 今後の検討
 
 - **ICL 方式のトークン数削減方法** の模索（情報量を最適化しつつ、適切な回答を維持する）。

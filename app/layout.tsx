@@ -50,12 +50,13 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://curl-furubira.com"),
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const langFromHeader = headers().get("x-lang")
+  const headersList = await headers()
+  const langFromHeader = headersList.get("x-lang")
   const lang = isLang(langFromHeader) ? langFromHeader : DEFAULT_LANG
 
   return (

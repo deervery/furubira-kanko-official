@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase"
 import type { SpotType, RestaurantType, AccommodationType, EventType, ShopType } from "@/lib/site-data"
 import type React from "react"
 import { DEFAULT_LANG, isLang, type Lang } from "@/lib/i18n/lang"
+import rawMessages from "@/locales/messages.json"
 
 // 画像URLを生成する関数を追加
 function getImageUrl(imagePath: string | null): string {
@@ -14,6 +15,45 @@ function getImageUrl(imagePath: string | null): string {
 // アイコン名を文字列として返す関数
 export function getIconComponent(iconName: string): string {
   return iconName;
+}
+
+function normalizeTextForLookup(s: unknown): string {
+  if (typeof s !== "string") return ""
+  return (
+    s
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n")
+      .replace(/\u3000/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+  )
+}
+
+function buildCmsValueMap(messagesByLang: any) {
+  /** @type {Map<string, string>} normalizedValue -> cmsKey */
+  const map = new Map<string, string>()
+  const cms = messagesByLang?.cms ?? {}
+  for (const [k, v] of Object.entries(cms)) {
+    const norm = normalizeTextForLookup(v)
+    if (!norm) continue
+    // If duplicates exist, keep first (stable)
+    if (!map.has(norm)) map.set(norm, String(k))
+  }
+  return map
+}
+
+const jaCmsValueToKey = buildCmsValueMap((rawMessages as any).ja)
+const enCms = ((rawMessages as any).en?.cms ?? {}) as Record<string, unknown>
+
+function translateCmsFallback(lang: Lang, original: unknown): string | null {
+  // Only try fallback for English (current use-case)
+  if (lang !== "en") return null
+  const norm = normalizeTextForLookup(original)
+  if (!norm) return null
+  const cmsKey = jaCmsValueToKey.get(norm)
+  if (!cmsKey) return null
+  const enVal = enCms[cmsKey]
+  return typeof enVal === "string" && enVal.trim() ? enVal : null
 }
 
 // 観光スポットデータを取得
@@ -103,7 +143,7 @@ export async function getEvents(lang: Lang = DEFAULT_LANG): Promise<EventType[]>
 }
 
 // 買い物スポットデータを取得
-export async function getShops(): Promise<ShopType[]> {
+export async function getShops(lang: Lang = DEFAULT_LANG): Promise<ShopType[]> {
   const { data, error } = await supabase.from("shops").select("*").order("name")
 
   if (error) {
@@ -113,8 +153,14 @@ export async function getShops(): Promise<ShopType[]> {
 
   return data.map((shop) => ({
     id: shop.id,
-    name: shop.name,
-    description: shop.description,
+    name:
+      (lang === "en" ? (shop.name_en || translateCmsFallback(lang, shop.name) || shop.name) : shop.name) ??
+      shop.name,
+    description:
+      (lang === "en"
+        ? (shop.description_en || translateCmsFallback(lang, shop.description) || shop.description)
+        : shop.description) ?? shop.description,
+    // As requested, show the DB value as-is (no "Type:" / "種別" label, no translation).
     type: shop.type,
     image_path: shop.image_path,
     image: getImageUrl(shop.image_path),
@@ -132,7 +178,7 @@ export async function getTourData(langInput?: string | Lang) {
       getSpots(lang),
       getRestaurants(lang),
       getAccommodations(lang),
-      getShops(),
+      getShops(lang),
     ])
 
     const { data: categories, error } = await supabase.from("tour_categories").select("*")

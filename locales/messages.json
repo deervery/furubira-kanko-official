@@ -160,35 +160,25 @@
       "hero_title": "A Town Burning Bright",
       "fire_walking_ritual": "Tengu Fire-Walking"
     },
+    "chat": {
+      "button_label": "Ask the Furubira AI Guide"
+    },
     "accessPage": {
       "how_to_reach": "How to Get to Furubira",
       "map_title": "Map of Furubira Town Hall"
-    },
-    "common": {
-      "loading": "Loading...",
-      "no_items": "No items found."
-    },
-    "labels": {
-      "facilities": "Facilities",
-      "type": "Type"
     },
     "notFound": {
       "title": "404 Page Not Found",
       "description": "The page you’re looking for doesn’t exist or may have moved.",
       "back_to_home": "Back to Home"
     },
-    "chat": {
-      "button_label": "Ask the Furubira AI Guide",
-      "title": "Furubira AI Guide",
-      "thinking": "Thinking...",
-      "placeholder": "Ask about Furubira or sightseeing",
-      "welcome": "Hi! Feel free to ask anything about sightseeing in Furubira!",
-      "error_title": "Error",
-      "error_send_failed": "Failed to send your message.",
-      "error_response_failed": "Failed to fetch a response.",
-      "error_no_body": "Response body is empty.",
-      "error_generic": "Sorry—something went wrong.",
-      "thinking_alt": "Thinking"
+    "labels": {
+      "type": "Type",
+      "facilities": "Facilities"
+    },
+    "common": {
+      "loading": "Loading...",
+      "no_items": "No items found."
     }
   },
   "ja": {
@@ -352,35 +342,25 @@
       "hero_title": "熱く燃ゆる町",
       "fire_walking_ritual": "天狗の火渡り"
     },
+    "chat": {
+      "button_label": "ふるびらAIガイドに質問する"
+    },
     "accessPage": {
       "how_to_reach": "古平町へのアクセス方法",
       "map_title": "古平町役場の地図"
-    },
-    "common": {
-      "loading": "読み込み中...",
-      "no_items": "表示できる情報がありません"
-    },
-    "labels": {
-      "facilities": "施設",
-      "type": "種別"
     },
     "notFound": {
       "title": "404 ページが見つかりません",
       "description": "お探しのページは存在しないか、移動した可能性があります。",
       "back_to_home": "トップページに戻る"
     },
-    "chat": {
-      "button_label": "ふるびらAIガイドに質問する",
-      "title": "ふるびらAIガイド",
-      "thinking": "考え中...",
-      "placeholder": "古平町や観光について聞きたいこと",
-      "welcome": "こんにちは！古平町の観光について気軽に質問してね！",
-      "error_title": "エラー",
-      "error_send_failed": "メッセージの送信に失敗しました",
-      "error_response_failed": "応答の取得に失敗しました",
-      "error_no_body": "レスポンスボディがありません",
-      "error_generic": "申し訳ありません、エラーが発生しました。",
-      "thinking_alt": "考え中"
+    "labels": {
+      "type": "種別",
+      "facilities": "施設"
+    },
+    "common": {
+      "loading": "読み込み中...",
+      "no_items": "表示できる情報がありません"
     }
   }
 }

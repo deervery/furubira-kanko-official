@@ -30,9 +30,11 @@
 - `app/[lang]/layout.tsx`
   - `/ja` と `/en` を `generateStaticParams()` で静的生成
   - `I18nProvider` を設置（この配下で `useI18n()` が使える）
+  - Next.js 16 では `params` が Promise 扱いになるケースがあるため、`await Promise.resolve(params)` で安全に `lang` を取得する
 - `app/[lang]/page.tsx`
 - `app/[lang]/**/page.tsx`（公開ページ群）
 - `app/[lang]/not-found.tsx`（公開用404）
+  - `app/[lang]/shopping/page.tsx`（買い物ページ）は、`shops` テーブルの `type` を **ラベル無しでそのまま表示**します（`Type:` / `種別:` は付けない）
 
 ### 翻訳（i18n）
 - `locales/messages.json`
@@ -43,7 +45,7 @@
   - `getMessages(lang)`（JSON辞書を返す）
 - `lib/i18n/t.ts`
   - `t(messages, "a.b.c")` のように **ドットパスで文字列取得**
-  - 文字列が存在しない場合は **キー文字列をそのまま返す**（ロールアウトを安全に）
+  - 文字列が存在しない場合は **キー文字列をそのまま返す**（実装上の挙動）
 - `lib/i18n/lang.ts`
   - `Lang = 'ja' | 'en'` など
 
@@ -53,6 +55,7 @@
   - `x-lang` リクエストヘッダ付与 + `lang` cookie 保存
 - `app/layout.tsx`
   - `x-lang` ヘッダを参照して `<html lang="...">` を設定
+  - Next.js 16 では `headers()` が Promise のため、`await headers()` を使う
 
 ### ナビ/フッター（言語・リンク対応）
 - `components/ui/header.tsx`
@@ -69,13 +72,43 @@
 ファイル: `locales/messages.json`
 
 - 形式: `{ "ja": { ... }, "en": { ... } }`
-- キーはドットパス（例: `header.tourist_spot`）として `t(messages, key)` で参照されます。
+- キーはドットパス（例: `cms.about_hometown_tax_program`）として `t(messages, key)` で参照されます。
+- **JSON内のカテゴリ分け（Header/Footerなど）は必須ではありません**。運用しやすい形でOKです（フラットでもネストでも可）。
+- **JSONに無い文言は翻訳不要**です。翻訳対象にしたい文言だけ `t()` を使い、辞書に追加してください。
 
 ### 2) 追加・更新の手順
 1. `locales/messages.json` の `ja` / `en` にキーを追加・更新
 2. `/ja` と `/en` で表示を確認
 
-> 注意: `t()` はキーが無い場合、キー文字列をそのまま表示します。UI上で `home.xxx` のような表示が出たら辞書に不足があるサインです。
+> 注意: `t()` はキーが無い場合、キー文字列をそのまま表示します。翻訳不要の文言は `t()` を使わず、そのまま表示してください。
+
+---
+
+## Excel（英語翻訳）と `messages.json` の照合・削除
+
+英語翻訳の Excel（`英語対応_translationPj.xlsx`）を「正」として運用する場合、Excel に存在しない日本語文を持つエントリは `locales/messages.json` から削除してOKです。
+
+### 実行方法
+
+```bash
+npm run prune-translations:excel-ja
+```
+
+### 生成物
+
+- `locales/messages.json.bak.<timestamp>`（バックアップ）
+- `docs/translation-prune-report.<timestamp>.md`（削除レポート）
+
+### 注意
+
+- **コードで参照されているキーは削除しない**ようにしています（`t(messages, "x.y")` や `{ key: "x.y" }` を静的解析して保護）。
+- それでも `header.events` のような **キー文字列が画面に出る場合**は、該当キーが辞書から消えているサインです。
+- 復元する場合は、バックアップを `locales/messages.json` に戻してください。
+  - もしくは以下で「最新バックアップからコード参照キーだけ」復元できます。
+
+```bash
+npm run restore-translations:latest-backup
+```
 
 ---
 
@@ -85,7 +118,7 @@
 `app/[lang]/layout.tsx` 配下（公開ページ側）では以下が使えます。
 
 - `useI18n()` → `{ lang, messages }`
-- `t(messages, "header.access")` → 文字列
+- `t(messages, "cms.about_hometown_tax_program")` → 文字列
 
 例（クライアントコンポーネント）:
 
@@ -95,7 +128,7 @@ import { t } from "@/lib/i18n/t"
 
 export function Example() {
   const { messages } = useI18n()
-  return <h1>{t(messages, "header.tourist_spot")}</h1>
+  return <h1>{t(messages, "cms.about_hometown_tax_program")}</h1>
 }
 ```
 
@@ -161,6 +194,6 @@ export function Example() {
 
 - `locales/messages.json` が翻訳の正です（直接編集して運用）。
 - 管理画面（`/admin`）と API（`/api`）は今回の多言語化対象外です。
-- `t()` はキーが無い場合 **キー文字列を返す**ため、UI上で `home.xxx` のような文字列が見えたら「辞書に無い」サインです（JSONに追加して解消します）。
+- `t()` はキーが無い場合 **キー文字列を返す**ため、翻訳不要の文言には `t()` を使わないでください。
 
 

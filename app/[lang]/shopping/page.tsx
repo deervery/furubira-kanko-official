@@ -9,7 +9,7 @@ export default function ShoppingPage() {
   const { messages } = useI18n()
   const renderExtra = (shop: ShopType) => (
     <p className="text-sm text-gray-500">
-      {t(messages, "labels.type")}: {shop.type}
+      {shop.type}
     </p>
   )
 
