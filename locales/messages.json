@@ -163,7 +163,19 @@
       "fire_walking_ritual": "Tengu Fire-Walking"
     },
     "chat": {
-      "button_label": "Ask the Furubira AI Guide"
+      "button_label": "Ask the Furubira AI Guide",
+      "title": "Chat",
+      "welcome": "Hello! I'm the Furubira AI Guide. How can I help you today?",
+      "placeholder": "Type your message...",
+      "thinking": "Thinking...",
+      "thinking_alt": "Furuppy thinking",
+      "avatar_alt": "Furuppy",
+      "avatar_fallback": "AI",
+      "error_title": "Error",
+      "error_response_failed": "Failed to get response from server",
+      "error_no_body": "No response body received",
+      "error_send_failed": "Failed to send message",
+      "error_generic": "An error occurred. Please try again."
     },
     "accessPage": {
       "how_to_reach": "How to Get to Furubira",
@@ -347,7 +359,19 @@
       "fire_walking_ritual": "天狗の火渡り"
     },
     "chat": {
-      "button_label": "ふるびらAIガイドに質問する"
+      "button_label": "ふるびらAIガイドに質問する",
+      "title": "チャット",
+      "welcome": "こんにちは！ふるびらAIガイドです。何かお手伝いできることはありますか？",
+      "placeholder": "メッセージを入力...",
+      "thinking": "考え中...",
+      "thinking_alt": "考え中のふるっぴー",
+      "avatar_alt": "ふるっぴー",
+      "avatar_fallback": "AI",
+      "error_title": "エラー",
+      "error_response_failed": "サーバーからの応答の取得に失敗しました",
+      "error_no_body": "応答ボディが受信されませんでした",
+      "error_send_failed": "メッセージの送信に失敗しました",
+      "error_generic": "エラーが発生しました。もう一度お試しください。"
     },
     "accessPage": {
       "how_to_reach": "古平町へのアクセス方法",

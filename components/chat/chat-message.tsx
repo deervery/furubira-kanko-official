@@ -1,6 +1,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
+import { useI18n } from "@/components/i18n/i18n-provider"
+import { t } from "@/lib/i18n/t"
 
 interface ChatMessageProps {
   message: {
@@ -12,6 +14,7 @@ interface ChatMessageProps {
 }
 
 export function ChatMessage({ message }: ChatMessageProps) {
+  const { messages: i18nMessages } = useI18n()
   const isAssistant = message.role === "assistant"
 
   // Ensure content is a string
@@ -23,10 +26,10 @@ export function ChatMessage({ message }: ChatMessageProps) {
         <Avatar className="w-8 h-8">
           <AvatarImage 
             src="/furuppy.gif" 
-            alt="Furuppy"
+            alt={t(i18nMessages, "chat.avatar_alt")}
             className="object-contain"
           />
-          <AvatarFallback>AI</AvatarFallback>
+          <AvatarFallback>{t(i18nMessages, "chat.avatar_fallback")}</AvatarFallback>
         </Avatar>
       )}
 
