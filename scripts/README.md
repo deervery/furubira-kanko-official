@@ -96,6 +96,31 @@ node scripts/ingest-furubira-info.mjs --source scripts/furubira_content.json
 node scripts/ingest-furubira-info.mjs --source scripts/furubira_content.json --delete
 ```
 
+- `scripts/update-furubira-info.mjs`（推奨）
+  - **目的**: 既に `furubira_info` テーブルに存在する行（`title` と `content` のみ）に対して、`content_hash` と `embedding` を生成・更新するバッチ処理スクリプト
+  - **用途**: 外部から `title` と `content` を INSERT した後、このスクリプトで hash と embedding を一括生成
+  - **前提**: `ingest-furubira-info.mjs` と同様に、`content_hash` 列と embedding 列が存在すること
+  - **embeddingモデル**: `text-embedding-3-small`（1536次元）で統一
+  - **必要な環境変数**: `ingest-furubira-info.mjs` と同様
+  - **実行例**:
+
+```bash
+# content_hash が NULL の行を処理（デフォルト）
+node scripts/update-furubira-info.mjs
+
+# 特定のIDの行を処理
+node scripts/update-furubira-info.mjs --ids 123,456
+
+# チャンク化して処理（長いcontentを分割）
+node scripts/update-furubira-info.mjs --chunk --null-hash
+
+# すべての行を再処理（既存のhash/embeddingも上書き）
+node scripts/update-furubira-info.mjs --all
+
+# ドライラン（実際には更新しない）
+node scripts/update-furubira-info.mjs --null-hash --dry-run
+```
+
 - `scripts/insertData.mjs`（旧）
   - 差分更新/削除が無く、RLS構成によっては insert が失敗するため非推奨（互換のため残置）
 - `app/api/chat/route.ts`
