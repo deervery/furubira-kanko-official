@@ -1,4 +1,4 @@
-# RAG（Supabase pgvector）導入手順まとめ（`furubira_info` / 日本語のみ / 公開OK）
+# RAG（Supabase pgvector）導入手順まとめ（`furubira_info` ）
 
 このドキュメントは、本プロジェクトのAIチャットを **RAG（Retrieval-Augmented Generation）** 化するための手順を、実装の粒度まで落として箇条書きでまとめたものです。
 
@@ -35,6 +35,11 @@
 
 目的：`furubira_info` を「ベクトル検索できる」状態にする
 
+- 実行用SQL（おすすめの実行順）
+  - `docs/sql/01_inspect_furubira_info_embedding.sql`（pgvector有無・embedding型/次元確認）
+  - `docs/sql/02_enable_pgvector_and_ivfflat_index.sql`（pgvector有効化・IVFFLAT(cosine)・ANALYZE）
+  - `docs/sql/03_add_content_hash_and_unique.sql`（差分更新用 `content_hash` + unique）
+  - `docs/sql/04_rls_public_select_furubira_info.sql`（RLS: SELECTのみ公開）
 - 拡張の有効化
   - SupabaseのSQL Editorで **pgvector（`vector` 拡張）** を有効化する
 - テーブルの前提確認
@@ -43,7 +48,7 @@
 - 差分更新のための列を追加（おすすめ）
   - `content_hash`（embedding前に正規化した本文から作るハッシュ）
   - `updated_at`（任意：運用・調査が楽になる）
-- upsertのためのユニーク制約（おすすめ）
+- upsertのためのユニーク制約
   - `content_hash` をユニークにして「同じチャンクは再投入しない」状態にする
 - ベクトル検索用インデックス
   - `embedding` に **IVFFLAT + cosine** のインデックスを作る
