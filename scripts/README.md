@@ -71,11 +71,33 @@
 
 ### **RAG（埋め込み検索）を使用する場合**
 
-- `scripts/insertData.mjs`
-  - **目的**: `furubira_content.json` のデータを Supabase に挿入し、ベクトル検索を可能にする。
-  - **処理方法**:
-    1. `text-embedding-ada-002` で各`content`をベクトル化 (`embedding`生成)。
-    2. `title, content, embedding` を Supabase (`furubira_info`テーブル) に保存。
+- `scripts/ingest-furubira-info.mjs`（推奨）
+  - **目的**: `scripts/furubira_content.json`（正本）から、**差分更新**で `furubira_info` を更新する（チャンク化 + `content_hash` + embedding + insert + 任意で削除）
+  - **前提**:
+    - DBに `content_hash` 列 + unique がある（`docs/sql/03_add_content_hash_and_unique.sql`）
+    - RLSは `SELECT` のみ公開（`docs/sql/04_rls_public_select_furubira_info.sql`）
+    - 削除（ゴミ残り対策）をする場合は purge RPC を作成（`docs/sql/06_create_purge_furubira_info_rpc.sql`）
+  - **embeddingモデル**:
+    - `text-embedding-3-small`（1536次元）で統一（`furubira_info.embedding` が `vector(1536)` 前提）
+  - **必要な環境変数（ローカル/CI/サーバー限定）**:
+    - `OPENAI_API_KEY=...`
+    - `SUPABASE_URL=...`（または `NEXT_PUBLIC_SUPABASE_URL`）
+    - `SUPABASE_SERVICE_ROLE_KEY=...`（**絶対にクライアントへ露出しない**）
+  - **実行例**:
+
+```bash
+# まずは dry-run（チャンク数・パラメータ確認）
+node scripts/ingest-furubira-info.mjs --dry-run
+
+# 差分投入（同じ content_hash は再embedding/再投入しない）
+node scripts/ingest-furubira-info.mjs --source scripts/furubira_content.json
+
+# 差分投入 + 削除（元データから消えたチャンクをDBから削除）
+node scripts/ingest-furubira-info.mjs --source scripts/furubira_content.json --delete
+```
+
+- `scripts/insertData.mjs`（旧）
+  - 差分更新/削除が無く、RLS構成によっては insert が失敗するため非推奨（互換のため残置）
 - `app/api/chat/route.ts`
   - **目的**: Supabase のデータベースと連携し、最も類似度の高い情報を検索し、回答を生成する。
 

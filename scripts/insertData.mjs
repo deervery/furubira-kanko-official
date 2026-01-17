@@ -3,6 +3,15 @@ import { OpenAI } from "openai";
 import { createClient } from "@supabase/supabase-js";
 import fs from "fs";
 
+/**
+ * DEPRECATED:
+ * - This script does NOT support diff updates (`content_hash`) nor deletion.
+ * - With current DB policy (RLS: SELECT only), inserts may fail unless you use a service role key.
+ *
+ * Use instead:
+ *   node scripts/ingest-furubira-info.mjs --source scripts/furubira_content.json [--delete]
+ */
+
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
