@@ -40,6 +40,7 @@
   - `docs/sql/02_enable_pgvector_and_ivfflat_index.sql`（pgvector有効化・IVFFLAT(cosine)・ANALYZE）
   - `docs/sql/03_add_content_hash_and_unique.sql`（差分更新用 `content_hash` + unique）
   - `docs/sql/04_rls_public_select_furubira_info.sql`（RLS: SELECTのみ公開）
+  - `docs/sql/05_create_match_furubira_info_rpc.sql`（RPC: 類似検索I/Fを固定）
 - 拡張の有効化
   - SupabaseのSQL Editorで **pgvector（`vector` 拡張）** を有効化する
 - テーブルの前提確認
@@ -91,6 +92,19 @@
 
 完了条件
 - RPCを叩くと `topK` と similarity が返る
+
+### 実施結果（今回の作業）
+- 実行したSQL（エラーなし）
+  - `docs/sql/05_create_match_furubira_info_rpc.sql`
+  - Supabase SQL Editorの表示：`Success. No rows returned`（DDLのため正常）
+- 関数作成の確認（例：`pg_proc` 照会）
+  - `public.match_furubira_info` が存在することを確認済み
+- 動作確認（戻り値）
+  - `title`, `content`, `similarity` が返ることを確認済み
+  - 例（top5の similarity）：`1.000`, `0.959`, `0.957`, `0.935`, `0.913`（概ね 0.91〜1.00）
+
+補足（呼び出し例: supabase-js）
+- `supabase.rpc("match_furubira_info", { query_embedding, match_count: 8 })`
 
 ---
 
