@@ -143,6 +143,14 @@ export async function POST(request: NextRequest) {
   const top1Sim = typeof top1?.similarity === "number" ? top1.similarity : null;
   const hasRelevantContext = top1Sim !== null && top1Sim >= SIMILARITY_THRESHOLD;
 
+  if (!hasRelevantContext) {
+    const stream = streamPlainTextAndSave({
+      text: "うーん、ちょっとわからないな。場所や時期、何をしたいか（観光・食事・宿泊など）をもう少し教えてくれると嬉しいな♪",
+      sessionId,
+    });
+    return new Response(stream);
+  }
+
   console.info("[rag] retrieval", {
     sessionId,
     queryRaw,
