@@ -61,6 +61,17 @@
 - `furubira_info` に vector 検索のインデックスがある
 - anonで `select` ができる（想定どおりの公開）
 
+### 実施結果（今回の作業）
+- `embedding` の型/次元：**`vector(1536)`** を確認済み
+- 実行したSQL（エラーなし）
+  - `docs/sql/02_enable_pgvector_and_ivfflat_index.sql`
+  - `docs/sql/03_add_content_hash_and_unique.sql`
+  - `docs/sql/04_rls_public_select_furubira_info.sql`
+- 期待される状態
+  - `furubira_info_embedding_ivfflat` が作成済み（IVFFLAT / cosine）
+  - `content_hash` 列 + `furubira_info_content_hash_uidx`（unique）が作成済み
+  - RLS有効 + `public read furubira_info`（SELECTのみ）が設定済み
+
 ---
 
 ## 2) 類似検索のRPC（APIから呼ぶ検索I/Fを固定）
