@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
     // OpenAI APIを使ってembeddingを生成
     const embeddingResponse = await openAi.embeddings.create({
-      model: "text-embedding-ada-002",
+      model: "text-embedding-3-small",
       input: content
     });
 

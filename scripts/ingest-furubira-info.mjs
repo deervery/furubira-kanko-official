@@ -222,7 +222,8 @@ async function readSourceJson(sourcePath) {
 
 async function fetchExistingHashes(supabase, hashes) {
   const existing = new Set();
-  const batchSize = 500;
+  // Smaller batch to avoid HeadersOverflowError (SHA-256 hashes are 64 chars each)
+  const batchSize = 50;
   for (let i = 0; i < hashes.length; i += batchSize) {
     const batch = hashes.slice(i, i + batchSize);
     const { data, error } = await supabase

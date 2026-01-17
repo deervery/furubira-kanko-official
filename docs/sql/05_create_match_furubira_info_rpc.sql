@@ -7,11 +7,15 @@
 -- - pgvector extension が有効
 -- - cosine検索向けのインデックス（IVFFLAT + vector_cosine_ops）が作成済み
 
+-- 戻り値の型が変わる場合は先にDROPが必要
+drop function if exists public.match_furubira_info(vector(1536), int);
+
 create or replace function public.match_furubira_info(
   query_embedding vector(1536),
   match_count int
 )
 returns table (
+  content_hash text,
   title text,
   content text,
   similarity double precision
@@ -20,6 +24,7 @@ language sql
 stable
 as $$
   select
+    fi.content_hash,
     fi.title,
     fi.content,
     least(
