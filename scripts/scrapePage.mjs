@@ -80,7 +80,7 @@ async function fetchPageDataWithAxios(url) {
     if (!content) content = $("article").text().trim();
     if (!content) content = $("body").text().trim();
 
-    return { title, content };
+    return { url, title, content };
   } catch (error) {
     console.error(`Error fetching ${url}: ${error.message}`);
     return null;
@@ -124,7 +124,7 @@ async function fetchPageDataWithPuppeteer(url) {
       return { title, content };
     });
 
-    return { title: result.title || url, content: result.content || "" };
+    return { url, title: result.title || url, content: result.content || "" };
   } catch (error) {
     console.error(`Error fetching ${url}: ${error.message}`);
     return null;

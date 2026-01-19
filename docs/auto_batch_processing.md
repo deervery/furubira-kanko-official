@@ -18,10 +18,10 @@ RAGの検索対象（`furubira_info`）を自動で更新するためのフロ�
 
 ## 準備段階
 
-1. **統合スクリプト（推奨）**
-   - 既存のスクリプトを順次実行する統合スクリプトを使用します
-   - 実装: `scripts/update-furubira-data.mjs`
-   - GitHub Actions / ローカル実行ともに、この統合スクリプトから実行するのが最も安全です
+1. **実行方式（推奨：既存スクリプトを順番に実行）**
+   - 新規の統合スクリプトは作らず、既存のスクリプトを順番に実行します
+     - `scripts/scrapePage.mjs` →（任意）`scripts/fixContent.mjs` → `scripts/ingest-furubira-info.mjs`
+   - GitHub Actions でも同様に順番に実行します
 
 2. **GitHub Secrets の設定**
    - リポジトリの Settings > Secrets and variables > Actions に以下を追加
@@ -48,7 +48,7 @@ RAGの検索対象（`furubira_info`）を自動で更新するためのフロ�
    - 処理内容:
      - `.column02-inr`クラスからコンテンツを抽出
      - タイトルも抽出されるが、コンテンツのみを使用する場合は空文字列でも可
-     - `scripts/furubira_content.json` に `{title, content}` 形式で保存（`--out` で変更可能）
+     - `scripts/furubira_content.json` に `{url, title, content}` 形式で保存（`--out` で変更可能）
    - **注意（重要）**: `ingest-furubira-info.mjs` は `title` が空だとフィルタで落ちます（`title` と `content` 両方が必須）
 
 2. **コンテンツ修正（オプション）**
@@ -58,12 +58,12 @@ RAGの検索対象（`furubira_info`）を自動で更新するためのフロ�
 
 3. **データ投入（差分更新）**
    - 既存スクリプト: `scripts/ingest-furubira-info.mjs` を実行
-   - `scripts/furubira_content.json` を読み込み（`--source` で変更可能）
+   - `scripts/furubira_info.both.json`（title/contentのみ）を読み込み（`--source` で変更可能）
    - チャンク化、`content_hash` 生成、embedding 生成
-   - Supabase の `furubira_info` テーブルに差分投入
+   - Supabase の `furubira_info` テーブルに差分投入（`title/content/content_hash/embedding`）
      - 既存の `content_hash` はスキップ（embedding生成・挿入をスキップ）
      - 新規チャンクのみ embedding 生成・挿入
-   - 削除オプション（`--delete`）が有効な場合は、元データから消えたチャンクをDBから削除
+   - ※ `--delete` は **基本使いません**（意図せず削除が起きるリスクがあるため）
 
 4. **結果の確認**
    - GitHub Actions のログで各ステップの成功/失敗を確認
@@ -77,7 +77,7 @@ RAGの検索対象（`furubira_info`）を自動で更新するためのフロ�
    - 機能: スクレイピング（`.column02-inr`クラスからコンテンツを抽出）
    - 現在の実装: タイトルとコンテンツの両方を抽出
    - **注意**: `ingest-furubira-info.mjs` は `title` が空だと投入対象から除外されます（空文字列はNG）
-   - 出力: `scripts/furubira_content.json`（`{title, content}`形式の配列、`--out` で変更可能）
+   - 出力: `scripts/furubira_content.*.json`（`{url, title, content}`形式の配列、`--out` で変更可能）
 
 2. **`scripts/ingest-furubira-info.mjs`** 利用可能
    - 機能: データ投入（差分更新対応）
@@ -89,6 +89,12 @@ RAGの検索対象（`furubira_info`）を自動で更新するためのフロ�
    - 機能: OpenAI（gpt-4o-mini）を使用してコンテンツをクリーンアップ
    - 入力: `scripts/furubira_content.json`（`--source` で変更可能）
    - 注意: OpenAI APIキーが必要、コストがかかる
+
+4. **`scripts/merge-furubira-content.mjs`** 利用可能
+   - 機能: `furubira_content.<scope>.json` を更新し、`furubira_content.both.json` を組み立てるためのマージ
+
+5. **`scripts/build-furubira-info.mjs`** 利用可能
+   - 機能: `furubira_content.*.json`（url含み）から `furubira_info.*.json`（title/contentのみ）を生成
 
 ### URLリスト（`scripts/url.mjs`）の方針
 
@@ -108,21 +114,62 @@ RAGの検索対象（`furubira_info`）を自動で更新するためのフロ�
 
 ## 実行例（ローカル/CI 共通）
 
-### 統合スクリプト（推奨）
+```bash
+# town 更新 → both 組み立て → dry-run（DB書き込みなし）
+node scripts/scrapePage.mjs --scope town --out scripts/furubira_content._new.json
+node scripts/merge-furubira-content.mjs --into scripts/furubira_content.town.json --from scripts/furubira_content._new.json
+node scripts/merge-furubira-content.mjs --into scripts/furubira_content.both.json --from scripts/furubira_content.town.json
+node scripts/merge-furubira-content.mjs --into scripts/furubira_content.both.json --from scripts/furubira_content.kanko.json
+node scripts/build-furubira-info.mjs --source scripts/furubira_content.both.json --out scripts/furubira_info.both.json
+node scripts/ingest-furubira-info.mjs --source scripts/furubira_info.both.json --dry-run
+```
+
+## town / kanko をそれぞれ更新し、最後に both をDBへ差分投入する（推奨）
+
+### town（町公式）を更新する（DBはまだ更新しない）
 
 ```bash
-# 町公式のみ（dry-run）
-node scripts/update-furubira-data.mjs --scope town --dry-run
-
-# 両方（DBに書き込み）
-node scripts/update-furubira-data.mjs --scope both
-
-# 両方 + コンテンツ整形（コスト注意）
-node scripts/update-furubira-data.mjs --scope both --run-fix-content
-
-# 両方 + delete（初回は非推奨。RPCが必要）
-node scripts/update-furubira-data.mjs --scope both --delete
+node scripts/scrapePage.mjs --scope town --out scripts/furubira_content._new.json
+node scripts/merge-furubira-content.mjs --into scripts/furubira_content.town.json --from scripts/furubira_content._new.json
+rm scripts/furubira_content._new.json
 ```
+
+### kanko（観光協会）を更新する（DBはまだ更新しない）
+
+```bash
+node scripts/scrapePage.mjs --scope kanko --out scripts/furubira_content._new.json
+node scripts/merge-furubira-content.mjs --into scripts/furubira_content.kanko.json --from scripts/furubira_content._new.json
+rm scripts/furubira_content._new.json
+```
+
+### 最後に both を作ってDBへ差分投入する（ここでDB更新）
+
+```bash
+node scripts/merge-furubira-content.mjs --into scripts/furubira_content.both.json --from scripts/furubira_content.town.json
+node scripts/merge-furubira-content.mjs --into scripts/furubira_content.both.json --from scripts/furubira_content.kanko.json
+node scripts/build-furubira-info.mjs --source scripts/furubira_content.both.json --out scripts/furubira_info.json
+
+# 作業しやすいように “代表ファイル” を更新（任意）
+cp scripts/furubira_content.both.json scripts/furubira_content.json
+node scripts/ingest-furubira-info.mjs --source scripts/furubira_info.json
+```
+
+#### なぜ `scripts/furubira_info.json` を「1本だけ」生成するのか（重要）
+
+この運用では、`scripts/furubira_info.json` を **DBへ投入するための“単一の入力”**として固定します。
+
+- **目的**: town/kanko の更新がバラバラでも、DB更新の時点では必ず「両方の最新版の合体（both）」で差分投入したい
+- **やり方**:
+  - `furubira_content.town.json` / `furubira_content.kanko.json` は、それぞれの更新結果を保持する“保存用”
+  - `furubira_content.both.json` は、上の2つを毎回マージした“全体版”
+  - `furubira_info.json` は、`furubira_content.both.json` から **title/contentだけ**に変換した“DB投入用”
+- **メリット**:
+  - DB更新の入口が1つに固定されて事故が減る（「片側だけのデータでDB更新」にならない）
+  - 生成物が増えない（`furubira_info.town.json` 等を毎回作らない）
+  - `--delete` を使わない運用でも、常にboth基準で差分投入できる
+
+注意:
+- `--delete` は **基本使いません**（運用方針としてOFF）。
 
 ## 差分更新の仕組み
 

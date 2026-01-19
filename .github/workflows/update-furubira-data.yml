@@ -20,7 +20,7 @@ on:
         type: boolean
         default: false
       delete:
-        description: "Enable --delete (purge missing hashes; needs RPC)"
+        description: "Enable --delete (NOT recommended; purges missing hashes; needs RPC)"
         type: boolean
         default: false
 
@@ -64,10 +64,51 @@ jobs:
       - name: Run update pipeline
         run: |
           set -euo pipefail
-          ARGS=(--scope "$SCOPE")
-          if [ "$RUN_FIX_CONTENT" = "true" ]; then ARGS+=(--run-fix-content); fi
+          # 1) scrape -> TEMP
+          TMP="scripts/furubira_content._new.json"
+          node scripts/scrapePage.mjs --scope "$SCOPE" --out "$TMP"
+
+          # 2) optional cleanup (OpenAI cost)
+          if [ "$RUN_FIX_CONTENT" = "true" ]; then
+            node scripts/fixContent.mjs --source "$TMP" --out "$TMP"
+          fi
+
+          # 3) merge into per-scope dataset
+          if [ "$SCOPE" = "town" ]; then
+            node scripts/merge-furubira-content.mjs --into scripts/furubira_content.town.json --from "$TMP"
+          elif [ "$SCOPE" = "kanko" ]; then
+            node scripts/merge-furubira-content.mjs --into scripts/furubira_content.kanko.json --from "$TMP"
+          elif [ "$SCOPE" = "both" ]; then
+            node scripts/merge-furubira-content.mjs --into scripts/furubira_content.both.json --from "$TMP"
+          else
+            echo "ERROR: unexpected scope: $SCOPE"
+            exit 1
+          fi
+
+          # 4) always rebuild BOTH from current town+kanko snapshots (if present)
+          rm -f scripts/furubira_content.both.json
+          if [ -f scripts/furubira_content.town.json ]; then
+            node scripts/merge-furubira-content.mjs --into scripts/furubira_content.both.json --from scripts/furubira_content.town.json
+          fi
+          if [ -f scripts/furubira_content.kanko.json ]; then
+            node scripts/merge-furubira-content.mjs --into scripts/furubira_content.both.json --from scripts/furubira_content.kanko.json
+          fi
+
+          # Keep a stable alias for app/local use
+          cp scripts/furubira_content.both.json scripts/furubira_content.json
+          # Build ONE canonical info JSON (title/content only) from BOTH
+          node scripts/build-furubira-info.mjs --source scripts/furubira_content.both.json --out scripts/furubira_info.json
+
+          # Safety: allow --delete only when we ingest from BOTH dataset.
+          # (We always ingest from furubira_content.both.json below.)
+
+          # 5) ingest (diff update: content_hash + embedding) from BOTH dataset (title/content only)
+          ARGS=(--source scripts/furubira_info.json)
           if [ "$DRY_RUN" = "true" ]; then ARGS+=(--dry-run); fi
           if [ "$DO_DELETE" = "true" ]; then ARGS+=(--delete); fi
-          node scripts/update-furubira-data.mjs "${ARGS[@]}"
+          node scripts/ingest-furubira-info.mjs "${ARGS[@]}"
+
+          # cleanup temp
+          rm -f "$TMP"
 
 

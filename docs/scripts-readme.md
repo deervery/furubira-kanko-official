@@ -37,10 +37,9 @@
 
 ### 1. データ収集
 
-### `scripts/downloadJson.mjs`
+### `scripts/downloadJson.mjs`（廃止）
 
-- **目的**: Supabase の`furubira_info`テーブルからすべての行を取得し、JSON データ (`furubira_info.json`) に変換する。
-- **出力**: `furubira_info.json` (title, content を含む)
+`furubira_info.json` のスナップショットをDBから取得する用途でしたが、現在の更新フローでは使用しません。
 
 ### `scripts/scrapePage.mjs`
 
