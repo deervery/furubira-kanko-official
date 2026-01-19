@@ -18,10 +18,10 @@ RAGの検索対象（`furubira_info`）を自動で更新するためのフロ�
 
 ## 準備段階
 
-1. **統合スクリプトの作成（オプション）**
-   - 既存のスクリプトを順次実行する統合スクリプトを作成
-   - 実装: `scripts/update-furubira-data.mjs`（作成が必要）
-   - または、既存のスクリプトを個別に実行することも可能
+1. **統合スクリプト（推奨）**
+   - 既存のスクリプトを順次実行する統合スクリプトを使用します
+   - 実装: `scripts/update-furubira-data.mjs`
+   - GitHub Actions / ローカル実行ともに、この統合スクリプトから実行するのが最も安全です
 
 2. **GitHub Secrets の設定**
    - リポジトリの Settings > Secrets and variables > Actions に以下を追加
@@ -30,34 +30,35 @@ RAGの検索対象（`furubira_info`）を自動で更新するためのフロ�
      - `OPENAI_API_KEY`
 
 3. **GitHub Actions ワークフローの作成**
-   - `.github/workflows/update-furubira-data.yml` を作成
-   - スケジュール設定:
-     - 古平町公式Webサイト（ニュース）: 毎週月曜日（または希望日時）
-     - 古平町観光協会Webサイト: 半年に1回（手動実行またはスケジュール設定）
-   - 手動実行（workflow_dispatch）も有効化
+   - `.github/workflows/update-furubira-data.yml`
+   - スケジュール設定（UTC）:
+     - 古平町公式Webサイト（ニュース）: 毎週月曜日に自動実行（`/info/` の新着情報）
+     - 古平町観光協会Webサイト: 半年に1回を目安に **手動実行**（workflow_dispatch推奨）
+   - 手動実行（workflow_dispatch）も利用できます（scope / dry-run / delete などを指定可能）
 
 ## 実行フロー（自動実行時）
 
 既存のスクリプトを順次実行します：
 
 1. **スクレイピング**
-   - 既存スクリプト: `scripts/scrapePage.mjs` を実行
-   - **事前準備**: `scripts/url.mjs` を更新して、対象URLのみを含める
-     - 古平町公式Webサイト: https://www.town.furubira.lg.jp/info/ のニュースページ
-     - 古平町観光協会Webサイト: https://furubira-kanko.com/ja の観光情報ページ
+   - スクリプト: `scripts/scrapePage.mjs`
+   - URLの決め方（重要）:
+     - **古平町公式 `/info/` は自動**: `https://www.town.furubira.lg.jp/info/` の一覧ページから、`/info/detail.php?id=...` を自動収集（ページネーションも追跡、上限あり）
+     - **観光協会 `/ja` はルーティング由来**: このリポジトリの `app/[lang]/**/page.tsx`（静的ルート）から `/ja/...` を自動生成
    - 処理内容:
      - `.column02-inr`クラスからコンテンツを抽出
      - タイトルも抽出されるが、コンテンツのみを使用する場合は空文字列でも可
-     - `scripts/furubira_content.json` に `{title, content}` 形式で保存
-   - **注意**: `ingest-furubira-info.mjs`は`title`フィールドを期待しているため、空文字列でも`title`フィールドは必要
+     - `scripts/furubira_content.json` に `{title, content}` 形式で保存（`--out` で変更可能）
+   - **注意（重要）**: `ingest-furubira-info.mjs` は `title` が空だとフィルタで落ちます（`title` と `content` 両方が必須）
 
 2. **コンテンツ修正（オプション）**
-   - 既存スクリプト: `scripts/fixContent.mjs` を実行（必要に応じて）
+   - スクリプト: `scripts/fixContent.mjs` を実行（必要に応じて）
    - 不要な情報を削除し整形
+   - `--source` / `--out` で入出力ファイルを指定可能（デフォルト: `scripts/furubira_content.json`）
 
 3. **データ投入（差分更新）**
    - 既存スクリプト: `scripts/ingest-furubira-info.mjs` を実行
-   - `furubira_content.json` を読み込み
+   - `scripts/furubira_content.json` を読み込み（`--source` で変更可能）
    - チャンク化、`content_hash` 生成、embedding 生成
    - Supabase の `furubira_info` テーブルに差分投入
      - 既存の `content_hash` はスキップ（embedding生成・挿入をスキップ）
@@ -72,11 +73,11 @@ RAGの検索対象（`furubira_info`）を自動で更新するためのフロ�
 
 ### 利用可能なスクリプト
 
-1. **`scripts/scrapePage.mjs`** 利用可能（要修正）
+1. **`scripts/scrapePage.mjs`** 利用可能
    - 機能: スクレイピング（`.column02-inr`クラスからコンテンツを抽出）
    - 現在の実装: タイトルとコンテンツの両方を抽出
-   - **注意**: `ingest-furubira-info.mjs`は`title`フィールドを期待しているため、タイトル抽出は残す必要がある（ただし、コンテンツのみを使用する場合は空文字列でも可）
-   - 出力: `scripts/furubira_content.json`（`{title, content}`形式の配列）
+   - **注意**: `ingest-furubira-info.mjs` は `title` が空だと投入対象から除外されます（空文字列はNG）
+   - 出力: `scripts/furubira_content.json`（`{title, content}`形式の配列、`--out` で変更可能）
 
 2. **`scripts/ingest-furubira-info.mjs`** 利用可能
    - 機能: データ投入（差分更新対応）
@@ -86,16 +87,14 @@ RAGの検索対象（`furubira_info`）を自動で更新するためのフロ�
 
 3. **`scripts/fixContent.mjs`** 利用可能（オプション）
    - 機能: OpenAI（gpt-4o-mini）を使用してコンテンツをクリーンアップ
-   - 入力: `furubira_content.json`
+   - 入力: `scripts/furubira_content.json`（`--source` で変更可能）
    - 注意: OpenAI APIキーが必要、コストがかかる
 
-### 修正が必要なスクリプト
+### URLリスト（`scripts/url.mjs`）の方針
 
-1. **`scripts/url.mjs`** 要修正
-   - 現在: 古平町公式Webサイトの様々なページ（life, health, rearing, construction, tourism, townなど）が含まれている
-   - **必要な修正**: 以下のURLのみに更新
-     - 古平町公式Webサイト（ニュース）: https://www.town.furubira.lg.jp/info/ 配下のページ
-     - 古平町観光協会Webサイト: https://furubira-kanko.com/ja 配下のページ
+- **町公式 `/info/`**: 一覧ページからリンクを自動収集（上限あり）
+- **観光協会 `/ja`**: このリポジトリの `app/[lang]` ルーティング（静的ページ）から自動生成
+- 手動でURLを列挙する必要はありません（ルーティングを追加すれば、URLも自動で増えます）
 
 ### 使用しないスクリプト
 
@@ -105,8 +104,25 @@ RAGの検索対象（`furubira_info`）を自動で更新するためのフロ�
 
 - **`ingest-furubira-info.mjs`の制約**: 
   - `title`と`content`の両方のフィールドが必要（219行目で`x.title && x.content`でフィルタリング）
-  - タイトルが空の場合はフィルタリングされる可能性がある
-  - コンテンツのみを使用する場合でも、`title`フィールドは空文字列で提供する必要がある
+  - **タイトルが空だと確実に除外される**（空文字列はNG）
+
+## 実行例（ローカル/CI 共通）
+
+### 統合スクリプト（推奨）
+
+```bash
+# 町公式のみ（dry-run）
+node scripts/update-furubira-data.mjs --scope town --dry-run
+
+# 両方（DBに書き込み）
+node scripts/update-furubira-data.mjs --scope both
+
+# 両方 + コンテンツ整形（コスト注意）
+node scripts/update-furubira-data.mjs --scope both --run-fix-content
+
+# 両方 + delete（初回は非推奨。RPCが必要）
+node scripts/update-furubira-data.mjs --scope both --delete
+```
 
 ## 差分更新の仕組み
 

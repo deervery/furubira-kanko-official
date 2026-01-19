@@ -1,0 +1,73 @@
+name: Update Furubira RAG data
+
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: "Which URLs to scrape"
+        type: choice
+        options:
+          - town
+          - kanko
+          - both
+        default: both
+      run_fix_content:
+        description: "Run fixContent (OpenAI cost)"
+        type: boolean
+        default: false
+      dry_run:
+        description: "Dry-run ingest (no DB writes)"
+        type: boolean
+        default: false
+      delete:
+        description: "Enable --delete (purge missing hashes; needs RPC)"
+        type: boolean
+        default: false
+
+  schedule:
+    # Weekly (Mon) town news update. Cron is UTC.
+    - cron: "0 0 * * 1"
+
+concurrency:
+  group: update-furubira-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      # Defaults for schedule runs
+      SCOPE: ${{ github.event_name == 'schedule' && 'town' || inputs.scope }}
+      RUN_FIX_CONTENT: ${{ github.event_name == 'schedule' && 'false' || inputs.run_fix_content }}
+      DRY_RUN: ${{ github.event_name == 'schedule' && 'false' || inputs.dry_run }}
+      DO_DELETE: ${{ github.event_name == 'schedule' && 'false' || inputs.delete }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run update pipeline
+        run: |
+          set -euo pipefail
+          ARGS=(--scope "$SCOPE")
+          if [ "$RUN_FIX_CONTENT" = "true" ]; then ARGS+=(--run-fix-content); fi
+          if [ "$DRY_RUN" = "true" ]; then ARGS+=(--dry-run); fi
+          if [ "$DO_DELETE" = "true" ]; then ARGS+=(--delete); fi
+          node scripts/update-furubira-data.mjs "${ARGS[@]}"
+
+
