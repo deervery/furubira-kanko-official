@@ -1,270 +1,181 @@
-export const urls = [
-  "https://www.town.furubira.lg.jp/life/#cat1",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=2",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=154",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=196",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=153",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=3",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=152",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=151",
-  "https://www.town.furubira.lg.jp/life/#cat49",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=147",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=1",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=149",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=148",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=146",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=150",
-  "https://www.town.furubira.lg.jp/life/#cat2",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=341",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=261",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=5",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=161",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=160",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=158",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=123",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=6",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=7",
-  "https://www.town.furubira.lg.jp/life/#cat3",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=335",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=254",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=97",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=95",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=94",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=96",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=8",
-  "https://www.town.furubira.lg.jp/life/#cat5",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=13",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=12",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=135",
-  "https://www.town.furubira.lg.jp/life/#cat9",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=116",
-  "https://www.town.furubira.lg.jp/life/#cat6",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=114",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=15",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=122",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=121",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=16",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=134",
-  "https://www.town.furubira.lg.jp/life/#cat4",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=11",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=10",
-  "https://www.town.furubira.lg.jp/life/#cat7",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=18",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=327",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=326",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=115",
-  "https://www.town.furubira.lg.jp/life/#cat10",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=360",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=181",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=19",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=20",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=225",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=22",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=273",
-  "https://www.town.furubira.lg.jp/life/#cat68",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=319",
-  "https://www.town.furubira.lg.jp/life/#cat71",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=330",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=290",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=328",
-  "https://www.town.furubira.lg.jp/health/#cat12",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=362",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=353",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=345",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=23",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=162",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=163",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=192",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=164",
-  "https://www.town.furubira.lg.jp/health/#cat15",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=284",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=283",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=138",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=32",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=140",
-  "https://www.town.furubira.lg.jp/health/#cat13",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=174",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=29",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=28",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=172",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=175",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=239",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=176",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=173",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=26",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=4",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=166",
-  "https://www.town.furubira.lg.jp/health/#cat14",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=126",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=37",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=155",
-  "https://www.town.furubira.lg.jp/health/#cat50",
-  "https://www.town.furubira.lg.jp/health/detail.php?id=165",
-  "https://www.town.furubira.lg.jp/rearing/#cat70",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=334",
-  "https://www.town.furubira.lg.jp/rearing/#cat16",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=350",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=337",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=169",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=338",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=340",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=34",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=35",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=33",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=157",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=144",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=156",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=36",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=141",
-  "https://www.town.furubira.lg.jp/rearing/#cat17",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=125",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=297",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=136",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=38",
-  "https://www.town.furubira.lg.jp/rearing/#cat65",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=300",
-  "https://www.town.furubira.lg.jp/rearing/#cat64",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=301",
-  "https://www.town.furubira.lg.jp/rearing/#cat18",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=358",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=355",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=318",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=268",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=269",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=113",
-  "https://www.town.furubira.lg.jp/rearing/#cat19",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=279",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=308",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=307",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=280",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=40",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=39",
-  "https://www.town.furubira.lg.jp/rearing/#cat58",
-  "https://www.town.furubira.lg.jp/rearing/detail.php?id=255",
-  "https://www.town.furubira.lg.jp/construction/#cat59",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=343",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=211",
-  "https://www.town.furubira.lg.jp/construction/#cat42",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=191",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=170",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=99",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=120",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=110",
-  "https://www.town.furubira.lg.jp/construction/#cat51",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=234",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=188",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=167",
-  "https://www.town.furubira.lg.jp/construction/#cat20",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=41",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=359",
-  "https://www.town.furubira.lg.jp/construction/#cat47",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=229",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=315",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=117",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=323",
-  "https://www.town.furubira.lg.jp/construction/#cat22",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=128",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=132",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=130",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=129",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=127",
-  "https://www.town.furubira.lg.jp/construction/#cat21",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=45",
-  "https://www.town.furubira.lg.jp/construction/#cat23",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=177",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=119",
-  "https://www.town.furubira.lg.jp/construction/#cat45",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=44",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=103",
-  "https://www.town.furubira.lg.jp/construction/#cat54",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=336",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=198",
-  "https://www.town.furubira.lg.jp/tourism/#cat37",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=86",
-  "https://www.town.furubira.lg.jp/tourism/#cat31",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=67",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=84",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=83",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=68",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=69",
-  "https://www.town.furubira.lg.jp/tourism/#cat35",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=77",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=81",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=78",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=82",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=80",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=79",
-  "https://www.town.furubira.lg.jp/tourism/#cat34",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=74",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=76",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=75",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=70",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=73",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=72",
-  "https://www.town.furubira.lg.jp/tourism/#cat36",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=88",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=85",
-  "https://www.town.furubira.lg.jp/tourism/detail.php?id=87",
-  "https://www.town.furubira.lg.jp/town/#cat24",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=184",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=46",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=52",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=47",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=48",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=49",
-  "https://www.town.furubira.lg.jp/town/#cat28",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=63",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=64",
-  "https://www.town.furubira.lg.jp/town/#cat25",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=98",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=333",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=281",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=50",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=51",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=100",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=137",
-  "https://www.town.furubira.lg.jp/town/#cat26",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=59",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=58",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=56",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=54",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=57",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=60",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=61",
-  "https://www.town.furubira.lg.jp/town/#cat57",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=267",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=314",
-  "https://www.town.furubira.lg.jp/town/#cat66",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=363",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=305",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=339",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=324",
-  "https://www.town.furubira.lg.jp/town/#cat41",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=93",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=189",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=101",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=102",
-  "https://www.town.furubira.lg.jp/town/#cat27",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=62",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=92",
-  "https://www.town.furubira.lg.jp/town/#cat30",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=66",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=65",
-  "https://www.town.furubira.lg.jp/town/#cat72",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=365",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=348",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=346",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=344",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=50",
-  "https://www.town.furubira.lg.jp/town/#cat26",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=93",
-  "https://www.town.furubira.lg.jp/town/#cat30",
-  "https://www.town.furubira.lg.jp/life/detail.php?id=18",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=63",
-  "https://www.lib-eye.net/furubira/",
-  "https://www.town.furubira.lg.jp/construction/detail.php?id=167",
-  "https://www.town.furubira.lg.jp/sitemap/",
-  "https://www.town.furubira.lg.jp/town/detail.php?id=137",
-  "https://www.town.furubira.lg.jp/common/img/content/cassette_1_pdf01_20240425_172836.pdf",
-  "https://www.town.furubira.lg.jp/contact/",
-];
+import axios from "axios";
+import * as cheerio from "cheerio";
+import fs from "node:fs/promises";
+import path from "node:path";
+
+const TOWN_ORIGIN = "https://www.town.furubira.lg.jp";
+const TOWN_INFO_INDEX = `${TOWN_ORIGIN}/info/`;
+const DEFAULT_KANKO_ORIGIN = "https://furubira-kanko.com";
+
+function uniq(arr) {
+  return Array.from(new Set(arr));
+}
+
+function normalizeUrl(u) {
+  // drop utm_* to avoid duplicates
+  const url = new URL(u);
+  for (const k of Array.from(url.searchParams.keys())) {
+    if (k.toLowerCase().startsWith("utm_")) url.searchParams.delete(k);
+  }
+  // keep trailing slash normalization stable
+  return url.toString();
+}
+
+async function fetchHtml(url) {
+  const resp = await axios.get(url, {
+    timeout: 30_000,
+    headers: {
+      "User-Agent": "furubira-kanko-batch/1.0 (+https://furubira-kanko.com)",
+      Accept: "text/html,application/xhtml+xml",
+    },
+    maxRedirects: 5,
+  });
+  return resp.data;
+}
+
+/**
+ * 町公式「新着情報」から /info/ 配下の詳細URLを自動収集する。
+ * - ページネーションを辿る（ただし安全のため上限あり）
+ * - /info/detail.php?id=... 形式のリンクを主に収集
+ */
+export async function fetchTownInfoUrls({
+  maxPages = 5,
+  maxUrls = 200,
+} = {}) {
+  const toVisit = [TOWN_INFO_INDEX];
+  const visited = new Set();
+  const detailUrls = new Set();
+
+  while (toVisit.length > 0 && visited.size < maxPages && detailUrls.size < maxUrls) {
+    const pageUrl = toVisit.shift();
+    if (!pageUrl || visited.has(pageUrl)) continue;
+    visited.add(pageUrl);
+
+    let html;
+    try {
+      html = await fetchHtml(pageUrl);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn(`[url] failed to fetch: ${pageUrl} (${e?.message ?? e})`);
+      continue;
+    }
+
+    const $ = cheerio.load(html);
+    const base = new URL(pageUrl);
+
+    const anchors = $("a[href]")
+      .map((_, el) => String($(el).attr("href") || "").trim())
+      .get()
+      .filter(Boolean);
+
+    for (const href of anchors) {
+      let abs;
+      try {
+        abs = new URL(href, base).toString();
+      } catch {
+        continue;
+      }
+
+      const u = new URL(abs);
+      if (u.origin !== TOWN_ORIGIN) continue;
+      if (!u.pathname.startsWith("/info/")) continue;
+
+      const isDetail = u.pathname.includes("detail.php") && (u.searchParams.get("id") || "").length > 0;
+      if (isDetail) {
+        detailUrls.add(normalizeUrl(u.toString()));
+        if (detailUrls.size >= maxUrls) break;
+        continue;
+      }
+
+      // likely list/pagination pages under /info/
+      const isList =
+        u.pathname === "/info/" ||
+        (u.pathname.endsWith("/info/") && u.searchParams.has("page")) ||
+        u.searchParams.has("page");
+
+      if (isList) {
+        const normalized = normalizeUrl(u.toString());
+        if (!visited.has(normalized) && !toVisit.includes(normalized) && visited.size + toVisit.length < maxPages) {
+          toVisit.push(normalized);
+        }
+      }
+    }
+  }
+
+  return Array.from(detailUrls);
+}
+
+async function walk(dir) {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const out = [];
+  for (const ent of entries) {
+    const p = path.join(dir, ent.name);
+    if (ent.isDirectory()) out.push(...(await walk(p)));
+    else out.push(p);
+  }
+  return out;
+}
+
+/**
+ * 観光協会サイトのURLを「このリポジトリのルーティング」から生成する。
+ * 対象: app/[lang]/.../page.tsx などの静的ルートのみ（動的セグメントは除外）
+ */
+export async function getKankoUrlsFromAppRoutes({
+  origin = DEFAULT_KANKO_ORIGIN,
+  lang = "ja",
+} = {}) {
+  const baseDir = path.join(process.cwd(), "app", "[lang]");
+  const files = await walk(baseDir);
+
+  const pageFiles = files.filter((p) => {
+    const bn = path.basename(p);
+    if (!bn.startsWith("page.")) return false;
+    if (!bn.endsWith(".tsx") && !bn.endsWith(".ts") && !bn.endsWith(".jsx") && !bn.endsWith(".js")) return false;
+    return true;
+  });
+
+  const urls = [];
+  for (const file of pageFiles) {
+    const rel = path.relative(baseDir, file);
+    // rel examples:
+    // - page.tsx
+    // - spots\\page.tsx
+    // - events\\page.tsx
+    const parts = rel.split(path.sep).filter(Boolean);
+    if (parts.length === 0) continue;
+    if (parts.some((s) => s.includes("[") || s.includes("]"))) continue; // exclude dynamic segments
+
+    // drop the last segment "page.tsx"
+    const segs = parts.slice(0, -1);
+    const route = segs.length === 0 ? `/${lang}` : `/${lang}/${segs.join("/")}`;
+    urls.push(normalizeUrl(new URL(route, origin).toString()));
+  }
+
+  return uniq(urls).sort();
+}
+
+/**
+ * scope:\n+ * - town: 町公式 info のみ\n+ * - kanko: 観光協会（ルーティング由来）のみ\n+ * - both: 両方\n+ */
+export async function getUrls({
+  scope = "both",
+  kankoOrigin = DEFAULT_KANKO_ORIGIN,
+  kankoLang = "ja",
+  townInfoMaxPages = 5,
+  townInfoMaxUrls = 200,
+} = {}) {
+  if (scope !== "both" && scope !== "town" && scope !== "kanko") {
+    throw new Error("scope must be one of: both, town, kanko");
+  }
+
+  const urls = [];
+  if (scope === "both" || scope === "town") {
+    const town = await fetchTownInfoUrls({ maxPages: townInfoMaxPages, maxUrls: townInfoMaxUrls });
+    urls.push(...town);
+  }
+  if (scope === "both" || scope === "kanko") {
+    const kanko = await getKankoUrlsFromAppRoutes({ origin: kankoOrigin, lang: kankoLang });
+    urls.push(...kanko);
+  }
+
+  return uniq(urls);
+}
