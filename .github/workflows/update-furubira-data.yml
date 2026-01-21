@@ -25,10 +25,13 @@ on:
         default: false
 
   schedule:
-    # Weekly (Mon) town news update. Cron is UTC.
-    - cron: "0 0 * * 1"
-    # Half-yearly kanko update. Cron is UTC.
-    # Runs on Jan 1 and Jul 1 at 00:00 UTC.
+    # Weekly (Fri) town news update.
+    # Cron is UTC. JST = UTC+9, so "0 9 * * 5" (Fri 09:00 UTC) = Fri 18:00 JST
+    # 毎週金曜日 18:00 JST（日本時間）に実行
+    - cron: "0 9 * * 5"
+    # Half-yearly kanko update.
+    # Cron is UTC. JST = UTC+9, so "0 0 1 1,7 *" (00:00 UTC) = 09:00 JST
+    # 1月1日と7月1日の 09:00 JST（日本時間）に実行
     - cron: "0 0 1 1,7 *"
 
 concurrency:
@@ -68,7 +71,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          WEEKLY_CRON='0 0 * * 1'
+          # Cron schedules (UTC). JST = UTC+9
+          # Weekly: Fri 09:00 UTC = Fri 18:00 JST
+          # Half-yearly: Jan 1 & Jul 1 00:00 UTC = 09:00 JST
+          WEEKLY_CRON='0 9 * * 5'
           HALF_YEAR_CRON='0 0 1 1,7 *'
 
           if [ "${{ github.event_name }}" = "schedule" ]; then
