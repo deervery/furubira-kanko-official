@@ -1,0 +1,175 @@
+name: Update Furubira RAG data
+
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: "Which URLs to scrape"
+        type: choice
+        options:
+          - town
+          - kanko
+          - both
+        default: kanko
+      run_fix_content:
+        description: "Run fixContent (OpenAI cost)"
+        type: boolean
+        default: false
+      dry_run:
+        description: "Dry-run ingest (no DB writes)"
+        type: boolean
+        default: false
+      delete:
+        description: "Enable --delete (NOT recommended; purges missing hashes; needs RPC)"
+        type: boolean
+        default: false
+
+  schedule:
+    # Weekly (Mon) town news update. Cron is UTC.
+    - cron: "0 0 * * 1"
+    # Half-yearly kanko update. Cron is UTC.
+    # Runs on Jan 1 and Jul 1 at 00:00 UTC.
+    - cron: "0 0 1 1,7 *"
+
+concurrency:
+  group: update-furubira-data
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Resolve run parameters
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          WEEKLY_CRON='0 0 * * 1'
+          HALF_YEAR_CRON='0 0 1 1,7 *'
+
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            if [ "${{ github.event.schedule }}" = "$WEEKLY_CRON" ]; then
+              echo "SCOPE=town" >> "$GITHUB_ENV"
+            elif [ "${{ github.event.schedule }}" = "$HALF_YEAR_CRON" ]; then
+              echo "SCOPE=kanko" >> "$GITHUB_ENV"
+            else
+              echo "::warning::Unknown schedule: '${{ github.event.schedule }}' (defaulting to town)"
+              echo "SCOPE=town" >> "$GITHUB_ENV"
+            fi
+
+            echo "RUN_FIX_CONTENT=false" >> "$GITHUB_ENV"
+            echo "DRY_RUN=false" >> "$GITHUB_ENV"
+            echo "DO_DELETE=false" >> "$GITHUB_ENV"
+          else
+            echo "SCOPE=${{ inputs.scope }}" >> "$GITHUB_ENV"
+            echo "RUN_FIX_CONTENT=${{ inputs.run_fix_content }}" >> "$GITHUB_ENV"
+            echo "DRY_RUN=${{ inputs.dry_run }}" >> "$GITHUB_ENV"
+            echo "DO_DELETE=${{ inputs.delete }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Run update pipeline
+        run: |
+          set -euo pipefail
+          # 1) scrape -> TEMP (supports scope=both by running town+kanko sequentially)
+          TMP="scripts/furubira_content._new.json"
+          if [ "$SCOPE" = "both" ]; then
+            for ONE in town kanko; do
+              node scripts/scrapePage.mjs --scope "$ONE" --out "$TMP"
+              if [ "$RUN_FIX_CONTENT" = "true" ]; then
+                node scripts/fixContent.mjs --source "$TMP" --out "$TMP"
+              fi
+              if [ "$ONE" = "town" ]; then
+                node scripts/merge-furubira-content.mjs --into scripts/furubira_content.town.json --from "$TMP"
+              else
+                node scripts/merge-furubira-content.mjs --into scripts/furubira_content.kanko.json --from "$TMP"
+              fi
+            done
+          else
+            node scripts/scrapePage.mjs --scope "$SCOPE" --out "$TMP"
+            if [ "$RUN_FIX_CONTENT" = "true" ]; then
+              node scripts/fixContent.mjs --source "$TMP" --out "$TMP"
+            fi
+            if [ "$SCOPE" = "town" ]; then
+              node scripts/merge-furubira-content.mjs --into scripts/furubira_content.town.json --from "$TMP"
+            elif [ "$SCOPE" = "kanko" ]; then
+              node scripts/merge-furubira-content.mjs --into scripts/furubira_content.kanko.json --from "$TMP"
+            else
+              echo "ERROR: unexpected scope: $SCOPE"
+              exit 1
+            fi
+          fi
+
+          # 2) always rebuild BOTH from current town+kanko snapshots (if present)
+          rm -f scripts/furubira_content.both.json
+          if [ -f scripts/furubira_content.town.json ]; then
+            node scripts/merge-furubira-content.mjs --into scripts/furubira_content.both.json --from scripts/furubira_content.town.json
+          fi
+          if [ -f scripts/furubira_content.kanko.json ]; then
+            node scripts/merge-furubira-content.mjs --into scripts/furubira_content.both.json --from scripts/furubira_content.kanko.json
+          fi
+
+          # Keep a stable alias for app/local use
+          cp scripts/furubira_content.both.json scripts/furubira_content.json
+          # Build ONE canonical info JSON (title/content only) from BOTH
+          node scripts/build-furubira-info.mjs --source scripts/furubira_content.both.json --out scripts/furubira_info.json
+
+          # 3) ingest (diff update: content_hash + embedding) from BOTH dataset (title/content only)
+          ARGS=(--source scripts/furubira_info.json)
+          if [ "$DRY_RUN" = "true" ]; then ARGS+=(--dry-run); fi
+          if [ "$DO_DELETE" = "true" ]; then ARGS+=(--delete); fi
+          node scripts/ingest-furubira-info.mjs "${ARGS[@]}"
+
+          # cleanup temp
+          rm -f "$TMP"
+
+      - name: Commit updated JSON snapshots
+        if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git status --porcelain
+
+          # Only commit JSON artifacts we expect to change.
+          git add \
+            scripts/furubira_content.json \
+            scripts/furubira_content.town.json \
+            scripts/furubira_content.kanko.json \
+            scripts/furubira_content.both.json \
+            scripts/furubira_info.json || true
+
+          if git diff --cached --quiet; then
+            echo "No JSON changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git commit -m "chore(data): update furubira RAG snapshots (scope=$SCOPE)"
+          git push
+
+
