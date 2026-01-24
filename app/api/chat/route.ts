@@ -8,9 +8,18 @@ const openai = new OpenAI({
 });
 
 const TOP_K = 8;
-const SIMILARITY_THRESHOLD = 0.4;
+const DEFAULT_SIMILARITY_THRESHOLD = 0.25;
+const SIMILARITY_THRESHOLD = (() => {
+  const raw = process.env.RAG_SIMILARITY_THRESHOLD;
+  if (!raw) return DEFAULT_SIMILARITY_THRESHOLD;
+  const v = Number.parseFloat(raw);
+  return Number.isFinite(v) ? v : DEFAULT_SIMILARITY_THRESHOLD;
+})();
 const CHAT_MODEL = process.env.OPENAI_CHAT_MODEL || "gpt-5-nano";
+const FALLBACK_CHAT_MODEL = "gpt-4o-mini";
 const RAG_JUDGE_MODEL = "gpt-4o-mini";
+// Default: always run retrieval (set FORCE_RAG=false to restore judge behavior).
+const FORCE_RAG = process.env.FORCE_RAG !== "false";
 
 const KEEPALIVE_INTERVAL_MS = 3000;
 const RAG_JUDGE_TIMEOUT_MS = 6000;
@@ -22,6 +31,8 @@ const OVERALL_TIMEOUT_MS = 45000;
 // Invisible "start" token to flip the client out of "thinking" without showing text.
 // (String.prototype.trim() does NOT remove U+200B in most JS engines.)
 const STREAM_START_TOKEN = "\u200B";
+const STREAM_START_BURST_TOKENS = 1200; // ~3.6KB (forces flush on some proxies)
+const KEEPALIVE_BURST_TOKENS = 64; // small periodic flush
 
 type FurubiraInfoMatch = {
   content_hash?: string | null;
@@ -131,11 +142,16 @@ function startKeepAlive(controller: ReadableStreamDefaultController<Uint8Array>)
   // (Chat UI ignores whitespace-only chunks until real text arrives.)
   return setInterval(() => {
     try {
-      controller.enqueue(new TextEncoder().encode(STREAM_START_TOKEN))
+      controller.enqueue(new TextEncoder().encode(STREAM_START_TOKEN.repeat(KEEPALIVE_BURST_TOKENS)))
     } catch {
       // ignore if closed
     }
   }, KEEPALIVE_INTERVAL_MS)
+}
+
+function getStatusCode(err: unknown): number | null {
+  const s = (err as any)?.status
+  return typeof s === "number" ? s : null
 }
 
 /**
@@ -220,9 +236,13 @@ export async function POST(request: NextRequest) {
   // Return a stream immediately to avoid platform/proxy timeouts (504).
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
+      const t0 = Date.now()
+      const logPrefix = "[chat]"
+
       // Send an invisible first chunk quickly so the client can transition from "thinking".
+      // Also send enough bytes to punch through buffering proxies/CDNs.
       try {
-        controller.enqueue(new TextEncoder().encode(STREAM_START_TOKEN));
+        controller.enqueue(new TextEncoder().encode(STREAM_START_TOKEN.repeat(STREAM_START_BURST_TOKENS)));
       } catch {
         // ignore
       }
@@ -261,8 +281,16 @@ export async function POST(request: NextRequest) {
           return
         }
 
-        // 0.5) Decide whether to use RAG (timed). On error, default to true (safer).
-        const needsRAG = await shouldUseRAG(queryNormalized);
+        // 0.5) Decide whether to use RAG.
+        // The project expects RAG to run for most queries. Default is forced ON.
+        let needsRAG = true
+        if (!FORCE_RAG) {
+          const tJudge0 = Date.now()
+          needsRAG = await shouldUseRAG(queryNormalized);
+          console.info(logPrefix, "rag-judge", { ms: Date.now() - tJudge0, needsRAG })
+        } else {
+          console.info(logPrefix, "rag-judge", { forced: true, needsRAG: true })
+        }
 
         let matches: FurubiraInfoMatch[] = [];
         let queryEmbedding: number[] | null = null;
@@ -273,6 +301,7 @@ export async function POST(request: NextRequest) {
           } else {
             // 1) Query embedding (timed)
             try {
+              const tEmb0 = Date.now()
               const embeddingResponse = await withTimeout(
                 openai.embeddings.create({
                   model: "text-embedding-3-small",
@@ -281,6 +310,7 @@ export async function POST(request: NextRequest) {
                 EMBEDDING_TIMEOUT_MS,
                 "embedding",
               );
+              console.info(logPrefix, "embedding", { ms: Date.now() - tEmb0 })
               queryEmbedding = embeddingResponse.data[0]?.embedding ?? null;
             } catch (error) {
               console.error("OpenAI Embedding Error:", error);
@@ -306,6 +336,7 @@ export async function POST(request: NextRequest) {
               const sb = getSupabaseClientOrNull();
               if (!sb) throw new Error("[supabase] not configured");
 
+              const tRpc0 = Date.now()
               const rpcResult = await withTimeout(
                 sb.rpc("match_furubira_info", {
                   query_embedding: queryEmbedding,
@@ -314,6 +345,7 @@ export async function POST(request: NextRequest) {
                 SUPABASE_RPC_TIMEOUT_MS,
                 "supabase-rpc",
               );
+              console.info(logPrefix, "supabase-rpc", { ms: Date.now() - tRpc0 })
 
               const { data, error } = rpcResult;
 
@@ -389,6 +421,7 @@ export async function POST(request: NextRequest) {
         // Try to start OpenAI streaming; if we can't get first bytes in time, fail fast with a friendly message.
         let openAiStream: any
         try {
+          const tStart0 = Date.now()
           openAiStream = await withTimeout(
             openai.responses.create({
               model: CHAT_MODEL,
@@ -398,21 +431,58 @@ export async function POST(request: NextRequest) {
             ANSWER_STREAM_FIRST_BYTE_TIMEOUT_MS,
             "answer-stream-start",
           )
+          console.info(logPrefix, "answer-stream-start", { ms: Date.now() - tStart0, model: CHAT_MODEL })
         } catch (error) {
-          console.error("OpenAI stream start error:", error)
-          const msg = "ごめんね、いま少し混み合っているみたい。もう一度聞いてみてね♪"
-          try {
-            controller.enqueue(new TextEncoder().encode(msg))
-          } catch {}
-          await saveChat({ content: msg, role: "assistant", sessionId: sessionIdStr })
-          return
+          const status = getStatusCode(error)
+          console.error("OpenAI stream start error:", { status, message: (error as any)?.message, error })
+
+          // If production key/project cannot access gpt-5-nano, fall back automatically.
+          if ((status === 403 || status === 404) && CHAT_MODEL.startsWith("gpt-5")) {
+            try {
+              const tStart1 = Date.now()
+              openAiStream = await withTimeout(
+                openai.responses.create({
+                  model: FALLBACK_CHAT_MODEL,
+                  input: messages,
+                  stream: true,
+                } as any),
+                ANSWER_STREAM_FIRST_BYTE_TIMEOUT_MS,
+                "answer-stream-start-fallback",
+              )
+              console.info(logPrefix, "answer-stream-start-fallback", {
+                ms: Date.now() - tStart1,
+                model: FALLBACK_CHAT_MODEL,
+                originalModel: CHAT_MODEL,
+              })
+            } catch (fallbackError) {
+              console.error("OpenAI fallback stream start error:", fallbackError)
+              const msg = "ごめんね、いま少し混み合っているみたい。もう一度聞いてみてね♪"
+              try {
+                controller.enqueue(new TextEncoder().encode(msg))
+              } catch {}
+              await saveChat({ content: msg, role: "assistant", sessionId: sessionIdStr })
+              return
+            }
+          } else {
+            const msg = "ごめんね、いま少し混み合っているみたい。もう一度聞いてみてね♪"
+            try {
+              controller.enqueue(new TextEncoder().encode(msg))
+            } catch {}
+            await saveChat({ content: msg, role: "assistant", sessionId: sessionIdStr })
+            return
+          }
         }
 
         let fullResponse = "";
+        let firstDeltaAt: number | null = null
         for await (const chunk of openAiStream) {
           const type = (chunk as any)?.type;
           const delta = type === "response.output_text.delta" ? String((chunk as any)?.delta ?? "") : "";
           if (!delta) continue;
+          if (firstDeltaAt === null) {
+            firstDeltaAt = Date.now()
+            console.info(logPrefix, "first-delta", { msFromStart: firstDeltaAt - t0 })
+          }
           fullResponse += delta;
           try {
             controller.enqueue(new TextEncoder().encode(delta));
@@ -440,6 +510,7 @@ export async function POST(request: NextRequest) {
         } catch {}
         await saveChat({ content: msg, role: "assistant", sessionId: sessionIdStr })
       } finally {
+        console.info(logPrefix, "done", { ms: Date.now() - t0, model: CHAT_MODEL })
         clearInterval(keepAlive)
         clearTimeout(overallTimer)
         try {
@@ -455,6 +526,8 @@ export async function POST(request: NextRequest) {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control": "no-cache, no-transform",
+      // Helpful for some proxy setups (no-op elsewhere)
+      "X-Accel-Buffering": "no",
     },
   });
 }
