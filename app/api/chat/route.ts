@@ -2,6 +2,9 @@ import { OpenAI } from "openai";
 import { getSupabaseClientOrNull, isSupabaseConfigured } from "@/lib/supabase";
 import type { NextRequest } from "next/server";
 
+// Vercel: allow longer than default 15s.
+export const maxDuration = 60;
+
 // OpenAI APIのインスタンスを作成
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY // 環境変数から取得
@@ -47,6 +50,11 @@ const EMBEDDING_TIMEOUT_MS = 8000;
 const ANSWER_STREAM_FIRST_BYTE_TIMEOUT_MS = 8000;
 const SUPABASE_RPC_TIMEOUT_MS = 8000;
 const OVERALL_TIMEOUT_MS = 45000;
+const FIRST_DELTA_TIMEOUT_MS = 7000;
+
+// Reduce prompt size to avoid long prefill (important for Vercel 15s timeouts).
+const CONTEXT_TOP_N = 3;
+const MAX_CONTEXT_CHARS_PER_DOC = 900;
 
 // Invisible "start" token to flip the client out of "thinking" without showing text.
 // (String.prototype.trim() does NOT remove U+200B in most JS engines.)
@@ -90,6 +98,11 @@ function buildContext(matches: FurubiraInfoMatch[]): string {
       return `【${i + 1}】similarity=${simText}\n識別子: ${contentHash}\nタイトル: ${title}\n本文:\n${content}`;
     })
     .join("\n\n");
+}
+
+function truncateText(s: string, maxChars: number): string {
+  if (s.length <= maxChars) return s;
+  return `${s.slice(0, maxChars)}…`;
 }
 
 function pickSmallTalkReply(queryNormalized: string): string | null {
@@ -418,7 +431,14 @@ export async function POST(request: NextRequest) {
           hasRelevantContext,
         });
 
-        const context = hasRelevantContext ? buildContext(matches) : "";
+        const contextMatches = hasRelevantContext
+          ? matches.slice(0, CONTEXT_TOP_N).map((m) => ({
+              ...m,
+              title: m.title ? truncateText(String(m.title), 120) : m.title,
+              content: m.content ? truncateText(String(m.content), MAX_CONTEXT_CHARS_PER_DOC) : m.content,
+            }))
+          : [];
+        const context = hasRelevantContext ? buildContext(contextMatches) : "";
 
         const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
           {
@@ -504,21 +524,40 @@ export async function POST(request: NextRequest) {
 
         let fullResponse = "";
         let firstDeltaAt: number | null = null
-        for await (const chunk of openAiStream) {
-          const type = (chunk as any)?.type;
-          const delta = type === "response.output_text.delta" ? String((chunk as any)?.delta ?? "") : "";
-          if (!delta) continue;
-          if (firstDeltaAt === null) {
-            firstDeltaAt = Date.now()
-            console.info(logPrefix, "first-delta", { msFromStart: firstDeltaAt - t0 })
-          }
-          fullResponse += delta;
+        // Enforce an upper bound for "time to first token" even after stream start.
+        const firstDeltaTimer = setTimeout(() => {
+          if (firstDeltaAt !== null) return;
+          const msg = "ごめんね、いま少し混み合っているみたい。もう一度聞いてみてね♪"
+          console.warn(logPrefix, "first-delta-timeout", { ms: Date.now() - t0 })
           try {
-            controller.enqueue(new TextEncoder().encode(delta));
-          } catch {
-            // client disconnected
-            break;
+            controller.enqueue(new TextEncoder().encode(msg))
+          } catch {}
+          // End early to avoid Vercel runtime timeouts.
+          try {
+            controller.close()
+          } catch {}
+        }, FIRST_DELTA_TIMEOUT_MS)
+
+        try {
+          for await (const chunk of openAiStream) {
+            const type = (chunk as any)?.type;
+            const delta = type === "response.output_text.delta" ? String((chunk as any)?.delta ?? "") : "";
+            if (!delta) continue;
+            if (firstDeltaAt === null) {
+              firstDeltaAt = Date.now()
+              console.info(logPrefix, "first-delta", { msFromStart: firstDeltaAt - t0 })
+              clearTimeout(firstDeltaTimer)
+            }
+            fullResponse += delta;
+            try {
+              controller.enqueue(new TextEncoder().encode(delta));
+            } catch {
+              // client disconnected
+              break;
+            }
           }
+        } finally {
+          clearTimeout(firstDeltaTimer)
         }
 
         if (fullResponse) {
