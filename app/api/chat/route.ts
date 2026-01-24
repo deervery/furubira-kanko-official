@@ -18,8 +18,28 @@ const SIMILARITY_THRESHOLD = (() => {
 const CHAT_MODEL = process.env.OPENAI_CHAT_MODEL || "gpt-5-nano";
 const FALLBACK_CHAT_MODEL = "gpt-4o-mini";
 const RAG_JUDGE_MODEL = "gpt-4o-mini";
-// Default: always run retrieval (set FORCE_RAG=false to restore judge behavior).
-const FORCE_RAG = process.env.FORCE_RAG !== "false";
+// Optional override: force retrieval for debugging (set FORCE_RAG=true).
+const FORCE_RAG = process.env.FORCE_RAG === "true";
+
+function isLikelySmallTalkOrGeneral(queryNormalized: string): boolean {
+  const q = queryNormalized.trim();
+  if (!q) return true;
+  if (q.length <= 20) return true;
+  // Simple greetings / short chats already handled by pickSmallTalkReply, but keep a broader guard here.
+  if (/^(はろー|ハロー|hello|hi|hey|やあ|こんにちは|こんばんは|おはよう)/i.test(q)) return true;
+  return false;
+}
+
+function isLikelyFurubiraSpecific(queryNormalized: string): boolean {
+  const q = queryNormalized.trim();
+  if (!q) return false;
+  // Keywords that usually require local DB lookup
+  if (/古平|ふるびら/.test(q)) return true;
+  if (/(観光|スポット|イベント|祭|宿泊|ホテル|旅館|温泉|飲食|レストラン|寿司|店|営業時間|料金|住所|アクセス)/.test(q))
+    return true;
+  if (/(地域おこし協力隊|募集|求人|採用|応募|締切)/.test(q)) return true;
+  return false;
+}
 
 const KEEPALIVE_INTERVAL_MS = 3000;
 const RAG_JUDGE_TIMEOUT_MS = 6000;
@@ -282,14 +302,23 @@ export async function POST(request: NextRequest) {
         }
 
         // 0.5) Decide whether to use RAG.
-        // The project expects RAG to run for most queries. Default is forced ON.
-        let needsRAG = true
-        if (!FORCE_RAG) {
+        // - Small talk / very simple questions: skip retrieval for speed.
+        // - Furubira-specific intents: run retrieval.
+        // - Otherwise: let the judge decide.
+        let needsRAG: boolean
+        if (FORCE_RAG) {
+          needsRAG = true
+          console.info(logPrefix, "rag-judge", { forced: true, needsRAG: true })
+        } else if (isLikelySmallTalkOrGeneral(queryNormalized) && !isLikelyFurubiraSpecific(queryNormalized)) {
+          needsRAG = false
+          console.info(logPrefix, "rag-judge", { heuristic: "smalltalk", needsRAG: false })
+        } else if (isLikelyFurubiraSpecific(queryNormalized)) {
+          needsRAG = true
+          console.info(logPrefix, "rag-judge", { heuristic: "furubira-specific", needsRAG: true })
+        } else {
           const tJudge0 = Date.now()
           needsRAG = await shouldUseRAG(queryNormalized);
           console.info(logPrefix, "rag-judge", { ms: Date.now() - tJudge0, needsRAG })
-        } else {
-          console.info(logPrefix, "rag-judge", { forced: true, needsRAG: true })
         }
 
         let matches: FurubiraInfoMatch[] = [];
