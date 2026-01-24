@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { supabase } from "@/lib/supabase"
+import { getSupabaseClientOrNull } from "@/lib/supabase"
 
 export async function GET(
   request: NextRequest,
@@ -8,7 +8,13 @@ export async function GET(
   const { sessionId } = await context.params;
 
   try {
-    const { data: messages, error } = await supabase
+    const sb = getSupabaseClientOrNull();
+    if (!sb) {
+      // If Supabase isn't configured, just return empty history (the client shows welcome message).
+      return Response.json([]);
+    }
+
+    const { data: messages, error } = await sb
       .from("chat")
       .select("role,content")
       .eq("sessionId", sessionId)

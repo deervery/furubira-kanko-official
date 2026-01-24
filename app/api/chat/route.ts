@@ -1,5 +1,5 @@
 import { OpenAI } from "openai";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseClientOrNull, isSupabaseConfigured } from "@/lib/supabase";
 import type { NextRequest } from "next/server";
 
 // OpenAI APIのインスタンスを作成
@@ -11,6 +11,11 @@ const TOP_K = 8;
 const SIMILARITY_THRESHOLD = 0.4;
 const CHAT_MODEL = process.env.OPENAI_CHAT_MODEL || "gpt-5-nano";
 const RAG_JUDGE_MODEL = "gpt-4o-mini";
+
+const KEEPALIVE_INTERVAL_MS = 3000;
+const RAG_JUDGE_TIMEOUT_MS = 6000;
+const EMBEDDING_TIMEOUT_MS = 8000;
+const ANSWER_STREAM_FIRST_BYTE_TIMEOUT_MS = 8000;
 
 type FurubiraInfoMatch = {
   content_hash?: string | null;
@@ -89,10 +94,42 @@ function streamPlainTextAndSave({
         controller.enqueue(new TextEncoder().encode(text));
         await saveChat({ content: text, role: "assistant", sessionId });
       } finally {
-        controller.close();
+        try {
+          controller.close();
+        } catch {
+          // ignore if already closed
+        }
       }
     },
   });
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(`[timeout] ${label} (${ms}ms)`)), ms)
+    promise.then(
+      (v) => {
+        clearTimeout(t)
+        resolve(v)
+      },
+      (e) => {
+        clearTimeout(t)
+        reject(e)
+      },
+    )
+  })
+}
+
+function startKeepAlive(controller: ReadableStreamDefaultController<Uint8Array>) {
+  // Send whitespace periodically so proxies don't consider it idle.
+  // (Chat UI ignores whitespace-only chunks until real text arrives.)
+  return setInterval(() => {
+    try {
+      controller.enqueue(new TextEncoder().encode(" "))
+    } catch {
+      // ignore if closed
+    }
+  }, KEEPALIVE_INTERVAL_MS)
 }
 
 /**
@@ -102,27 +139,31 @@ function streamPlainTextAndSave({
  */
 async function shouldUseRAG(queryNormalized: string): Promise<boolean> {
   try {
-    const response = await openai.chat.completions.create({
-      model: RAG_JUDGE_MODEL,
-      messages: [
-        {
-          role: "system",
-          content: `あなたは古平町の観光案内AIアシスタントです。ユーザーの質問を読んで、古平町の具体的な情報（観光スポット、店舗、イベント、宿泊施設など）を検索する必要があるかどうかを判断してください。
+    const response = await withTimeout(
+      openai.chat.completions.create({
+        model: RAG_JUDGE_MODEL,
+        messages: [
+          {
+            role: "system",
+            content: `あなたは古平町の観光案内AIアシスタントです。ユーザーの質問を読んで、古平町の具体的な情報（観光スポット、店舗、イベント、宿泊施設など）を検索する必要があるかどうかを判断してください。
 
-            判断基準:
-            - YES: 古平町の具体的な情報（場所名、店名、イベント名、営業時間、料金、住所など）が必要な質問
-            - NO: 一般的な挨拶、雑談、一般的な知識で答えられる質問、または古平町の情報が不要な質問
+              判断基準:
+              - YES: 古平町の具体的な情報（場所名、店名、イベント名、営業時間、料金、住所など）が必要な質問
+              - NO: 一般的な挨拶、雑談、一般的な知識で答えられる質問、または古平町の情報が不要な質問
 
-            回答は必ず「YES」または「NO」の1語のみで答えてください。`,
-        },
-        {
-          role: "user",
-          content: queryNormalized,
-        },
-      ],
-      max_tokens: 10,
-      temperature: 0,
-    });
+              回答は必ず「YES」または「NO」の1語のみで答えてください。`,
+          },
+          {
+            role: "user",
+            content: queryNormalized,
+          },
+        ],
+        max_tokens: 10,
+        temperature: 0,
+      } as any),
+      RAG_JUDGE_TIMEOUT_MS,
+      "rag-judge",
+    );
 
     const answer = response.choices[0]?.message?.content?.trim().toUpperCase() || "";
     const needsRAG = answer === "YES" || answer.startsWith("YES");
@@ -142,234 +183,263 @@ async function shouldUseRAG(queryNormalized: string): Promise<boolean> {
 }
 
 export async function POST(request: NextRequest) {
-  const { content, sessionId } = await request.json();
+  let content: unknown;
+  let sessionId: unknown;
+  try {
+    const body = await request.json();
+    content = (body as any)?.content;
+    sessionId = (body as any)?.sessionId;
+  } catch (error) {
+    console.error("Request JSON parse error:", error);
+    // Return 200 stream so the client can display the message (it expects streaming)
+    const stream = streamPlainTextAndSave({
+      text: "ごめんね、送信内容を読み取れなかったみたい。もう一度送ってみてね♪",
+      sessionId: "unknown",
+    });
+    return new Response(stream);
+  }
 
   if (!content || !sessionId) {
-    return Response.json({ error: "ContentとsessionIdは必須です" }, { status: 400 });
+    // Return 200 stream so the client can display the message (it expects streaming)
+    const stream = streamPlainTextAndSave({
+      text: "ごめんね、メッセージの内容が空っぽみたい。もう一度送ってみてね♪",
+      sessionId: String(sessionId ?? "unknown"),
+    });
+    return new Response(stream);
   }
-
-  await saveChat({ content, role: "user", sessionId });
 
   const queryRaw = String(content);
-  const queryNormalized = normalizeText(queryRaw);
+  const sessionIdStr = String(sessionId);
 
-  // 0) RAGの前段で、安全に返せる短い挨拶/雑談は即返答（Embedding/RPCを呼ばない）
-  const smallTalk = pickSmallTalkReply(queryNormalized);
-  if (smallTalk) {
-    const stream = streamPlainTextAndSave({ text: smallTalk, sessionId });
-    return new Response(stream);
-  }
-
-  // 0.5) gpt-4o-miniでRAGが必要かどうかを判断（超小さいコンテキスト）
-  const needsRAG = await shouldUseRAG(queryNormalized);
-
-  let matches: FurubiraInfoMatch[] = [];
-  let queryEmbedding: number[] | null = null;
-
-  if (needsRAG) {
-    // 1) クエリEmbedding生成
-    try {
-      const embeddingResponse = await openai.embeddings.create({
-        model: "text-embedding-3-small",
-        input: queryNormalized,
-      });
-      queryEmbedding = embeddingResponse.data[0]?.embedding ?? null;
-    } catch (error) {
-      console.error("OpenAI Embedding Error:", error);
-      const stream = streamPlainTextAndSave({
-        text: "ごめんね、ちょっと調子が悪いみたい。もう一度聞いてもらえると嬉しいな♪",
-        sessionId,
-      });
-      return new Response(stream);
-    }
-
-    if (!queryEmbedding) {
-      const stream = streamPlainTextAndSave({
-        text: "ごめんね、うまく聞き取れなかったみたい。もう一度教えてくれる？",
-        sessionId,
-      });
-      return new Response(stream);
-    }
-
-    // 2) RPCでtopK取得
-    try {
-      const { data, error } = await supabase.rpc("match_furubira_info", {
-        query_embedding: queryEmbedding,
-        match_count: TOP_K,
-      });
-
-      if (error) {
-        console.error("Supabase RPC Error:", error);
-        const stream = streamPlainTextAndSave({
-          text: "ごめんね、ちょっと調子が悪いみたい。少し待ってからもう一度聞いてね♪",
-          sessionId,
-        });
-        return new Response(stream);
+  // Return a stream immediately to avoid platform/proxy timeouts (504).
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      // Send a first byte quickly (whitespace), so the client connection is established.
+      try {
+        controller.enqueue(new TextEncoder().encode(" "));
+      } catch {
+        // ignore
       }
 
-      matches = Array.isArray(data) ? (data as FurubiraInfoMatch[]) : [];
-    } catch (error) {
-      console.error("Supabase RPC Call Error:", error);
-      const stream = streamPlainTextAndSave({
-        text: "ごめんね、ちょっと調子が悪いみたい。少し待ってからもう一度聞いてね♪",
-        sessionId,
-      });
-      return new Response(stream);
-    }
+      const keepAlive = startKeepAlive(controller)
 
-    if (matches.length === 0) {
-      const stream = streamPlainTextAndSave({
-        text: "うーん、ちょっとわからないな。場所や時期、何をしたいか（観光・食事・宿泊など）を教えてくれると、もっと調べやすくなるよ♪",
-        sessionId,
-      });
-      return new Response(stream);
-    }
-  }
+      try {
+        // Save user message (best-effort; never fail the request).
+        await saveChat({ content: queryRaw, role: "user", sessionId: sessionIdStr })
 
-  const top1 = matches.length > 0 ? matches[0] : null;
-  const top1Sim = typeof top1?.similarity === "number" ? top1.similarity : null;
-  const hasRelevantContext = needsRAG && top1Sim !== null && top1Sim >= SIMILARITY_THRESHOLD;
+        const queryNormalized = normalizeText(queryRaw);
 
-  console.info("[rag] retrieval", {
-    sessionId,
-    queryRaw,
-    queryNormalized,
-    needsRAG,
-    matchCount: matches.length,
-    top1Similarity: top1Sim,
-    selectedHashes: matches.slice(0, 3).map((m) => m.content_hash),
-    hasRelevantContext,
+        // 0) Safe small-talk short-circuit (no embedding/RPC)
+        const smallTalk = pickSmallTalkReply(queryNormalized);
+        if (smallTalk) {
+          try {
+            controller.enqueue(new TextEncoder().encode(smallTalk))
+          } catch {}
+          await saveChat({ content: smallTalk, role: "assistant", sessionId: sessionIdStr })
+          return
+        }
+
+        // 0.5) Decide whether to use RAG (timed). On error, default to true (safer).
+        const needsRAG = await shouldUseRAG(queryNormalized);
+
+        let matches: FurubiraInfoMatch[] = [];
+        let queryEmbedding: number[] | null = null;
+
+        if (needsRAG) {
+          if (!isSupabaseConfigured()) {
+            console.warn("[rag] Supabase is not configured. Skipping retrieval.");
+          } else {
+            // 1) Query embedding (timed)
+            try {
+              const embeddingResponse = await withTimeout(
+                openai.embeddings.create({
+                  model: "text-embedding-3-small",
+                  input: queryNormalized,
+                } as any),
+                EMBEDDING_TIMEOUT_MS,
+                "embedding",
+              );
+              queryEmbedding = embeddingResponse.data[0]?.embedding ?? null;
+            } catch (error) {
+              console.error("OpenAI Embedding Error:", error);
+              const msg = "ごめんね、ちょっと調子が悪いみたい。もう一度聞いてもらえると嬉しいな♪"
+              try {
+                controller.enqueue(new TextEncoder().encode(msg))
+              } catch {}
+              await saveChat({ content: msg, role: "assistant", sessionId: sessionIdStr })
+              return
+            }
+
+            if (!queryEmbedding) {
+              const msg = "ごめんね、うまく聞き取れなかったみたい。もう一度教えてくれる？"
+              try {
+                controller.enqueue(new TextEncoder().encode(msg))
+              } catch {}
+              await saveChat({ content: msg, role: "assistant", sessionId: sessionIdStr })
+              return
+            }
+
+            // 2) RPC topK
+            try {
+              const sb = getSupabaseClientOrNull();
+              if (!sb) throw new Error("[supabase] not configured");
+
+              const { data, error } = await sb.rpc("match_furubira_info", {
+                query_embedding: queryEmbedding,
+                match_count: TOP_K,
+              });
+
+              if (error) throw error;
+
+              matches = Array.isArray(data) ? (data as FurubiraInfoMatch[]) : [];
+            } catch (error) {
+              console.error("Supabase RPC Error:", error);
+              const msg = "ごめんね、ちょっと調子が悪いみたい。少し待ってからもう一度聞いてね♪"
+              try {
+                controller.enqueue(new TextEncoder().encode(msg))
+              } catch {}
+              await saveChat({ content: msg, role: "assistant", sessionId: sessionIdStr })
+              return
+            }
+
+            if (matches.length === 0) {
+              const msg =
+                "うーん、ちょっとわからないな。場所や時期、何をしたいか（観光・食事・宿泊など）を教えてくれると、もっと調べやすくなるよ♪"
+              try {
+                controller.enqueue(new TextEncoder().encode(msg))
+              } catch {}
+              await saveChat({ content: msg, role: "assistant", sessionId: sessionIdStr })
+              return
+            }
+          }
+        }
+
+        const top1 = matches.length > 0 ? matches[0] : null;
+        const top1Sim = typeof top1?.similarity === "number" ? top1.similarity : null;
+        const hasRelevantContext = needsRAG && top1Sim !== null && top1Sim >= SIMILARITY_THRESHOLD;
+
+        console.info("[rag] retrieval", {
+          sessionId: sessionIdStr,
+          queryRaw,
+          queryNormalized,
+          needsRAG,
+          matchCount: matches.length,
+          top1Similarity: top1Sim,
+          selectedHashes: matches.slice(0, 3).map((m) => m.content_hash),
+          hasRelevantContext,
+        });
+
+        const context = hasRelevantContext ? buildContext(matches) : "";
+
+        const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+          {
+            role: "system",
+            content: `
+              あなたは古平町の観光案内をする、親しみやすくてやさしいAIアシスタントです。
+
+              話し方のルール:
+              - やさしく、あたたかい口調で話してね
+              - 嬉しいときや楽しい話題には「♪」をつけてね
+              - ちょっと残念なときや申し訳ないときは「〜だよ。」「〜だね。」を使ってね
+              - 敬語すぎず、フレンドリーな感じで話してね
+              - できるだけ短く、わかりやすく伝えてね（最大5文くらい）
+
+              大事なルール:
+              ${needsRAG ? `- 「根拠」があるときは、根拠に書いてある情報を優先して答えてね
+              - 「根拠」が空っぽ/関連が弱いときは、古平町に固有の事実（店名・住所・営業時間・イベント日程など）を推測で断定しないでね
+              - 古平町の個別情報が必要そうなら「ごめんね、ちょっとわからないな」と正直に言って、追加の条件を聞いてね（場所/時期/目的など）
+
+              根拠:
+              ${context}` : `- 一般的な会話や質問に、親しみやすく答えてね
+              - 古平町の具体的な情報（店名・住所・営業時間など）については、確実な情報がない場合は推測で断定しないでね
+              - わからないときは正直に「ごめんね、ちょっとわからないな」と伝えてね`}
+            `
+          },
+          { role: "user", content: queryRaw },
+        ];
+
+        // Try to start OpenAI streaming; if we can't get first bytes in time, fail fast with a friendly message.
+        let openAiStream: any
+        try {
+          openAiStream = await withTimeout(
+            openai.responses.create({
+              model: CHAT_MODEL,
+              input: messages,
+              stream: true,
+            } as any),
+            ANSWER_STREAM_FIRST_BYTE_TIMEOUT_MS,
+            "answer-stream-start",
+          )
+        } catch (error) {
+          console.error("OpenAI stream start error:", error)
+          const msg = "ごめんね、いま少し混み合っているみたい。もう一度聞いてみてね♪"
+          try {
+            controller.enqueue(new TextEncoder().encode(msg))
+          } catch {}
+          await saveChat({ content: msg, role: "assistant", sessionId: sessionIdStr })
+          return
+        }
+
+        let fullResponse = "";
+        for await (const chunk of openAiStream) {
+          const type = (chunk as any)?.type;
+          const delta = type === "response.output_text.delta" ? String((chunk as any)?.delta ?? "") : "";
+          if (!delta) continue;
+          fullResponse += delta;
+          try {
+            controller.enqueue(new TextEncoder().encode(delta));
+          } catch {
+            // client disconnected
+            break;
+          }
+        }
+
+        if (fullResponse) {
+          await saveChat({ content: fullResponse, role: "assistant", sessionId: sessionIdStr });
+        }
+
+        console.info("[rag] answer", {
+          sessionId: sessionIdStr,
+          top1Similarity: top1Sim,
+          selectedHashes: matches.slice(0, 3).map((m) => m.content_hash),
+          finalAnswer: fullResponse,
+        });
+      } catch (error) {
+        console.error("Chat route stream error:", error)
+        const msg = "ごめんね、途中でうまくいかなくなっちゃった。もう一度聞いてみてね♪"
+        try {
+          controller.enqueue(new TextEncoder().encode(msg))
+        } catch {}
+        await saveChat({ content: msg, role: "assistant", sessionId: sessionIdStr })
+      } finally {
+        clearInterval(keepAlive)
+        try {
+          controller.close()
+        } catch {
+          // ignore
+        }
+      }
+    },
   });
 
-  const context = hasRelevantContext ? buildContext(matches) : "";
-
-  // 型を明示的に指定
-  const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
-    {
-      role: "system",
-      content: `
-        あなたは古平町の観光案内をする、親しみやすくてやさしいAIアシスタントです。
-
-        話し方のルール:
-        - やさしく、あたたかい口調で話してね
-        - 嬉しいときや楽しい話題には「♪」をつけてね
-        - ちょっと残念なときや申し訳ないときは「〜だよ。」「〜だね。」を使ってね
-        - 敬語すぎず、フレンドリーな感じで話してね
-        - できるだけ短く、わかりやすく伝えてね（最大5文くらい）
-
-        大事なルール:
-        ${needsRAG ? `- 「根拠」があるときは、根拠に書いてある情報を優先して答えてね
-        - 「根拠」が空っぽ/関連が弱いときは、古平町に固有の事実（店名・住所・営業時間・イベント日程など）を推測で断定しないでね
-        - 古平町の個別情報が必要そうなら「ごめんね、ちょっとわからないな」と正直に言って、追加の条件を聞いてね（場所/時期/目的など）
-
-        根拠:
-        ${context}` : `- 一般的な会話や質問に、親しみやすく答えてね
-        - 古平町の具体的な情報（店名・住所・営業時間など）については、確実な情報がない場合は推測で断定しないでね
-        - わからないときは正直に「ごめんね、ちょっとわからないな」と伝えてね`}
-      `
-    },
-    {
-      role: "user",
-      content: queryRaw
-    }
-  ];
-
-  try {
-    // ストリーミングレスポンスを作成
-    const stream = new ReadableStream({
-      async start(controller) {
-        try {
-          // OpenAI APIにストリーミングリクエスト（gpt-5-nano は Responses API を利用）
-          const stream = await openai.responses.create({
-            model: CHAT_MODEL,
-            input: messages,
-            stream: true,
-          });
-
-          let fullResponse = "";
-
-          for await (const chunk of stream) {
-            // Responses API のストリームイベントからテキストdeltaを拾う
-            const type = (chunk as any)?.type;
-            const delta =
-              type === "response.output_text.delta"
-                ? String((chunk as any)?.delta ?? "")
-                : "";
-
-            if (delta) {
-              fullResponse += delta;
-              controller.enqueue(new TextEncoder().encode(delta));
-            }
-          }
-
-          // 完了したレスポンスをSupabaseに保存
-          if (fullResponse) {
-            await saveChat({ content: fullResponse, role: "assistant", sessionId });
-          }
-
-          console.info("[rag] answer", {
-            sessionId,
-            top1Similarity: top1Sim,
-            selectedHashes: matches.slice(0, 3).map((m) => m.content_hash),
-            finalAnswer: fullResponse,
-          });
-          
-          controller.close();
-        } catch (error) {
-          console.error("OpenAI ストリーミング エラー:", error);
-          
-          // エラーの詳細情報をログに出力
-          if (error instanceof Error) {
-            console.error("エラーメッセージ:", error.message);
-            console.error("エラースタック:", error.stack);
-            
-            if ('status' in error) {
-              console.error("ステータスコード:", (error as any).status);
-            }
-          }
-          
-          // エラーメッセージをクライアントに送信
-          controller.enqueue(new TextEncoder().encode("ごめんね、途中でうまくいかなくなっちゃった。もう一度聞いてみてね♪"));
-          controller.close();
-        }
-      },
-    });
-
-    // ストリーミングレスポンスを返す
-    return new Response(stream);
-  } catch (error) {
-    console.error("OpenAI API エラー:", error);
-    
-    // エラーの詳細情報をログに出力
-    if (error instanceof Error) {
-      console.error("エラーメッセージ:", error.message);
-      console.error("エラースタック:", error.stack);
-      
-      if ('status' in error) {
-        console.error("ステータスコード:", (error as any).status);
-      }
-      
-      if ('response' in error) {
-        try {
-          console.error("レスポンス:", JSON.stringify((error as any).response, null, 2));
-        } catch (e) {
-          console.error("レスポンスのシリアライズに失敗:", e);
-        }
-      }
-    }
-    
-    return Response.json({ error: "OpenAI API呼び出しでエラーが発生しました" }, { status: 500 });
-  }
+  return new Response(stream);
 }
 
 // チャット履歴を保存
 async function saveChat(entry: { content: string; role: string; sessionId: string }) {
-  const { error } = await supabase.from("chat").insert({
-    ...entry,
-    timestamp: new Date().toISOString()
-  });
+  try {
+    const sb = getSupabaseClientOrNull();
+    if (!sb) return;
 
-  if (error) {
-    console.error("Supabaseエラー:", error);
+    const { error } = await sb.from("chat").insert({
+      ...entry,
+      timestamp: new Date().toISOString(),
+    });
+
+    if (error) {
+      console.error("Supabaseエラー:", error);
+    }
+  } catch (error) {
+    console.error("Supabase saveChat exception:", error);
   }
 }
