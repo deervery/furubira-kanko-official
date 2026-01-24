@@ -16,6 +16,12 @@ const KEEPALIVE_INTERVAL_MS = 3000;
 const RAG_JUDGE_TIMEOUT_MS = 6000;
 const EMBEDDING_TIMEOUT_MS = 8000;
 const ANSWER_STREAM_FIRST_BYTE_TIMEOUT_MS = 8000;
+const SUPABASE_RPC_TIMEOUT_MS = 8000;
+const OVERALL_TIMEOUT_MS = 45000;
+
+// Invisible "start" token to flip the client out of "thinking" without showing text.
+// (String.prototype.trim() does NOT remove U+200B in most JS engines.)
+const STREAM_START_TOKEN = "\u200B";
 
 type FurubiraInfoMatch = {
   content_hash?: string | null;
@@ -125,7 +131,7 @@ function startKeepAlive(controller: ReadableStreamDefaultController<Uint8Array>)
   // (Chat UI ignores whitespace-only chunks until real text arrives.)
   return setInterval(() => {
     try {
-      controller.enqueue(new TextEncoder().encode(" "))
+      controller.enqueue(new TextEncoder().encode(STREAM_START_TOKEN))
     } catch {
       // ignore if closed
     }
@@ -214,14 +220,30 @@ export async function POST(request: NextRequest) {
   // Return a stream immediately to avoid platform/proxy timeouts (504).
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
-      // Send a first byte quickly (whitespace), so the client connection is established.
+      // Send an invisible first chunk quickly so the client can transition from "thinking".
       try {
-        controller.enqueue(new TextEncoder().encode(" "));
+        controller.enqueue(new TextEncoder().encode(STREAM_START_TOKEN));
       } catch {
         // ignore
       }
 
       const keepAlive = startKeepAlive(controller)
+      const overallTimer = setTimeout(() => {
+        try {
+          controller.enqueue(
+            new TextEncoder().encode(
+              "ごめんね、少し時間がかかっているみたい。もう一度送ってみてね♪",
+            ),
+          )
+        } catch {
+          // ignore
+        }
+        try {
+          controller.close()
+        } catch {
+          // ignore
+        }
+      }, OVERALL_TIMEOUT_MS)
 
       try {
         // Save user message (best-effort; never fail the request).
@@ -284,10 +306,16 @@ export async function POST(request: NextRequest) {
               const sb = getSupabaseClientOrNull();
               if (!sb) throw new Error("[supabase] not configured");
 
-              const { data, error } = await sb.rpc("match_furubira_info", {
-                query_embedding: queryEmbedding,
-                match_count: TOP_K,
-              });
+              const rpcResult = await withTimeout(
+                sb.rpc("match_furubira_info", {
+                  query_embedding: queryEmbedding,
+                  match_count: TOP_K,
+                }) as unknown as Promise<{ data: unknown; error: any }>,
+                SUPABASE_RPC_TIMEOUT_MS,
+                "supabase-rpc",
+              );
+
+              const { data, error } = rpcResult;
 
               if (error) throw error;
 
@@ -413,6 +441,7 @@ export async function POST(request: NextRequest) {
         await saveChat({ content: msg, role: "assistant", sessionId: sessionIdStr })
       } finally {
         clearInterval(keepAlive)
+        clearTimeout(overallTimer)
         try {
           controller.close()
         } catch {
@@ -422,7 +451,12 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  return new Response(stream);
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "no-cache, no-transform",
+    },
+  });
 }
 
 // チャット履歴を保存
