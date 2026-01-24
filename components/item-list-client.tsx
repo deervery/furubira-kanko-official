@@ -11,6 +11,7 @@ import { supabase } from "@/lib/supabase"
 import type { BaseItemType } from "@/lib/types"
 import { useI18n } from "@/components/i18n/i18n-provider"
 import { t } from "@/lib/i18n/t"
+import { resolvePublicImageUrl } from "@/lib/image-url"
 
 interface ItemListClientProps<T extends BaseItemType> {
   title: string
@@ -40,9 +41,7 @@ export function ItemListClient<T extends BaseItemType>({
         // 画像URLを取得して各アイテムに追加
         const itemsWithImages = data.map((item: any) => ({
           ...localizeItem(item, lang),
-          image: item.image_path 
-            ? supabase.storage.from("cms-images").getPublicUrl(item.image_path).data.publicUrl
-            : "/no_photo.jpg?height=300&width=400"
+          image: resolvePublicImageUrl(item.image_path, "/no_photo.jpg?height=300&width=400")
         }))
 
         setItems(itemsWithImages)

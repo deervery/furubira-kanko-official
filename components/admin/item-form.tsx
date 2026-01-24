@@ -13,6 +13,7 @@ import { Loader2, Upload, MapPin, Compass, Coffee, Utensils, BedDouble, Calendar
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Image from "next/image"
 import type { BaseItemType } from "@/lib/types"
+import { isExternalImagePath, resolvePublicImageUrl } from "@/lib/image-url"
 
 interface ItemFormProps<T extends BaseItemType & { date?: string }> {
   item: T | null
@@ -68,8 +69,7 @@ export function ItemForm<T extends BaseItemType & { date?: string }>({
 
   useEffect(() => {
     if (imagePath) {
-      const imageUrl = supabase.storage.from("cms-images").getPublicUrl(imagePath).data.publicUrl
-      setImagePreview(imageUrl)
+      setImagePreview(resolvePublicImageUrl(imagePath, "/no_photo.jpg?height=200&width=300"))
     }
   }, [imagePath])
 
@@ -139,7 +139,10 @@ export function ItemForm<T extends BaseItemType & { date?: string }>({
           if (uploadError) throw uploadError
     
           if (item?.image_path && item.image_path !== fileName) {
-            await supabase.storage.from("cms-images").remove([item.image_path])
+            // Only delete if the previous value was actually a Supabase Storage key.
+            if (!isExternalImagePath(item.image_path)) {
+              await supabase.storage.from("cms-images").remove([item.image_path])
+            }
           }
     
           updatedImagePath = fileName

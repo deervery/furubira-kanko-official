@@ -3,13 +3,11 @@ import type { SpotType, RestaurantType, AccommodationType, EventType, ShopType }
 import type React from "react"
 import { DEFAULT_LANG, isLang, type Lang } from "@/lib/i18n/lang"
 import rawMessages from "@/locales/messages.json"
+import { resolvePublicImageUrl } from "@/lib/image-url"
 
 // 画像URLを生成する関数を追加
 function getImageUrl(imagePath: string | null): string {
-  if (!imagePath) {
-    return "/no_photo.jpg?height=300&width=400"
-  }
-  return supabase.storage.from("cms-images").getPublicUrl(imagePath).data.publicUrl
+  return resolvePublicImageUrl(imagePath, "/no_photo.jpg?height=300&width=400")
 }
 
 // アイコン名を文字列として返す関数
