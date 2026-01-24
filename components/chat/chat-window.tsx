@@ -32,6 +32,15 @@ export function ChatWindow() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
 
+  // Remove invisible keep-alive tokens and whitespace-only chunks from server streaming.
+  // We still use their arrival to stop the "thinking" state, but we don't show them as chat content.
+  const normalizeStreamChunk = (chunk: string) => {
+    // remove U+200B (zero width space) and BOM/zero-width joiners just in case
+    const withoutInvisible = chunk.replace(/[\u200B-\u200D\uFEFF]/g, "")
+    // if it becomes whitespace-only, treat as empty (keep-alive)
+    return withoutInvisible.trim() ? withoutInvisible : ""
+  }
+
   // Load existing messages for the session
   useEffect(() => {
     async function loadMessages() {
@@ -125,7 +134,7 @@ export function ChatWindow() {
         const reader = response.body.getReader()
         const decoder = new TextDecoder()
         let accumulatedContent = ""
-        let isFirstChunk = true
+        let assistantMessageId: string | null = null
 
         while (true) {
           const { done, value } = await reader.read()
@@ -134,35 +143,53 @@ export function ChatWindow() {
             break
           }
 
-          const chunk = decoder.decode(value)
+          const rawChunk = decoder.decode(value)
+          const chunk = normalizeStreamChunk(rawChunk)
 
-          if (isFirstChunk && chunk.trim() !== "") {
-            isFirstChunk = false
-            setIsThinking(false)
+          // Ignore keep-alive / invisible-only chunks (don't show them as message text).
+          if (!chunk) continue
 
-            const assistantMessageId = nanoid()
+          // First real text: create assistant message.
+          if (!assistantMessageId) {
+            assistantMessageId = nanoid()
             accumulatedContent = chunk
+            setIsThinking(false)
 
             // 最新のユーザーとアシスタントメッセージだけを保持
             setMessages((prev) => [
               prev[prev.length - 1], // 最新のユーザーメッセージ
               {
-                id: assistantMessageId,
+                id: assistantMessageId!,
                 role: "assistant",
-                content: chunk,
+                content: accumulatedContent,
                 timestamp: new Date().toISOString(),
                 isTyping: true,
               },
             ])
-          } else if (!isFirstChunk) {
-            accumulatedContent += chunk
-
-            setMessages((prev) =>
-              prev.map((msg) =>
-                msg.role === "assistant" && msg.isTyping ? { ...msg, content: accumulatedContent } : msg,
-              ),
-            )
+            continue
           }
+
+          // Subsequent text: append.
+          accumulatedContent += chunk
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === assistantMessageId ? { ...msg, content: accumulatedContent } : msg,
+            ),
+          )
+        }
+
+        // If the stream ended without any real text, stop thinking and show a fallback message.
+        if (!assistantMessageId) {
+          setIsThinking(false)
+          setMessages((prev) => [
+            prev[prev.length - 1],
+            {
+              id: nanoid(),
+              role: "assistant",
+              content: t(i18nMessages, "chat.error_generic"),
+              timestamp: new Date().toISOString(),
+            },
+          ])
         }
 
         setMessages((prev) => prev.map((msg) => (msg.isTyping ? { ...msg, isTyping: false } : msg)))
