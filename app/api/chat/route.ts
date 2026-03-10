@@ -350,7 +350,7 @@ export async function POST(request: NextRequest) {
               queryEmbedding = embeddingResponse.data[0]?.embedding ?? null;
             } catch (error) {
               console.error("OpenAI Embedding Error:", error);
-              const msg = "ごめんね、ちょっと調子が悪いみたい。もう一度聞いてもらえると嬉しいな♪"
+              const msg = `[DEBUG:embedding] ${(error as any)?.message ?? "unknown"}`
               try {
                 controller.enqueue(new TextEncoder().encode(msg))
               } catch {}
@@ -390,7 +390,7 @@ export async function POST(request: NextRequest) {
               matches = Array.isArray(data) ? (data as FurubiraInfoMatch[]) : [];
             } catch (error) {
               console.error("Supabase RPC Error:", error);
-              const msg = "ごめんね、ちょっと調子が悪いみたい。少し待ってからもう一度聞いてね♪"
+              const msg = `[DEBUG:supabase-rpc] ${(error as any)?.message ?? JSON.stringify(error)}`
               try {
                 controller.enqueue(new TextEncoder().encode(msg))
               } catch {}
@@ -477,7 +477,7 @@ export async function POST(request: NextRequest) {
           console.info(logPrefix, "answer-stream-start", { ms: Date.now() - tStart0, model: CHAT_MODEL })
         } catch (error) {
           console.error("OpenAI stream start error:", { message: (error as any)?.message, error })
-          const msg = "ごめんね、いま少し混み合っているみたい。もう一度聞いてみてね♪"
+          const msg = `[DEBUG:openai-stream] ${(error as any)?.message ?? "unknown"}`
           try {
             controller.enqueue(new TextEncoder().encode(msg))
           } catch {}
@@ -490,7 +490,7 @@ export async function POST(request: NextRequest) {
         // Enforce an upper bound for "time to first token" even after stream start.
         const firstDeltaTimer = setTimeout(() => {
           if (firstDeltaAt !== null) return;
-          const msg = "ごめんね、いま少し混み合っているみたい。もう一度聞いてみてね♪"
+          const msg = "[DEBUG:first-delta-timeout] ストリーム開始後7秒以内にテキストが届かなかった"
           console.warn(logPrefix, "first-delta-timeout", { ms: Date.now() - t0 })
           try {
             controller.enqueue(new TextEncoder().encode(msg))
@@ -534,7 +534,7 @@ export async function POST(request: NextRequest) {
         });
       } catch (error) {
         console.error("Chat route stream error:", error)
-        const msg = "ごめんね、途中でうまくいかなくなっちゃった。もう一度聞いてみてね♪"
+        const msg = `[DEBUG:outer-catch] ${(error as any)?.message ?? "unknown"}`
         try {
           controller.enqueue(new TextEncoder().encode(msg))
         } catch {}
