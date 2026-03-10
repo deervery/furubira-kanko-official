@@ -31,7 +31,7 @@ export async function GET(
 
   const { data, error } = await sb
     .from(tableName)
-    .select("id,name,name_en,description,description_en,address,facilities,facilities_en,date,date_en,type,image_path,icon,url,display_order")
+    .select("*")
     .order("display_order", { ascending: true });
 
   if (error) {
