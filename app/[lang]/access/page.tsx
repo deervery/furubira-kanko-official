@@ -13,7 +13,7 @@ export default function Access() {
   const mapQuery =
     lang === "en"
       ? "Furubira Town Hall, Hokkaido, Japan"
-      : "〒046-0121 北海道古平郡古平町浜町50番地 古平町役場"
+      : "〒046-0192 北海道古平郡古平町浜町50番地 古平町役場"
 
   const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed&hl=${lang}`
 

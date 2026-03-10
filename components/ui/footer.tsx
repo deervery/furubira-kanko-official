@@ -79,18 +79,18 @@ export function Footer() {
             <div className="space-y-2">
               <p className="text-sm text-gray-400 flex items-center gap-2">
                 <Phone className="h-4 w-4" />
-                0135-48-9840<br />(役場産業課観光室内)
+                0135-48-9840<br />(役場総合政策課産業連携室商工観光係)
               </p>
               <p className="text-sm text-gray-400 flex items-center gap-2">
                 <Mail className="h-4 w-4" />
-                shoukankou@furubira.lg.jp
+                shoukankou@town.furubira.lg.jp
               </p>
               <p className="text-sm text-gray-400 flex items-center gap-2">
                 <Clock className="h-4 w-4" />
                 {t(messages, "footer.weekdays")} 8:45~17:30
               </p>
               <p className="text-sm text-gray-400 mt-2">
-                〒046-0121
+                〒046-0192
                 <br />
                 北海道古平郡古平町大字浜町50番地
               </p>

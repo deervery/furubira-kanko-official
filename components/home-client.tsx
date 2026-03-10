@@ -329,7 +329,7 @@ export function HomeClient({ tourData }: HomeClientProps) {
               src={`https://www.google.com/maps?q=${encodeURIComponent(
                 lang === "en"
                   ? "Furubira Town Hall, Hokkaido, Japan"
-                  : "〒046-0121 北海道古平郡古平町浜町50番地 古平町役場"
+                  : "〒046-0192 北海道古平郡古平町浜町50番地 古平町役場"
               )}&output=embed&hl=${lang}`}
               title={t(messages, "accessPage.map_title")}
               className="w-full h-96 object-cover"
