@@ -41,55 +41,18 @@ export function ChatWindow() {
     return withoutInvisible.trim() ? withoutInvisible : ""
   }
 
-  // Load existing messages for the session
+  // セッションIDは毎回新規生成（nanoid）なので、
+  // Supabaseへの履歴取得リクエストは不要。ウェルカムメッセージを直接表示。
   useEffect(() => {
-    async function loadMessages() {
-      try {
-        const response = await fetch(`/api/chat/${sessionId}`)
-        if (!response.ok) throw new Error("Failed to load messages")
-        const data = await response.json()
-
-        // データが配列でない場合は空配列として扱う
-        const messagesArray = Array.isArray(data) ? data : []
-
-        // Ensure each message has the required properties
-        const validMessages = messagesArray
-          .filter((msg: any) => msg && typeof msg.role === "string" && typeof msg.content === "string")
-          .map((msg: any) => ({
-            id: msg.id || nanoid(),
-            role: msg.role,
-            content: msg.content,
-            timestamp: msg.timestamp,
-          }))
-
-        if (validMessages.length === 0) {
-          // Add a default welcome message if no messages exist
-          setMessages([
-            {
-              id: nanoid(),
-              role: "assistant",
-              content: t(i18nMessages, "chat.welcome"),
-              timestamp: new Date().toISOString(),
-            },
-          ])
-        } else {
-          setMessages(validMessages)
-        }
-      } catch (error) {
-        console.error("Error loading messages:", error)
-        // Set default welcome message on error
-        setMessages([
-          {
-            id: nanoid(),
-            role: "assistant",
-            content: t(i18nMessages, "chat.welcome"),
-            timestamp: new Date().toISOString(),
-          },
-        ])
-      }
-    }
-    loadMessages()
-  }, [sessionId, i18nMessages])
+    setMessages([
+      {
+        id: nanoid(),
+        role: "assistant",
+        content: t(i18nMessages, "chat.welcome"),
+        timestamp: new Date().toISOString(),
+      },
+    ])
+  }, [i18nMessages])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

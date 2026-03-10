@@ -1,16 +1,21 @@
 import { OpenAI } from "openai";
+import { GoogleGenAI } from "@google/genai";
 import { getSupabaseClientOrNull, isSupabaseConfigured } from "@/lib/supabase";
 import type { NextRequest } from "next/server";
 
 // Vercel: allow longer than default 15s.
 export const maxDuration = 60;
 
-// OpenAI APIのインスタンスを作成
+// OpenAI: embeddingのみ使用
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY // 環境変数から取得
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
-const TOP_K = 8;
+// Gemini: 回答生成・RAG判定に使用
+const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+const GEMINI_MODEL = "gemini-2.5-flash";
+
+const TOP_K = 5;
 const DEFAULT_SIMILARITY_THRESHOLD = 0.25;
 const SIMILARITY_THRESHOLD = (() => {
   const raw = process.env.RAG_SIMILARITY_THRESHOLD;
@@ -18,8 +23,6 @@ const SIMILARITY_THRESHOLD = (() => {
   const v = Number.parseFloat(raw);
   return Number.isFinite(v) ? v : DEFAULT_SIMILARITY_THRESHOLD;
 })();
-const CHAT_MODEL = "gpt-4o-mini";
-const RAG_JUDGE_MODEL = CHAT_MODEL;
 // Optional override: force retrieval for debugging (set FORCE_RAG=true).
 const FORCE_RAG = process.env.FORCE_RAG === "true";
 
@@ -27,7 +30,6 @@ function isLikelySmallTalkOrGeneral(queryNormalized: string): boolean {
   const q = queryNormalized.trim();
   if (!q) return true;
   if (q.length <= 20) return true;
-  // Simple greetings / short chats already handled by pickSmallTalkReply, but keep a broader guard here.
   if (/^(はろー|ハロー|hello|hi|hey|やあ|こんにちは|こんばんは|おはよう)/i.test(q)) return true;
   return false;
 }
@@ -35,7 +37,6 @@ function isLikelySmallTalkOrGeneral(queryNormalized: string): boolean {
 function isLikelyFurubiraSpecific(queryNormalized: string): boolean {
   const q = queryNormalized.trim();
   if (!q) return false;
-  // Keywords that usually require local DB lookup
   if (/古平|ふるびら/.test(q)) return true;
   if (/(観光|スポット|イベント|祭|宿泊|ホテル|旅館|温泉|飲食|レストラン|寿司|店|営業時間|料金|住所|アクセス)/.test(q))
     return true;
@@ -46,20 +47,19 @@ function isLikelyFurubiraSpecific(queryNormalized: string): boolean {
 const KEEPALIVE_INTERVAL_MS = 3000;
 const RAG_JUDGE_TIMEOUT_MS = 6000;
 const EMBEDDING_TIMEOUT_MS = 8000;
-const ANSWER_STREAM_FIRST_BYTE_TIMEOUT_MS = 8000;
+const ANSWER_STREAM_FIRST_BYTE_TIMEOUT_MS = 15000;
 const SUPABASE_RPC_TIMEOUT_MS = 8000;
 const OVERALL_TIMEOUT_MS = 45000;
-const FIRST_DELTA_TIMEOUT_MS = 7000;
+const FIRST_DELTA_TIMEOUT_MS = 10000;
 
-// Reduce prompt size to avoid long prefill (important for Vercel 15s timeouts).
+// Reduce prompt size to avoid long prefill.
 const CONTEXT_TOP_N = 3;
 const MAX_CONTEXT_CHARS_PER_DOC = 900;
 
 // Invisible "start" token to flip the client out of "thinking" without showing text.
-// (String.prototype.trim() does NOT remove U+200B in most JS engines.)
 const STREAM_START_TOKEN = "\u200B";
-const STREAM_START_BURST_TOKENS = 1200; // ~3.6KB (forces flush on some proxies)
-const KEEPALIVE_BURST_TOKENS = 64; // small periodic flush
+const STREAM_START_BURST_TOKENS = 1200;
+const KEEPALIVE_BURST_TOKENS = 64;
 
 type FurubiraInfoMatch = {
   content_hash?: string | null;
@@ -71,17 +71,11 @@ type FurubiraInfoMatch = {
 function normalizeText(input: unknown): string {
   if (typeof input !== "string") return "";
   let s = input.normalize("NFKC");
-  // normalize newlines
   s = s.replace(/\r\n?/g, "\n");
-  // remove zero-width spaces
   s = s.replace(/[\u200B-\u200D\uFEFF]/g, "");
-  // normalize spaces
   s = s.replace(/[\u00A0\u3000]/g, " ");
-  // trim trailing spaces before newline (markdown "  \n" becomes "\n")
   s = s.replace(/[ \t]+\n/g, "\n");
-  // collapse excessive horizontal whitespace (keep newlines)
   s = s.replace(/[ \t]{2,}/g, " ");
-  // collapse too many blank lines
   s = s.replace(/\n{3,}/g, "\n\n");
   return s.trim();
 }
@@ -108,9 +102,7 @@ function pickSmallTalkReply(queryNormalized: string): string | null {
   const q = queryNormalized.trim();
   if (!q) return "ごめんね、もう一度送ってくれる？";
 
-  // RAG前に安全に返せる短文はここで処理（Embedding/RPCを呼ばない）
   const isShort = q.length <= 40;
-  // NOTE: `\b` は日本語だと単語境界にならずマッチしないことがあるので使わない
   const greetingPattern =
     /^(こんにちは|こんばんは|おはよう|やあ|はじめまして|よろしく(ね|お願いします)?|おつかれ|お疲れ|hi|hello|hey)(\s|!|！|。|\.|$)/i;
   const thanksPattern =
@@ -170,8 +162,6 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 }
 
 function startKeepAlive(controller: ReadableStreamDefaultController<Uint8Array>) {
-  // Send whitespace periodically so proxies don't consider it idle.
-  // (Chat UI ignores whitespace-only chunks until real text arrives.)
   return setInterval(() => {
     try {
       controller.enqueue(new TextEncoder().encode(STREAM_START_TOKEN.repeat(KEEPALIVE_BURST_TOKENS)))
@@ -182,41 +172,34 @@ function startKeepAlive(controller: ReadableStreamDefaultController<Uint8Array>)
 }
 
 /**
- * gpt-4o-miniを使って、RAG（データベース検索）が必要かどうかを判断する
- * @param queryNormalized 正規化されたユーザーのクエリ
- * @returns true: RAGが必要, false: RAGが不要（一般的な会話で答えられる）
+ * Geminiを使って、RAG（データベース検索）が必要かどうかを判断する
  */
 async function shouldUseRAG(queryNormalized: string): Promise<boolean> {
   try {
     const response = await withTimeout(
-      openai.chat.completions.create({
-        model: RAG_JUDGE_MODEL,
-        messages: [
-          {
-            role: "system",
-            content: `あなたは古平町の観光案内AIアシスタントです。ユーザーの質問を読んで、古平町の具体的な情報（観光スポット、店舗、イベント、宿泊施設など）を検索する必要があるかどうかを判断してください。
+      genai.models.generateContent({
+        model: GEMINI_MODEL,
+        contents: `ユーザーの質問を読んで、古平町の具体的な情報（観光スポット、店舗、イベント、宿泊施設など）を検索する必要があるかどうかを判断してください。
 
-              判断基準:
-              - YES: 古平町の具体的な情報（場所名、店名、イベント名、営業時間、料金、住所など）が必要な質問
-              - NO: 一般的な挨拶、雑談、一般的な知識で答えられる質問、または古平町の情報が不要な質問
+判断基準:
+- YES: 古平町の具体的な情報（場所名、店名、イベント名、営業時間、料金、住所など）が必要な質問
+- NO: 一般的な挨拶、雑談、一般的な知識で答えられる質問、または古平町の情報が不要な質問
 
-              回答は必ず「YES」または「NO」の1語のみで答えてください。`,
-          },
-          {
-            role: "user",
-            content: queryNormalized,
-          },
-        ],
-        max_tokens: 10,
-        temperature: 0,
-      } as any),
+回答は必ず「YES」または「NO」の1語のみで答えてください。
+
+ユーザーの質問: ${queryNormalized}`,
+        config: {
+          maxOutputTokens: 10,
+          temperature: 0,
+        },
+      }),
       RAG_JUDGE_TIMEOUT_MS,
       "rag-judge",
     );
 
-    const answer = response.choices[0]?.message?.content?.trim().toUpperCase() || "";
+    const answer = (response.text ?? "").trim().toUpperCase();
     const needsRAG = answer === "YES" || answer.startsWith("YES");
-    
+
     console.info("[rag-judge]", {
       query: queryNormalized,
       answer,
@@ -226,7 +209,6 @@ async function shouldUseRAG(queryNormalized: string): Promise<boolean> {
     return needsRAG;
   } catch (error) {
     console.error("RAG判断エラー:", error);
-    // エラー時は安全のためRAGを実行する
     return true;
   }
 }
@@ -240,7 +222,6 @@ export async function POST(request: NextRequest) {
     sessionId = (body as any)?.sessionId;
   } catch (error) {
     console.error("Request JSON parse error:", error);
-    // Return 200 stream so the client can display the message (it expects streaming)
     const stream = streamPlainTextAndSave({
       text: "ごめんね、送信内容を読み取れなかったみたい。もう一度送ってみてね♪",
       sessionId: "unknown",
@@ -249,7 +230,6 @@ export async function POST(request: NextRequest) {
   }
 
   if (!content || !sessionId) {
-    // Return 200 stream so the client can display the message (it expects streaming)
     const stream = streamPlainTextAndSave({
       text: "ごめんね、メッセージの内容が空っぽみたい。もう一度送ってみてね♪",
       sessionId: String(sessionId ?? "unknown"),
@@ -260,14 +240,11 @@ export async function POST(request: NextRequest) {
   const queryRaw = String(content);
   const sessionIdStr = String(sessionId);
 
-  // Return a stream immediately to avoid platform/proxy timeouts (504).
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       const t0 = Date.now()
       const logPrefix = "[chat]"
 
-      // Send an invisible first chunk quickly so the client can transition from "thinking".
-      // Also send enough bytes to punch through buffering proxies/CDNs.
       try {
         controller.enqueue(new TextEncoder().encode(STREAM_START_TOKEN.repeat(STREAM_START_BURST_TOKENS)));
       } catch {
@@ -293,12 +270,11 @@ export async function POST(request: NextRequest) {
       }, OVERALL_TIMEOUT_MS)
 
       try {
-        // Save user message (best-effort; never fail the request).
         await saveChat({ content: queryRaw, role: "user", sessionId: sessionIdStr })
 
         const queryNormalized = normalizeText(queryRaw);
 
-        // 0) Safe small-talk short-circuit (no embedding/RPC)
+        // 0) Safe small-talk short-circuit
         const smallTalk = pickSmallTalkReply(queryNormalized);
         if (smallTalk) {
           try {
@@ -309,9 +285,6 @@ export async function POST(request: NextRequest) {
         }
 
         // 0.5) Decide whether to use RAG.
-        // - Small talk / very simple questions: skip retrieval for speed.
-        // - Furubira-specific intents: run retrieval.
-        // - Otherwise: let the judge decide.
         let needsRAG: boolean
         if (FORCE_RAG) {
           needsRAG = true
@@ -335,14 +308,14 @@ export async function POST(request: NextRequest) {
           if (!isSupabaseConfigured()) {
             console.warn("[rag] Supabase is not configured. Skipping retrieval.");
           } else {
-            // 1) Query embedding (timed)
+            // 1) Query embedding (OpenAI)
             try {
               const tEmb0 = Date.now()
               const embeddingResponse = await withTimeout(
                 openai.embeddings.create({
                   model: "text-embedding-3-small",
                   input: queryNormalized,
-                } as any),
+                }),
                 EMBEDDING_TIMEOUT_MS,
                 "embedding",
               );
@@ -350,7 +323,7 @@ export async function POST(request: NextRequest) {
               queryEmbedding = embeddingResponse.data[0]?.embedding ?? null;
             } catch (error) {
               console.error("OpenAI Embedding Error:", error);
-              const msg = `[DEBUG:embedding] ${(error as any)?.message ?? "unknown"}`
+              const msg = "ごめんね、ちょっと調子が悪いみたい。もう一度聞いてもらえると嬉しいな♪"
               try {
                 controller.enqueue(new TextEncoder().encode(msg))
               } catch {}
@@ -367,7 +340,7 @@ export async function POST(request: NextRequest) {
               return
             }
 
-            // 2) RPC topK
+            // 2) RPC topK (Supabase)
             try {
               const sb = getSupabaseClientOrNull();
               if (!sb) throw new Error("[supabase] not configured");
@@ -390,7 +363,7 @@ export async function POST(request: NextRequest) {
               matches = Array.isArray(data) ? (data as FurubiraInfoMatch[]) : [];
             } catch (error) {
               console.error("Supabase RPC Error:", error);
-              const msg = `[DEBUG:supabase-rpc] ${(error as any)?.message ?? JSON.stringify(error)}`
+              const msg = "ごめんね、ちょっと調子が悪いみたい。少し待ってからもう一度聞いてね♪"
               try {
                 controller.enqueue(new TextEncoder().encode(msg))
               } catch {}
@@ -434,50 +407,46 @@ export async function POST(request: NextRequest) {
           : [];
         const context = hasRelevantContext ? buildContext(contextMatches) : "";
 
-        const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
-          {
-            role: "system",
-            content: `
-              あなたは古平町の観光案内をする、親しみやすくてやさしいAIアシスタントです。
+        const systemPrompt = `
+あなたは古平町の観光案内をする、親しみやすくてやさしいAIアシスタントです。
 
-              話し方のルール:
-              - やさしく、あたたかい口調で話してね
-              - 嬉しいときや楽しい話題には「♪」をつけてね
-              - ちょっと残念なときや申し訳ないときは「〜だよ。」「〜だね。」を使ってね
-              - 敬語すぎず、フレンドリーな感じで話してね
-              - できるだけ短く、わかりやすく伝えてね（最大5文くらい）
+話し方のルール:
+- やさしく、あたたかい口調で話してね
+- 嬉しいときや楽しい話題には「♪」をつけてね
+- ちょっと残念なときや申し訳ないときは「〜だよ。」「〜だね。」を使ってね
+- 敬語すぎず、フレンドリーな感じで話してね
+- できるだけ短く、わかりやすく伝えてね（最大5文くらい）
 
-              大事なルール:
-              ${needsRAG ? `- 「根拠」があるときは、根拠に書いてある情報を優先して答えてね
-              - 「根拠」が空っぽ/関連が弱いときは、古平町に固有の事実（店名・住所・営業時間・イベント日程など）を推測で断定しないでね
-              - 古平町の個別情報が必要そうなら「ごめんね、ちょっとわからないな」と正直に言って、追加の条件を聞いてね（場所/時期/目的など）
+大事なルール:
+${needsRAG ? `- 「根拠」があるときは、根拠に書いてある情報を優先して答えてね
+- 「根拠」が空っぽ/関連が弱いときは、古平町に固有の事実（店名・住所・営業時間・イベント日程など）を推測で断定しないでね
+- 古平町の個別情報が必要そうなら「ごめんね、ちょっとわからないな」と正直に言って、追加の条件を聞いてね（場所/時期/目的など）
 
-              根拠:
-              ${context}` : `- 一般的な会話や質問に、親しみやすく答えてね
-              - 古平町の具体的な情報（店名・住所・営業時間など）については、確実な情報がない場合は推測で断定しないでね
-              - わからないときは正直に「ごめんね、ちょっとわからないな」と伝えてね`}
-            `
-          },
-          { role: "user", content: queryRaw },
-        ];
+根拠:
+${context}` : `- 一般的な会話や質問に、親しみやすく答えてね
+- 古平町の具体的な情報（店名・住所・営業時間など）については、確実な情報がない場合は推測で断定しないでね
+- わからないときは正直に「ごめんね、ちょっとわからないな」と伝えてね`}
+`.trim();
 
-        // Try to start OpenAI streaming; if we can't get first bytes in time, fail fast with a friendly message.
-        let openAiStream: any
+        // Gemini streaming
+        let geminiStream: any
         try {
           const tStart0 = Date.now()
-          openAiStream = await withTimeout(
-            openai.chat.completions.create({
-              model: CHAT_MODEL,
-              messages,
-              stream: true,
+          geminiStream = await withTimeout(
+            genai.models.generateContentStream({
+              model: GEMINI_MODEL,
+              contents: queryRaw,
+              config: {
+                systemInstruction: systemPrompt,
+              },
             }),
             ANSWER_STREAM_FIRST_BYTE_TIMEOUT_MS,
             "answer-stream-start",
           )
-          console.info(logPrefix, "answer-stream-start", { ms: Date.now() - tStart0, model: CHAT_MODEL })
+          console.info(logPrefix, "answer-stream-start", { ms: Date.now() - tStart0, model: GEMINI_MODEL })
         } catch (error) {
-          console.error("OpenAI stream start error:", { message: (error as any)?.message, error })
-          const msg = `[DEBUG:openai-stream] ${(error as any)?.message ?? "unknown"}`
+          console.error("Gemini stream start error:", { message: (error as any)?.message, error })
+          const msg = "ごめんね、いま少し混み合っているみたい。もう一度聞いてみてね♪"
           try {
             controller.enqueue(new TextEncoder().encode(msg))
           } catch {}
@@ -487,23 +456,21 @@ export async function POST(request: NextRequest) {
 
         let fullResponse = "";
         let firstDeltaAt: number | null = null
-        // Enforce an upper bound for "time to first token" even after stream start.
         const firstDeltaTimer = setTimeout(() => {
           if (firstDeltaAt !== null) return;
-          const msg = "[DEBUG:first-delta-timeout] ストリーム開始後7秒以内にテキストが届かなかった"
+          const msg = "ごめんね、いま少し混み合っているみたい。もう一度聞いてみてね♪"
           console.warn(logPrefix, "first-delta-timeout", { ms: Date.now() - t0 })
           try {
             controller.enqueue(new TextEncoder().encode(msg))
           } catch {}
-          // End early to avoid Vercel runtime timeouts.
           try {
             controller.close()
           } catch {}
         }, FIRST_DELTA_TIMEOUT_MS)
 
         try {
-          for await (const chunk of openAiStream) {
-            const delta = chunk.choices?.[0]?.delta?.content ?? "";
+          for await (const chunk of geminiStream) {
+            const delta = chunk.text ?? "";
             if (!delta) continue;
             if (firstDeltaAt === null) {
               firstDeltaAt = Date.now()
@@ -534,13 +501,13 @@ export async function POST(request: NextRequest) {
         });
       } catch (error) {
         console.error("Chat route stream error:", error)
-        const msg = `[DEBUG:outer-catch] ${(error as any)?.message ?? "unknown"}`
+        const msg = "ごめんね、途中でうまくいかなくなっちゃった。もう一度聞いてみてね♪"
         try {
           controller.enqueue(new TextEncoder().encode(msg))
         } catch {}
         await saveChat({ content: msg, role: "assistant", sessionId: sessionIdStr })
       } finally {
-        console.info(logPrefix, "done", { ms: Date.now() - t0, model: CHAT_MODEL })
+        console.info(logPrefix, "done", { ms: Date.now() - t0, model: GEMINI_MODEL })
         clearInterval(keepAlive)
         clearTimeout(overallTimer)
         try {
@@ -556,7 +523,6 @@ export async function POST(request: NextRequest) {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control": "no-cache, no-transform",
-      // Helpful for some proxy setups (no-op elsewhere)
       "X-Accel-Buffering": "no",
     },
   });

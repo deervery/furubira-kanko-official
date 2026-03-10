@@ -7,7 +7,6 @@ import Image from "next/image"
 import Link from "next/link"
 import { renderIcon } from "@/lib/icon-utils"
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
 import type { BaseItemType } from "@/lib/types"
 import { useI18n } from "@/components/i18n/i18n-provider"
 import { t } from "@/lib/i18n/t"
@@ -19,10 +18,10 @@ interface ItemListClientProps<T extends BaseItemType> {
   renderExtra?: (item: T) => React.ReactNode
 }
 
-export function ItemListClient<T extends BaseItemType>({ 
-  title, 
+export function ItemListClient<T extends BaseItemType>({
+  title,
   tableName,
-  renderExtra 
+  renderExtra
 }: ItemListClientProps<T>) {
   const { lang, messages } = useI18n()
   const [items, setItems] = useState<T[]>([])
@@ -31,14 +30,11 @@ export function ItemListClient<T extends BaseItemType>({
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const { data, error } = await supabase
-          .from(tableName)
-          .select("*")
-          .order("display_order", { ascending: true })
+        // キャッシュ付きAPIルート経由で取得（Supabase直接呼び出しを排除）
+        const res = await fetch(`/api/cms/${tableName}`)
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const data = await res.json()
 
-        if (error) throw error
-
-        // 画像URLを取得して各アイテムに追加
         const itemsWithImages = data.map((item: any) => ({
           ...localizeItem(item, lang),
           image: resolvePublicImageUrl(item.image_path, "/no_photo.jpg?height=300&width=400")
@@ -112,7 +108,7 @@ export function ItemListClient<T extends BaseItemType>({
       </div>
     </Layout>
   )
-} 
+}
 
 function localizeItem<TItem extends Record<string, any>>(item: TItem, lang: string): TItem {
   if (lang !== "en") return item
