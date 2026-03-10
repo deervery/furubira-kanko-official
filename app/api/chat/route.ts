@@ -472,11 +472,11 @@ export async function POST(request: NextRequest) {
         try {
           const tStart0 = Date.now()
           openAiStream = await withTimeout(
-            openai.responses.create({
+            openai.chat.completions.create({
               model: CHAT_MODEL,
-              input: messages,
+              messages,
               stream: true,
-            } as any),
+            }),
             ANSWER_STREAM_FIRST_BYTE_TIMEOUT_MS,
             "answer-stream-start",
           )
@@ -485,16 +485,16 @@ export async function POST(request: NextRequest) {
           const status = getStatusCode(error)
           console.error("OpenAI stream start error:", { status, message: (error as any)?.message, error })
 
-          // If production key/project cannot access gpt-5-nano, fall back automatically.
-          if ((status === 403 || status === 404) && CHAT_MODEL.startsWith("gpt-5")) {
+          // If production key/project cannot access the primary model, fall back automatically.
+          if ((status === 403 || status === 404) && CHAT_MODEL !== FALLBACK_CHAT_MODEL) {
             try {
               const tStart1 = Date.now()
               openAiStream = await withTimeout(
-                openai.responses.create({
+                openai.chat.completions.create({
                   model: FALLBACK_CHAT_MODEL,
-                  input: messages,
+                  messages,
                   stream: true,
-                } as any),
+                }),
                 ANSWER_STREAM_FIRST_BYTE_TIMEOUT_MS,
                 "answer-stream-start-fallback",
               )
@@ -540,8 +540,7 @@ export async function POST(request: NextRequest) {
 
         try {
           for await (const chunk of openAiStream) {
-            const type = (chunk as any)?.type;
-            const delta = type === "response.output_text.delta" ? String((chunk as any)?.delta ?? "") : "";
+            const delta = chunk.choices?.[0]?.delta?.content ?? "";
             if (!delta) continue;
             if (firstDeltaAt === null) {
               firstDeltaAt = Date.now()
