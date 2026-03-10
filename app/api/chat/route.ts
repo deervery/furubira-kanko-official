@@ -18,9 +18,8 @@ const SIMILARITY_THRESHOLD = (() => {
   const v = Number.parseFloat(raw);
   return Number.isFinite(v) ? v : DEFAULT_SIMILARITY_THRESHOLD;
 })();
-const CHAT_MODEL = process.env.OPENAI_CHAT_MODEL || "gpt-5-mini-2025-08-07";
-const FALLBACK_CHAT_MODEL = "gpt-4o-mini";
-const RAG_JUDGE_MODEL = "gpt-4o-mini";
+const CHAT_MODEL = "gpt-5-mini-2025-08-07";
+const RAG_JUDGE_MODEL = CHAT_MODEL;
 // Optional override: force retrieval for debugging (set FORCE_RAG=true).
 const FORCE_RAG = process.env.FORCE_RAG === "true";
 
@@ -180,11 +179,6 @@ function startKeepAlive(controller: ReadableStreamDefaultController<Uint8Array>)
       // ignore if closed
     }
   }, KEEPALIVE_INTERVAL_MS)
-}
-
-function getStatusCode(err: unknown): number | null {
-  const s = (err as any)?.status
-  return typeof s === "number" ? s : null
 }
 
 /**
@@ -482,44 +476,13 @@ export async function POST(request: NextRequest) {
           )
           console.info(logPrefix, "answer-stream-start", { ms: Date.now() - tStart0, model: CHAT_MODEL })
         } catch (error) {
-          const status = getStatusCode(error)
-          console.error("OpenAI stream start error:", { status, message: (error as any)?.message, error })
-
-          // If production key/project cannot access the primary model, fall back automatically.
-          if ((status === 403 || status === 404) && CHAT_MODEL !== FALLBACK_CHAT_MODEL) {
-            try {
-              const tStart1 = Date.now()
-              openAiStream = await withTimeout(
-                openai.chat.completions.create({
-                  model: FALLBACK_CHAT_MODEL,
-                  messages,
-                  stream: true,
-                }),
-                ANSWER_STREAM_FIRST_BYTE_TIMEOUT_MS,
-                "answer-stream-start-fallback",
-              )
-              console.info(logPrefix, "answer-stream-start-fallback", {
-                ms: Date.now() - tStart1,
-                model: FALLBACK_CHAT_MODEL,
-                originalModel: CHAT_MODEL,
-              })
-            } catch (fallbackError) {
-              console.error("OpenAI fallback stream start error:", fallbackError)
-              const msg = "ごめんね、いま少し混み合っているみたい。もう一度聞いてみてね♪"
-              try {
-                controller.enqueue(new TextEncoder().encode(msg))
-              } catch {}
-              await saveChat({ content: msg, role: "assistant", sessionId: sessionIdStr })
-              return
-            }
-          } else {
-            const msg = "ごめんね、いま少し混み合っているみたい。もう一度聞いてみてね♪"
-            try {
-              controller.enqueue(new TextEncoder().encode(msg))
-            } catch {}
-            await saveChat({ content: msg, role: "assistant", sessionId: sessionIdStr })
-            return
-          }
+          console.error("OpenAI stream start error:", { message: (error as any)?.message, error })
+          const msg = "ごめんね、いま少し混み合っているみたい。もう一度聞いてみてね♪"
+          try {
+            controller.enqueue(new TextEncoder().encode(msg))
+          } catch {}
+          await saveChat({ content: msg, role: "assistant", sessionId: sessionIdStr })
+          return
         }
 
         let fullResponse = "";
