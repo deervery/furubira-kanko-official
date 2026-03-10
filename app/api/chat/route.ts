@@ -18,7 +18,7 @@ const SIMILARITY_THRESHOLD = (() => {
   const v = Number.parseFloat(raw);
   return Number.isFinite(v) ? v : DEFAULT_SIMILARITY_THRESHOLD;
 })();
-const CHAT_MODEL = "gpt-5-mini-2025-08-07";
+const CHAT_MODEL = "gpt-4o-mini";
 const RAG_JUDGE_MODEL = CHAT_MODEL;
 // Optional override: force retrieval for debugging (set FORCE_RAG=true).
 const FORCE_RAG = process.env.FORCE_RAG === "true";
