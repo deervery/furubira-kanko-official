@@ -1,6 +1,5 @@
 "use client"
 
-import { ChatWindow } from "@/components/chat/chat-window"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { X } from "lucide-react"
@@ -11,7 +10,6 @@ import { useInView } from "react-intersection-observer"
 import { Footer } from "@/components/ui/footer"
 import FlameParticles from "@/components/flame-particles"
 import Image from "next/image"
-import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { renderIcon } from "@/lib/icon-utils"
 import { useI18n } from "@/components/i18n/i18n-provider"
@@ -63,7 +61,6 @@ type HomeClientProps = {
 
 export function HomeClient({ tourData }: HomeClientProps) {
   const { lang, messages } = useI18n()
-  const [showChat, setShowChat] = useState(false)
   const { ref: heroRef, inView: heroInView } = useInView({
     threshold: 0.5,
   })
@@ -79,8 +76,6 @@ export function HomeClient({ tourData }: HomeClientProps) {
   const [bannerVisible, setBannerVisible] = useState(true)
 
   useEffect(() => {
-    setShowChat(!heroInView)
-
     // Dynamic import for autoplay
     import("embla-carousel-autoplay").then((Autoplay) => {
       setAutoplay(Autoplay.default({ delay: 5000 }))
@@ -375,16 +370,6 @@ export function HomeClient({ tourData }: HomeClientProps) {
           </a>
         </div>
       )}
-
-      {/* Chat Window */}
-      <div
-        className={cn(
-          "fixed bottom-4 right-4 transition-opacity duration-500",
-          showChat ? "opacity-100" : "opacity-0 pointer-events-none"
-        )}
-      >
-        <ChatWindow />
-      </div>
 
       {/* FlameParticles コンポーネント */}
       <FlameParticles />
