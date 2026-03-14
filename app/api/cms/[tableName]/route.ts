@@ -1,13 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getSupabaseClientOrNull } from "@/lib/supabase";
+import {
+  spotsData,
+  restaurantsData,
+  accommodationsData,
+  eventsData,
+  shopsData,
+} from "@/lib/hardcoded-data";
 
-const ALLOWED_TABLES = new Set([
-  "spots",
-  "restaurants",
-  "accommodations",
-  "events",
-  "shops",
-]);
+const ALLOWED_TABLES: Record<string, readonly any[]> = {
+  spots: spotsData,
+  restaurants: restaurantsData,
+  accommodations: accommodationsData,
+  events: eventsData,
+  shops: shopsData,
+};
 
 // Vercel Edge/CDN にキャッシュさせる（1時間キャッシュ、24時間 stale-while-revalidate）
 const CACHE_CONTROL = "public, s-maxage=3600, stale-while-revalidate=86400";
@@ -18,28 +24,17 @@ export async function GET(
 ) {
   const { tableName } = await context.params;
 
-  if (!ALLOWED_TABLES.has(tableName)) {
+  const data = ALLOWED_TABLES[tableName];
+  if (!data) {
     return NextResponse.json({ error: "Invalid table" }, { status: 400 });
   }
 
-  const sb = getSupabaseClientOrNull();
-  if (!sb) {
-    return NextResponse.json([], {
-      headers: { "Cache-Control": CACHE_CONTROL },
-    });
-  }
+  // Sort by display_order ascending (matching previous Supabase query)
+  const sorted = [...data].sort(
+    (a: any, b: any) => (a.display_order ?? 0) - (b.display_order ?? 0)
+  );
 
-  const { data, error } = await sb
-    .from(tableName)
-    .select("*")
-    .order("display_order", { ascending: true });
-
-  if (error) {
-    console.error(`CMS fetch error (${tableName}):`, error);
-    return NextResponse.json([], { status: 500 });
-  }
-
-  return NextResponse.json(data ?? [], {
+  return NextResponse.json(sorted, {
     headers: { "Cache-Control": CACHE_CONTROL },
   });
 }
