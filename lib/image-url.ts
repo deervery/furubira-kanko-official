@@ -1,5 +1,3 @@
-import { supabase } from "@/lib/supabase"
-
 const DEFAULT_FALLBACK = "/no_photo.jpg?height=300&width=400"
 
 function isExternalUrl(s: string): boolean {
@@ -15,6 +13,9 @@ function isDataUrl(s: string): boolean {
  * - a Supabase Storage object key (e.g. "shops/123.jpg")
  * - an absolute external URL (e.g. "https://...")
  * - a local public asset path (e.g. "/no_photo.jpg")
+ *
+ * For Storage keys, we build the public URL from NEXT_PUBLIC_SUPABASE_URL
+ * without importing the Supabase SDK.
  */
 export function resolvePublicImageUrl(
   imagePath: string | null | undefined,
@@ -29,12 +30,14 @@ export function resolvePublicImageUrl(
   // Local public asset
   if (p.startsWith("/")) return p
 
-  // Supabase object key
-  return supabase.storage.from("cms-images").getPublicUrl(p).data.publicUrl
+  // Supabase Storage object key — build URL via string concatenation
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  if (!supabaseUrl) return fallback
+
+  return `${supabaseUrl}/storage/v1/object/public/cms-images/${p}`
 }
 
 export function isExternalImagePath(imagePath: string | null | undefined): boolean {
   const p = (imagePath ?? "").trim()
   return Boolean(p && (isExternalUrl(p) || isDataUrl(p)))
 }
-
