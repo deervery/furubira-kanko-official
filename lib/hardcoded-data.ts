@@ -285,8 +285,7 @@ export const restaurantsData: RawRestaurant[] = [
     id: "5ddbb273-d3b8-4bbf-826d-b461291578a9",
     name: "喫茶それなり",
     description: "食事もできる漫画喫茶。自家焙煎珈琲とスコーン、ホットサンドが楽しめる。テイクアウト可。11:00〜20:00、火・水曜定休。",
-    // TODO: 写真を public/photos/restaurants/sorenari.jpg に置いたら差し替える
-    image_path: "/no_photo.jpg",
+    image_path: "/photos/restaurants/sorenari.jpg",
     icon: "Coffee",
     url: "https://www.instagram.com/cafe_moderately/",
     display_order: 5,
