@@ -273,8 +273,7 @@ export const restaurantsData: RawRestaurant[] = [
     id: "834e8869-045c-43b0-a3d5-bf3be468483e",
     name: "おやつ屋 medetai",
     description: "「鯛焼き×愛でたい」がコンセプトの、古平町の小さなおやつ屋。米粉のたい焼きやおはぎ、季節のおやつが並ぶ。月・火曜営業。",
-    // TODO: 写真を public/photos/restaurants/medetai.jpg に置いたら差し替える
-    image_path: "/no_photo.jpg",
+    image_path: "/photos/restaurants/medetai.jpg",
     icon: "Coffee",
     url: "https://www.instagram.com/oyatsuya.medetai/",
     display_order: 4,
