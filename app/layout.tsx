@@ -4,7 +4,6 @@ import { Inter } from "next/font/google"
 import { headers } from "next/headers"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import { AuthProvider } from "@/lib/auth-provider"
 import { DEFAULT_LANG, isLang } from "@/lib/i18n/lang"
 import Script from 'next/script'
 
@@ -74,7 +73,7 @@ export default async function RootLayout({
       </head>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <AuthProvider>{children}</AuthProvider>
+          {children}
         </ThemeProvider>
       </body>
     </html>

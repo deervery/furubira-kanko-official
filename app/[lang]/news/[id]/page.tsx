@@ -8,7 +8,7 @@ import { newsText } from "@/lib/news"
 export const dynamic = "force-dynamic"
 export default async function NewsDetail({ params }: { params: Promise<{ lang: string; id: string }> }) {
   const { lang, id } = await params
-  if (!isLang(lang) || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) notFound()
+  if (!isLang(lang) || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) notFound()
   const items = await getPublicNews(id).catch(() => null)
   if (items && !items.length) notFound()
   const item = items?.[0]

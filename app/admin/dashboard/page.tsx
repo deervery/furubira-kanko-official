@@ -5,7 +5,6 @@ import Link from "next/link"
 import { MapPin, Coffee, BedDouble, ShoppingBag, Calendar, ListTodo } from "lucide-react"
 
 const adminLinks = [
-  { href: "/admin/news", icon: Calendar, text: "お知らせ管理" },
   { href: "/admin/spots", icon: MapPin, text: "観光スポット管理" },
   { href: "/admin/restaurants", icon: Coffee, text: "飲食店管理" },
   { href: "/admin/accommodations", icon: BedDouble, text: "宿泊施設管理" },

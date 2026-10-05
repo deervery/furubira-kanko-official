@@ -3,7 +3,7 @@ import { HomeClient } from "@/components/home-client"
 import { notFound } from "next/navigation"
 import { isLang } from "@/lib/i18n/lang"
 
-// 1時間キャッシュ（ISR）- Supabaseへの呼び出しを大幅削減
+// Git管理の観光データを読み込む公開ページ（DBアクセスなし）
 export const revalidate = 3600
 
 export default async function Home({ params }: { params: Promise<{ lang: string }> }) {

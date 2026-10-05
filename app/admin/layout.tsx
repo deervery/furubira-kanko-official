@@ -1,41 +1,9 @@
 "use client"
-
-import type React from "react"
-
-import { useAuth } from "@/lib/auth-provider"
+import type { ReactNode } from "react"
 import { usePathname } from "next/navigation"
-import { Loader2 } from "lucide-react"
-import { AdminHeader } from "@/components/admin/admin-header"
-
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { isLoading, user } = useAuth()
+import Link from "next/link"
+export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname()
-
-  // ログインページは別レイアウトを使用
-  if (pathname === "/admin/login") {
-    return <>{children}</>
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">読み込み中...</span>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return null // AuthProviderがリダイレクトを処理するため
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <AdminHeader />
-      <main className="container mx-auto py-8">
-        {children}
-      </main>
-    </div>
-  )
+  if (pathname === "/admin/news") return <main className="min-h-screen bg-gray-50">{children}</main>
+  return <main className="max-w-3xl mx-auto px-4 py-16 space-y-4"><h1 className="text-2xl font-bold">コンテンツの更新</h1><p>観光情報はGit管理の静的データから配信しています。旧データベースCMSは現在の公開データを更新しません。</p><Link href="/admin/news" className="underline">お知らせ編集へ</Link><p><a href="https://github.com/deervery/furubira-kanko-official" className="underline">その他の観光情報はGitHubで編集</a></p></main>
 }
-

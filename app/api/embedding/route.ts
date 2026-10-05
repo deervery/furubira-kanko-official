@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { OpenAI } from "openai";
 import { supabase } from "@/lib/supabase";
 
-const openAi = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,6 +11,8 @@ export async function POST(req: NextRequest) {
     if (!content || !title) {
       return NextResponse.json({ error: "Content and title are required" }, { status: 400 });
     }
+
+    const openAi = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
     // OpenAI APIを使ってembeddingを生成
     const embeddingResponse = await openAi.embeddings.create({
