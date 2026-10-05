@@ -32,7 +32,7 @@
 - `npm run test:news`、`npx tsc --noEmit`、`npm run build -- --webpack`。
 - Git管理の手順を使うため、PRレビュー/デプロイ前に本番が変わらない。
 
-今回のPRはDraftのまま。mainへのマージ、本番デプロイ、実データの記事登録は実施しません。
+公開前にPRで差分とチェック結果を確認し、承認後にmainへマージして既存のデプロイ経路で反映します。サンプル記事は本番へ登録しません。現在のマージ状況は [PR #8](https://github.com/deervery/furubira-kanko-official/pull/8) を参照してください。
 
 ## このPRでの実施結果
 - JSON検証・編集/再読込・翻訳・ソートの単体テスト5件通過。
