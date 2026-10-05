@@ -13,7 +13,7 @@ export default async function NewsDetail({ params }: { params: Promise<{ lang: s
   if (items && !items.length) notFound()
   const item = items?.[0]
   const text = item && newsText(item, lang)
-  return <><Header /><main className="mx-auto max-w-3xl px-4 pb-16 pt-28 min-h-screen">
+  return <><Header solid /><main className="mx-auto max-w-3xl px-4 pb-16 pt-28 min-h-screen">
     {item && text ? <article lang={text.lang}><time dateTime={item.published_on} className="text-gray-600">{item.published_on}</time><h1 className="text-3xl font-bold my-6 break-words">{text.title}</h1><div className="whitespace-pre-wrap break-words leading-8">{text.body}</div></article> : <p role="alert">{lang === "en" ? "News is temporarily unavailable. Please try again later." : "現在お知らせを取得できません。時間をおいて再度お試しください。"}</p>}
     <Link href={`/${lang}/news`} className="inline-block mt-10 underline">{lang === "en" ? "All news" : "お知らせ一覧へ"}</Link>
   </main><Footer /></>
