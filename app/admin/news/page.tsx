@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState, type FormEvent } from "react"
 import Link from "next/link"
+import { NewsPublicationFlow } from "@/components/admin/news-publication-flow"
 import { newsInput, newsCollection, newsText, upsertNews, type NewsInput, type NewsItem } from "@/lib/news"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -55,8 +56,7 @@ export default function NewsEditorPage() {
   return <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
     <Link href="/ja" className="underline">サイトへ</Link>
     <h1 className="text-3xl font-bold">お知らせ編集</h1>
-    <p>この画面では原稿を作成し、news.jsonを書き出します。公開にはGitHubへの登録・PRレビュー・デプロイが必要です。サーバーへの保存機能はありません。</p>
-    <p className="text-sm text-gray-600">作成途中の原稿はこのタブ内のみで保持します。閉じる前に一覧へ追加し、JSONを書き出してください。公開リポジトリに登録した原稿は、PR段階から第三者が読めます。</p>
+    <NewsPublicationFlow />
     {message && <p role="status" className="rounded border p-4">{message}</p>}
     <section className="space-y-3 rounded border p-4"><Label htmlFor="import-news">最新版のnews.jsonを読み込む（任意・現在の一覧を置換）</Label><Input id="import-news" type="file" accept="application/json,.json" onChange={async event => {
       const file = event.target.files?.[0]
