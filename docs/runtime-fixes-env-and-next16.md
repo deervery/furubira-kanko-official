@@ -1,4 +1,7 @@
-# 実行時エラー修正メモ（Supabase / Next.js 16）
+# 旧Supabase CMS / Next.js 16 の修正記録（履歴）
+
+> **現行サイトの導入手順ではありません。** 観光コンテンツは2026年3月14日にGit管理の静的データへ移行し、チャットUIを非表示化しています。RAG自動更新workflowは2026年9月3日に削除済みです。現行構成・起動手順は [README](../README.md) を参照してください。以下は当時の記録で、現在のコードや稼働状態を保証しません。Supabase・OpenAI・Geminiの設定は公開サイト/お知らせ編集には不要です。
+
 
 このドキュメントは、開発中に発生した以下のエラーを修正した内容と、再発防止の手順をまとめたものです。
 
@@ -39,7 +42,7 @@
 - `.env.local` を作って `next dev` を再起動するようガイド
 
 ### 再発防止（手順）
-プロジェクト直下に `.env.local` を作成し、最低限これを設定してください（値は Supabase の Project Settings から取得）。
+旧Supabase機能を別途再検証する場合だけ、プロジェクト直下の `.env.local` に以下を設定します。現行公開サイトの起動には設定しません。
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxxxxxxxxxx.supabase.co

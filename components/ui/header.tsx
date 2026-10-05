@@ -24,7 +24,7 @@ const navigationItems = [
   { key: "header.tax_donation", path: "/furusato", icon: Gift },
 ]
 
-export const Header = () => {
+export const Header = ({ solid = false }: { solid?: boolean }) => {
   const { lang, messages } = useI18n()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -66,8 +66,8 @@ export const Header = () => {
       <header
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-opacity duration-1000",
-          headerVisible ? 'opacity-100' : 'opacity-0',
-          isScrolled ? "bg-black/90 backdrop-blur-sm border-none" : ""
+          solid || headerVisible ? 'opacity-100' : 'opacity-0',
+          solid || isScrolled ? "bg-black/90 backdrop-blur-sm border-none" : ""
         )}
       >
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">

@@ -10,7 +10,8 @@
     "lint": "next lint",
     "seed-data": "ts-node --project tsconfig.scripts.json scripts/seed-data.ts",
     "prune-translations:excel-ja": "node scripts/prune-messages-by-excel-ja.mjs",
-    "restore-translations:latest-backup": "node scripts/restore-messages-from-latest-backup.mjs"
+    "restore-translations:latest-backup": "node scripts/restore-messages-from-latest-backup.mjs",
+    "test:news": "node --test tests/news.test.mjs"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.3.0",

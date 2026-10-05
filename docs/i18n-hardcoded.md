@@ -34,7 +34,7 @@
 - `app/[lang]/page.tsx`
 - `app/[lang]/**/page.tsx`（公開ページ群）
 - `app/[lang]/not-found.tsx`（公開用404）
-  - `app/[lang]/shopping/page.tsx`（買い物ページ）は、`shops` テーブルの `type` を **ラベル無しでそのまま表示**します（`Type:` / `種別:` は付けない）
+  - `app/[lang]/shopping/page.tsx`（買い物ページ）は、`lib/hardcoded-data.ts` の買い物データの `type` を **ラベル無しでそのまま表示**します（`Type:` / `種別:` は付けない）
 
 ### 翻訳（i18n）
 - `locales/messages.json`

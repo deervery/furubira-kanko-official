@@ -7,12 +7,10 @@ import type { NextRequest } from "next/server";
 export const maxDuration = 60;
 
 // OpenAI: embeddingのみ使用
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // Gemini: 回答生成・RAG判定に使用
-const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+const getGenAI = () => new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 const GEMINI_MODEL = "gemini-2.5-flash";
 
 const TOP_K = 5;
@@ -177,7 +175,7 @@ function startKeepAlive(controller: ReadableStreamDefaultController<Uint8Array>)
 async function shouldUseRAG(queryNormalized: string): Promise<boolean> {
   try {
     const response = await withTimeout(
-      genai.models.generateContent({
+      getGenAI().models.generateContent({
         model: GEMINI_MODEL,
         contents: `ユーザーの質問を読んで、古平町の具体的な情報（観光スポット、店舗、イベント、宿泊施設など）を検索する必要があるかどうかを判断してください。
 
@@ -312,7 +310,7 @@ export async function POST(request: NextRequest) {
             try {
               const tEmb0 = Date.now()
               const embeddingResponse = await withTimeout(
-                openai.embeddings.create({
+                getOpenAI().embeddings.create({
                   model: "text-embedding-3-small",
                   input: queryNormalized,
                 }),
@@ -433,7 +431,7 @@ ${context}` : `- 一般的な会話や質問に、親しみやすく答えてね
         try {
           const tStart0 = Date.now()
           geminiStream = await withTimeout(
-            genai.models.generateContentStream({
+            getGenAI().models.generateContentStream({
               model: GEMINI_MODEL,
               contents: queryRaw,
               config: {
