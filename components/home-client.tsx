@@ -1,5 +1,6 @@
 "use client"
 
+import { NewsSection } from "@/components/news-section"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { X } from "lucide-react"
@@ -168,6 +169,8 @@ export function HomeClient({ tourData }: HomeClientProps) {
           </h1>
         </div>
       </div>
+
+      <NewsSection />
 
       {/* Introduction Section */}
       <section ref={introRef} className="py-12 md:py-20 bg-black">

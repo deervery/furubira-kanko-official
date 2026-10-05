@@ -6,7 +6,7 @@ import { isLang } from "@/lib/i18n/lang"
 // 1時間キャッシュ（ISR）- Supabaseへの呼び出しを大幅削減
 export const revalidate = 3600
 
-export default async function Home({ params }: { params: { lang: string } | Promise<{ lang: string }> }) {
+export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await Promise.resolve(params)
 
   if (!isLang(lang)) {

@@ -1,5 +1,3 @@
-import { Utensils, BedDouble, MapPin, Coffee, ShoppingBag, Calendar } from "lucide-react"
-import type React from "react"
 import type { SpotType, RestaurantType, AccommodationType, EventType, ShopType } from "./types"
 
 export type {
@@ -11,14 +9,14 @@ export type {
 }
 
 // 観光スポットデータ
-export const spotsData: SpotType[] = [
+export const spotsData = [
   {
     id: "onsen",
     name: "ふるびら温泉しおかぜ",
     description: "海を望むロケーションと濃厚な褐色の湯が特徴の温泉施設。",
     address: "古平町浜町7-1",
     image: "/onsen.jpg",
-    icon: <MapPin className="h-5 w-5 text-primary" />,
+    icon: "MapPin",
   },
   {
     id: "golf",
@@ -26,7 +24,7 @@ export const spotsData: SpotType[] = [
     description: "海に面した全27ホールのパークゴルフ場。用具のレンタルあり。",
     address: "古平町入船町22",
     image: "/golfpark.jpg",
-    icon: <MapPin className="h-5 w-5 text-primary" />,
+    icon: "MapPin",
   },
   {
     id: "michinoeki",
@@ -36,83 +34,83 @@ export const spotsData: SpotType[] = [
     address: "古平町新地町41-1",
     facilities: "駐車場、トイレ、レストラン、物産販売所",
     image: "/no_photo.jpg",
-    icon: <MapPin className="h-5 w-5 text-primary" />,
+    icon: "MapPin",
   },
 ]
 
 // 飲食店データ
-export const restaurantsData: RestaurantType[] = [
+export const restaurantsData = [
   {
     id: "minato",
     name: "港寿し",
     description: "四季折々の地元魚介類の握り寿司やいくら丼を提供。2017年ミシュラン北海道版ビブグルマン選出。",
     image: "/minato.jpg",
-    icon: <Utensils className="h-5 w-5 text-primary" />,
+    icon: "Utensils",
   },
   {
     id: "ichii",
     name: "いちい鮨",
     description: "地元でとれた新鮮なネタを楽しめるお寿司屋さん。",
     image: "/ichi.jpg",
-    icon: <Utensils className="h-5 w-5 text-primary" />,
+    icon: "Utensils",
   },
   {
     id: "shinya",
     name: "新家寿司",
     description: "地元の新鮮な魚介を使った寿司を提供。",
     image: "/shinya.jpg",
-    icon: <Utensils className="h-5 w-5 text-primary" />,
+    icon: "Utensils",
   },
   {
     id: "amayadori",
     name: "あまやどり",
     description: "古平町産たらこパスタが食べられるカフェ",
     image: "/amayadori.jpg",
-    icon: <Coffee className="h-5 w-5 text-primary" />,
+    icon: "Coffee",
   },
 ]
 
 // 宿泊施設データ
-export const accommodationsData: AccommodationType[] = [
+export const accommodationsData = [
   {
     id: "chuo",
     name: "中央旅館",
     description: "古平町の中心にある、あたたかな雰囲気の旅館。",
     image: "/no_photo.jpg",
-    icon: <BedDouble className="h-5 w-5 text-primary" />,
+    icon: "BedDouble",
   },
   {
     id: "hori",
     name: "民宿ほり",
     description: "地元の食材を活かしたアットホームな家庭料理が特徴。",
     image: "/no_photo.jpg",
-    icon: <BedDouble className="h-5 w-5 text-primary" />,
+    icon: "BedDouble",
   },
   {
     id: "jimotto",
     name: "民泊 じもっトFURUBIRA",
     description: "自然と楽しみが広がるファミリー向けのフレンドリーな民泊",
     image: "/jimotto.jpg",
-    icon: <BedDouble className="h-5 w-5 text-primary" />,
+    icon: "BedDouble",
   },
   {
     id: "curl",
     name: "カールふるびら",
     description: "古平町民と交流できる民泊",
     image: "/curl.jpg",
-    icon: <BedDouble className="h-5 w-5 text-primary" />,
+    icon: "BedDouble",
   },
 ]
 
 // イベントデータ
-export const eventsData: EventType[] = [
+export const eventsData = [
   {
     id: "tengu",
     name: "天狗の火渡り 神社祭り",
     description: "大太鼓と笛の音が響く有名な祭り。",
     date: "7月・9月開催",
     image: "/hiwatari_tengu_sub.jpg",
-    icon: <Calendar className="h-5 w-5 text-primary" />,
+    icon: "Calendar",
   },
   {
     id: "marche",
@@ -120,7 +118,7 @@ export const eventsData: EventType[] = [
     description: "地元産品が集まる青空市。",
     date: "6月開催",
     image: "/no_photo.jpg",
-    icon: <Calendar className="h-5 w-5 text-primary" />,
+    icon: "Calendar",
   },
   {
     id: "gyokyosai",
@@ -128,19 +126,19 @@ export const eventsData: EventType[] = [
     description: "新鮮な魚介や加工品を楽しめる祭り。特にウニ（6-7月）やサケ（9月）が人気。",
     date: "6-7月、9月開催",
     image: "/gyokyosai.jpg",
-    icon: <Calendar className="h-5 w-5 text-primary" />,
+    icon: "Calendar",
   },
 ]
 
 // 買い物スポットデータ
-export const shopsData: ShopType[] = [
+export const shopsData = [
   {
     id: "nomura",
     name: "野村商店",
     description: "北海道原産の幻の湖魚「チップ（ヒメマス）」を販売。",
     type: "特産品店",
     image: "/nomura.jpg",
-    icon: <ShoppingBag className="h-5 w-5 text-primary" />,
+    icon: "ShoppingBag",
   },
   {
     id: "tabata",
@@ -148,7 +146,7 @@ export const shopsData: ShopType[] = [
     description: "明治27年創業の老舗菓子店。人気商品は「礁」や「タバターサンド」。",
     type: "菓子店",
     image: "/tabata.jpg",
-    icon: <ShoppingBag className="h-5 w-5 text-primary" />,
+    icon: "ShoppingBag",
   },
   {
     id: "gyokyo",
@@ -156,7 +154,7 @@ export const shopsData: ShopType[] = [
     description: "新鮮な地元の海産物を直売。",
     type: "直売所",
     image: "/gyokyo.jpg",
-    icon: <ShoppingBag className="h-5 w-5 text-primary" />,
+    icon: "ShoppingBag",
   },
   {
     id: "yoshino",
@@ -164,7 +162,7 @@ export const shopsData: ShopType[] = [
     description: "地元の水産加工品を取り扱う老舗店。",
     type: "水産加工品",
     image: "/yojirushi.jpg",
-    icon: <ShoppingBag className="h-5 w-5 text-primary" />,
+    icon: "ShoppingBag",
   },
   {
     id: "oshima",
@@ -172,7 +170,7 @@ export const shopsData: ShopType[] = [
     description: "新鮮な海産物と加工品を提供。",
     type: "水産加工品",
     image: "/oshima.jpg",
-    icon: <ShoppingBag className="h-5 w-5 text-primary" />,
+    icon: "ShoppingBag",
   },
   {
     id: "kaneto",
@@ -180,7 +178,7 @@ export const shopsData: ShopType[] = [
     description: "水産加工品の製造販売。",
     type: "水産加工品",
     image: "/kaneto.jpg",
-    icon: <ShoppingBag className="h-5 w-5 text-primary" />,
+    icon: "ShoppingBag",
   },
   {
     id: "kanekichi",
@@ -188,7 +186,7 @@ export const shopsData: ShopType[] = [
     description: "伝統的な製法による水産加工品。",
     type: "水産加工品",
     image: "/kanekichi.jpg",
-    icon: <ShoppingBag className="h-5 w-5 text-primary" />,
+    icon: "ShoppingBag",
   },
 ]
 
