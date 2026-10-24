@@ -91,5 +91,8 @@
     "ts-node": "^1.7.1",
     "typescript": "^5",
     "xlsx": "^0.18.5"
+  },
+  "engines": {
+    "node": "24.x"
   }
 }
