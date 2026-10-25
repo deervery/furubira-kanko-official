@@ -64,7 +64,7 @@ async function settleHome(page){
  await page.evaluate(()=>window.scrollTo(0,0))
 }
 async function matchPages(ref,page,filename,info,fullPage=true){
- const options={fullPage,animations:"disabled",style:screenshotStyle,caret:"hide"}
+ const options={fullPage,scale:"css",animations:"disabled",style:screenshotStyle,caret:"hide"}
  // Match toHaveScreenshot's stability rule on the pinned reference as well.
  // A first full-page WebKit capture can use a different rounded-clip raster.
  const first=await ref.screenshot(options)
