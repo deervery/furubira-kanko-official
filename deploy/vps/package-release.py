@@ -70,10 +70,14 @@ def compile_nginx(kind,config,port):
       " location = /404 { return 404; }"]
     if kind=="company":lines += [" location = /410 { return 404; }"]
     for file,override in config.get("overrides",{}).items():
+        if not re.fullmatch(r"[A-Za-z0-9_-][A-Za-z0-9/_-]*\.html",file):raise ValueError("Unsafe override file")
         route="/"+override.get("path",file)
+        if "path" in override and route!="/"+file:
+            lines.append(f" location = /{file} {{ return 404; }}")
         if route in ["/","/404","/404.html","/410","/410.html"]:continue
         if not re.fullmatch(r"/[A-Za-z0-9/_-]+",route):raise ValueError("Unsafe page path: "+route)
-        lines.append(f" location = {route} {{ if (${prefix}_read = 0) {{ return 405; }} default_type text/html; try_files /{file} =404; }}")
+        for alias in [route,route+"/"]:
+            lines.append(f" location = {alias} {{ if (${prefix}_read = 0) {{ return 405; }} default_type text/html; try_files /{file} =404; }}")
     lines += [f" location / {{ if (${prefix}_read = 0) {{ return 405; }} try_files $uri $uri.html $uri/index.html =404; }}","}"]
     return "\n".join(maps+lines)+"\n"
 def package(kind,revision,source,config_path,output,port=None):

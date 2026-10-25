@@ -17,12 +17,21 @@ def verify(kind,revision,origin):
         with r:
             body=r.read();status=r.status;response_headers=dict(r.headers)
         return status,response_headers,body
+    reachable_files=0
     for name,expected in manifest["files"].items():
         if not name.startswith("site/"):continue
-        path="/"+name[5:]
+        filename=name[5:]
+        override=config.get("overrides",{}).get(filename,{})
+        path="/"+override.get("path",filename)
+        if "path" in override and path!="/"+filename:
+            status,_,_=req("/"+filename)
+            assert status==404,("Vercel override must hide raw filename",filename,status)
+        if path=="/" and kind=="tourism":
+            continue # The root is a language redirect; index.html is not public.
         status,headers,body=req(urllib.parse.quote(path,safe="/"))
         assert status==200,(path,status)
         assert hashlib.sha256(body).hexdigest()==expected,("public bytes differ",path)
+        reachable_files+=1
         if path.startswith("/assets/"):assert "immutable"in headers.get("Cache-Control","")
     for name,o in config["overrides"].items():
         route="/"+o.get("path",name)
@@ -31,6 +40,10 @@ def verify(kind,revision,origin):
         assert status==200,(route,status)
         assert hashlib.sha256(body).hexdigest()==manifest["files"]["site/"+name],route
         results.append({"path":route,"status":status})
+        if route not in ["/404.html","/410.html"]:
+            status,_,body=req(route+"/")
+            assert status==200 and hashlib.sha256(body).hexdigest()==manifest["files"]["site/"+name],("trailing slash alias",route,status)
+            results.append({"path":route+"/","status":status})
     status,headers,body=req("/release.json")
     r=json.loads(body);assert status==200 and r["revision"]==revision and r["generator"]=="go"
     assert "no-store"in headers.get("Cache-Control","")
@@ -68,7 +81,7 @@ def verify(kind,revision,origin):
         for method in ["GET","POST"]:
             status,headers,body=req("/api/inquiries",method);assert status==503 and json.loads(body)["ready"]==False
         results.append({"inquiry_api":"disconnected in private staging; DNS cutover remains blocked"})
-    result={"result":"pass","kind":kind,"revision":revision,"verified_static_files":sum(n.startswith("site/") for n in manifest["files"]),"checks":results,"production_inquiry_sent":False}
+    result={"result":"pass","kind":kind,"revision":revision,"verified_static_files":reachable_files,"artifact_static_files":sum(n.startswith("site/") for n in manifest["files"]),"checks":results,"production_inquiry_sent":False}
     print(json.dumps(result,ensure_ascii=False))
     return result
 if __name__=="__main__":
