@@ -17,17 +17,18 @@ PRを作成しただけでは本番反映されません。レビュー後のマ
 
 ## ローカル開発・検証
 
-Node.js 22.18以上（テストのTypeScript直接実行に対応）、npmを使用します。
+Node.js 24.22.1（.nvmrc）、npmを使用します。
 
 ```sh
 npm ci
 npm run dev
 npm run test:news
-npx tsc --noEmit
+npm run typecheck
 npm run build -- --webpack
+npm run test:routes
 ```
 
-公開サイトとお知らせ編集にSupabase/OpenAI/Geminiの環境変数は不要です。旧API用クライアントは呼出時にのみ初期化します。`package.json` の `lint` はNext16に非対応の旧コマンドなので、現在の検証コマンドとして使用しません。
+公開サイトとお知らせ編集にSupabase/OpenAI/Geminiの環境変数は不要です。旧SDK・CMS・AIチャット・取り込み/スクレイピングコードは撤去しました。旧チャット・embedding・system_message APIは外部接続せず410を返します。旧管理URLにはGitでの更新案内を表示し、お知らせ編集だけを維持します。Next16非対応だった旧lintコマンドは削除しました。
 
 ## 移行の根拠と残存コード
 
@@ -37,6 +38,13 @@ npm run build -- --webpack
 - `4d8064d`（同日）：トップページのチャットを非表示。
 - `dd0843f`（2026-09-03）：RAGデータ更新workflowを削除。
 
-`lib/supabase.ts`、旧CMSコンポーネント、旧チャット/embedding API、関連SQLやスクリプトは履歴として残っています。存在していても現在使用中とは限りません。旧コード全撤去は今回の変更範囲外です。旧APIを再利用する場合は認証・権限・キー管理を別途再設計してください。
+旧CMS・認証・AI実装やデータ投入/スクレイピングスクリプトのソースはGit履歴を参照してください。残存SQL・JSON・旧構成の資料は履歴であり、現行の起動手順ではありません。翻訳Excel/JSONと翻訳補助スクリプトは維持しています。
 
 `docs/rag-chat-current.md` / `docs/runtime-fixes-env-and-next16.md` / `docs/auto_batch_processing.md` / `docs/scripts-readme.md` は旧構成の記録です。現行の必須手順として参照しないでください。
+
+
+## 依存削減（2026-10-25）
+
+現在の公開ページ・日英表示・Gitによるお知らせ公開に必要な依存だけを残しました。利用しないCMS、AI SDK、スクレイピング、ドラッグ操作と未参照のUI部品を撤去しています。旧APIは外部に接続せず410を返します。Next.js/Reactの撤去と完全静的配信は後続工程です。
+
+既存CSSは全要素に端末の明朝系フォントを指定しており、旧Interは表示に使われていませんでした。未使用のInter取得処理を撤去し、通常のビルドではGoogle Fontsへ接続しません。既存の解析・外部リンク等まで除去したものではありません。
