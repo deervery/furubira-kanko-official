@@ -28,6 +28,10 @@ async function ready(page,pathname){
   await document.fonts.ready
  })
  await expect.poll(()=>page.evaluate(()=>[...document.images].every(img=>img.complete)),{timeout:15000}).toBe(true)
+ await page.evaluate(async()=>{
+  await Promise.all([...document.images].map(img=>img.decode().catch(()=>{})))
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))
+ })
 }
 async function settleHome(page){
  await expect(page.locator("h1")).toHaveCSS("opacity","1",{timeout:15000})

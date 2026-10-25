@@ -310,31 +310,32 @@ func Build(root string) error {
 	if err != nil {
 		return err
 	}
-	funcs := template.FuncMap{"t": func(lang, key string) string {
-		lookup := func(language string) (any, bool) {
-			var value any = messages[language]
-			for _, part := range strings.Split(key, ".") {
-				m, ok := value.(map[string]any)
-				if !ok {
-					return nil, false
+	funcs := template.FuncMap{
+		"boundary": func() template.HTML { return template.HTML("<!-- -->") }, "t": func(lang, key string) string {
+			lookup := func(language string) (any, bool) {
+				var value any = messages[language]
+				for _, part := range strings.Split(key, ".") {
+					m, ok := value.(map[string]any)
+					if !ok {
+						return nil, false
+					}
+					var exists bool
+					value, exists = m[part]
+					if !exists {
+						return nil, false
+					}
 				}
-				var exists bool
-				value, exists = m[part]
-				if !exists {
-					return nil, false
-				}
+				return value, true
 			}
-			return value, true
-		}
-		value, ok := lookup(lang)
-		if !ok {
-			value, _ = lookup("ja")
-		}
-		if result, ok := value.(string); ok {
-			return result
-		}
-		return key
-	},
+			value, ok := lookup(lang)
+			if !ok {
+				value, _ = lookup("ja")
+			}
+			if result, ok := value.(string); ok {
+				return result
+			}
+			return key
+		},
 
 		"dateDots": func(s string) string { return strings.ReplaceAll(s, "-", ".") },
 		"newsText": NewsText,
