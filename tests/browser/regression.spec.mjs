@@ -65,7 +65,21 @@ async function settleHome(page){
 }
 async function matchPages(ref,page,filename,info,fullPage=true){
  const options={fullPage,animations:"disabled",style:screenshotStyle,caret:"hide"}
- const expected=await ref.screenshot(options)
+ // Match toHaveScreenshot's stability rule on the pinned reference as well.
+ // A first full-page WebKit capture can use a different rounded-clip raster.
+ const first=await ref.screenshot(options)
+ let previous=first,expected,referenceCaptures=1
+ for(let attempt=0;attempt<5;attempt++){
+  const current=await ref.screenshot(options);referenceCaptures++
+  if(previous.equals(current)){expected=current;break}
+  previous=current
+ }
+ expect(expected,"the old renderer must produce two consecutive identical captures").toBeDefined()
+ if(filename.includes("ja_furusato")&&!first.equals(expected)){
+  await info.attach("reference-first.png",{body:first,contentType:"image/png"})
+  await info.attach("reference-stable.png",{body:expected,contentType:"image/png"})
+  await info.attach("reference-captures.txt",{body:String(referenceCaptures),contentType:"text/plain"})
+ }
  const snapshot=info.snapshotPath(filename);mkdirSync(path.dirname(snapshot),{recursive:true});writeFileSync(snapshot,expected)
  try{
   await expect(page).toHaveScreenshot(filename,{...options,maxDiffPixels:0,threshold:0})
