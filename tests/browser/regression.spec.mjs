@@ -167,7 +167,7 @@ for(const viewport of [{name:"desktop",width:1440,height:1000},{name:"mobile",wi
      await image.evaluate(node=>{
       const url=new URL(node.src);url.searchParams.set("isolated-image-failure","1");node.src=url.href
      })
-     await expect.poll(()=>image.evaluate(node=>new URL(node.currentSrc).pathname==="/no_photo.jpg"&&node.complete&&node.naturalWidth>0)).toBe(true)
+     await expect.poll(()=>image.evaluate(node=>new URL(node.currentSrc,location.href).pathname==="/no_photo.jpg"&&node.complete&&node.naturalWidth>0)).toBe(true)
     }
     await ref.close()
    })

@@ -22,7 +22,7 @@ for(const name of ["prune-messages-by-excel-ja","sync-translations-from-excel"])
   if(name.startsWith("prune")){assert.equal(result.ja.home.protected,"公開中の文言");assert.equal(result.en.home.protected,"live")}
   else assert.equal(result.ja.home.protected,undefined)
   assert.equal(fs.readdirSync(path.join(folder,"locales")).filter(n=>n.startsWith("messages.json.bak.")).length,1)
-  console.log(name+": pass (isolated workbook, original CLI entry, backup and Go template protection)")
+  console.log(name+": pass (isolated workbook, original CLI entry and backup)")
  }finally{
   assert.ok(folder.startsWith(path.join(os.tmpdir(),"translation-parity-")));fs.rmSync(folder,{recursive:true,force:true})
  }
