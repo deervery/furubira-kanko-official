@@ -25,4 +25,13 @@ try {
     if (path === '/api/news') assert.ok(Array.isArray(JSON.parse(html)))
     console.log('PASS',path,status)
   }
+  for (const path of ['/api/chat', '/api/chat/retired-session', '/api/embedding', '/api/system_message']) {
+    for (const method of ['GET', 'POST']) {
+      const response = await fetch('http://127.0.0.1:3087'+path, { method })
+      assert.equal(response.status,410,method+' '+path)
+      assert.equal(response.headers.get('cache-control'),'no-store')
+      assert.ok((await response.json()).error.includes('公開を終了'))
+      console.log('PASS',method,path,410)
+    }
+  }
 } finally { server.kill('SIGTERM') }

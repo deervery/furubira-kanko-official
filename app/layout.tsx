@@ -1,13 +1,10 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
 import { headers } from "next/headers"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { DEFAULT_LANG, isLang } from "@/lib/i18n/lang"
 import Script from 'next/script'
-
-const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "古平町観光協会",
@@ -71,7 +68,7 @@ export default async function RootLayout({
           `}
         </Script>
       </head>
-      <body className={inter.className}>
+      <body>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           {children}
         </ThemeProvider>
