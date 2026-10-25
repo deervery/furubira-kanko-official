@@ -5,6 +5,8 @@ import { I18nProvider } from "@/components/i18n/i18n-provider"
 import { getMessages } from "@/lib/i18n/getMessages"
 import { isLang, type Lang } from "@/lib/i18n/lang"
 
+export const dynamicParams = false
+
 export function generateStaticParams(): Array<{ lang: Lang }> {
   return [{ lang: "ja" }, { lang: "en" }]
 }
@@ -34,3 +36,8 @@ export default async function LangLayout({
 }
 
 
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params
+  return { alternates: { canonical: "/" + lang, languages: { ja: "/ja", en: "/en" } } }
+}

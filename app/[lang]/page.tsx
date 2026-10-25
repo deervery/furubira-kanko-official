@@ -4,7 +4,7 @@ import { notFound } from "next/navigation"
 import { isLang } from "@/lib/i18n/lang"
 
 // Git管理の観光データを読み込む公開ページ（DBアクセスなし）
-export const revalidate = 3600
+export const dynamic = "error"
 
 export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await Promise.resolve(params)

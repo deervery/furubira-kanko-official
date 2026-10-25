@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import Link from "@/components/static-link"
 import { AlertCircle } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"

@@ -5,13 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "build": "npm run build:pages && node scripts/package-static.mjs",
+    "start": "node scripts/serve-static.mjs",
     "prune-translations:excel-ja": "node scripts/prune-messages-by-excel-ja.mjs",
     "restore-translations:latest-backup": "node scripts/restore-messages-from-latest-backup.mjs",
     "test:news": "node --test tests/news.test.mjs",
     "typecheck": "tsc --noEmit",
-    "test:routes": "node tests/news-routes-smoke.mjs"
+    "test:routes": "npm run test:static",
+    "build:pages": "next build --webpack",
+    "test:static": "node --test tests/static-check.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.4",

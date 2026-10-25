@@ -1,11 +1,11 @@
-import Link from "next/link"
+import Link from "@/components/static-link"
 import { notFound } from "next/navigation"
 import { Header } from "@/components/ui/header"
 import { Footer } from "@/components/ui/footer"
 import { isLang } from "@/lib/i18n/lang"
 import { getPublicNews } from "@/lib/news-service"
 import { newsText } from "@/lib/news"
-export const dynamic = "force-dynamic"
+export const dynamic = "error"
 export default async function NewsPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
   if (!isLang(lang)) notFound()

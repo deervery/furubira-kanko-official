@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Layout } from "@/components/layout"
 import { ExternalLink } from "lucide-react"
 import Image from "next/image"
-import Link from "next/link"
+import Link from "@/components/static-link"
 import { useI18n } from "@/components/i18n/i18n-provider"
 import { t } from "@/lib/i18n/t"
 

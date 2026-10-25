@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { AlertCircle } from "lucide-react"
-import Link from "next/link"
+import Link from "@/components/static-link"
 import { Button } from "@/components/ui/button"
 
 export default function NotFound() {

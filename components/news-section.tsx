@@ -1,18 +1,11 @@
 "use client"
-import { useEffect, useState } from "react"
-import Link from "next/link"
+import source from "@/content/news.json"
+import Link from "@/components/static-link"
 import { useI18n } from "@/components/i18n/i18n-provider"
-import { newsText, type NewsItem } from "@/lib/news"
+import { newsText, newsCollection } from "@/lib/news"
 export function NewsSection() {
   const { lang } = useI18n()
-  const [items, setItems] = useState<NewsItem[] | null>(null)
-  useEffect(() => {
-    const controller = new AbortController()
-    fetch("/api/news", { cache: "no-store", signal: controller.signal })
-      .then(response => response.ok ? response.json() : Promise.reject())
-      .then(setItems).catch(() => {})
-    return () => controller.abort()
-  }, [])
+  const items = newsCollection.parse(source)
   if (!items?.length) return null
   return <section className="bg-white px-4 py-12 text-gray-900" aria-labelledby="news-heading">
     <div className="mx-auto max-w-3xl">

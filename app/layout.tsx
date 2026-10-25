@@ -1,9 +1,8 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { headers } from "next/headers"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import { DEFAULT_LANG, isLang } from "@/lib/i18n/lang"
+import { DEFAULT_LANG } from "@/lib/i18n/lang"
 import Script from 'next/script'
 
 export const metadata: Metadata = {
@@ -14,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "古平町観光協会 | 熱く燃ゆる町",
     description: "北海道古平町の観光情報サイト。天狗の火渡りや新鮮な海産物、温泉、宿泊施設など、古平町の魅力的な観光スポットをご紹介します。",
-    url: "https://curl-furubira.com",  // 自分のサイトURL
+    url: "https://furubira-kanko.com",  // 自分のサイトURL
     siteName: "古平町観光協会",
     images: [
       {
@@ -43,17 +42,15 @@ export const metadata: Metadata = {
     ]
   },
   manifest: "/meta/site.webmanifest",
-  metadataBase: new URL("https://curl-furubira.com"),
+  metadataBase: new URL("https://furubira-kanko.com"),
 }
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const headersList = await headers()
-  const langFromHeader = headersList.get("x-lang")
-  const lang = isLang(langFromHeader) ? langFromHeader : DEFAULT_LANG
+  const lang = DEFAULT_LANG
 
   return (
     <html lang={lang} suppressHydrationWarning>

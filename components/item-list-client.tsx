@@ -4,9 +4,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Layout } from "@/components/layout"
 import Image from "next/image"
-import Link from "next/link"
+import Link from "@/components/static-link"
 import { renderIcon } from "@/lib/icon-utils"
-import { useEffect, useState } from "react"
+import { publicData } from "@/lib/public-data"
 import type { BaseItemType } from "@/lib/types"
 import { useI18n } from "@/components/i18n/i18n-provider"
 import { t } from "@/lib/i18n/t"
@@ -24,43 +24,10 @@ export function ItemListClient<T extends BaseItemType>({
   renderExtra
 }: ItemListClientProps<T>) {
   const { lang, messages } = useI18n()
-  const [items, setItems] = useState<T[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        // キャッシュ付きAPIルート経由で取得（Supabase直接呼び出しを排除）
-        const res = await fetch(`/api/cms/${tableName}`)
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        const data = await res.json()
-
-        const itemsWithImages = data.map((item: any) => ({
-          ...localizeItem(item, lang),
-          image: resolvePublicImageUrl(item.image_path, "/no_photo.jpg?height=300&width=400")
-        }))
-
-        setItems(itemsWithImages)
-      } catch (error) {
-        console.error(`Error fetching ${tableName}:`, error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchItems()
-  }, [tableName, lang])
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold mb-8 text-center">{title}</h1>
-          <div className="text-center">{t(messages, "common.loading")}</div>
-        </div>
-      </Layout>
-    )
-  }
+  const items = (publicData[tableName] || []).slice().sort((a, b) => Number(a.display_order || 0) - Number(b.display_order || 0)).map(item => ({
+    ...localizeItem(item, lang),
+    image: resolvePublicImageUrl(item.image_path as string, "/no_photo.jpg?height=300&width=400"),
+  })) as unknown as T[]
 
   return (
     <Layout>
