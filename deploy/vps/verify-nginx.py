@@ -1,14 +1,27 @@
 #!/usr/bin/env python3
 """Read-only HTTP checks against an installed nginx release. Never sends a real inquiry."""
-import argparse,hashlib,json,pathlib,urllib.request,urllib.error,urllib.parse
+import argparse,hashlib,http.client,ipaddress,json,pathlib,socket,ssl,urllib.request,urllib.error,urllib.parse
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,*args):return None
-def verify(kind,revision,origin):
+def verify(kind,revision,origin,connect_ip=None):
     root=pathlib.Path("/opt/static-sites")/kind/"releases"/revision
     manifest=json.loads((root/"manifest.json").read_text())
     config=json.loads((root/"route-config.json").read_text())
-    opener=urllib.request.build_opener(NoRedirect)
     domain="deervery.com" if kind=="company" else "furubira-kanko.com"
+    if connect_ip:
+        ipaddress.ip_address(connect_ip)
+        parsed=urllib.parse.urlsplit(origin)
+        if parsed.scheme!="https" or parsed.hostname!=domain:raise ValueError("Pinned TLS checks require the owned HTTPS hostname")
+        class PinnedConnection(http.client.HTTPSConnection):
+            def connect(self):
+                raw=socket.create_connection((connect_ip,self.port),timeout=self.timeout)
+                self.sock=self._context.wrap_socket(raw,server_hostname=self.host)
+        class PinnedHandler(urllib.request.HTTPSHandler):
+            def https_open(self,request):
+                return self.do_open(PinnedConnection,request,context=ssl.create_default_context())
+        opener=urllib.request.build_opener(urllib.request.ProxyHandler({}),NoRedirect,PinnedHandler())
+    else:
+        opener=urllib.request.build_opener(NoRedirect)
     results=[]
     def req(path,method="GET",headers=None):
         h={"Host":domain};h.update(headers or {})
@@ -17,12 +30,21 @@ def verify(kind,revision,origin):
         with r:
             body=r.read();status=r.status;response_headers=dict(r.headers)
         return status,response_headers,body
+    reachable_files=0
     for name,expected in manifest["files"].items():
         if not name.startswith("site/"):continue
-        path="/"+name[5:]
+        filename=name[5:]
+        override=config.get("overrides",{}).get(filename,{})
+        path="/"+override.get("path",filename)
+        if "path" in override and path!="/"+filename:
+            status,_,_=req("/"+filename)
+            assert status==404,("Vercel override must hide raw filename",filename,status)
+        if path=="/" and kind=="tourism":
+            continue # The root is a language redirect; index.html is not public.
         status,headers,body=req(urllib.parse.quote(path,safe="/"))
         assert status==200,(path,status)
         assert hashlib.sha256(body).hexdigest()==expected,("public bytes differ",path)
+        reachable_files+=1
         if path.startswith("/assets/"):assert "immutable"in headers.get("Cache-Control","")
     for name,o in config["overrides"].items():
         route="/"+o.get("path",name)
@@ -31,6 +53,10 @@ def verify(kind,revision,origin):
         assert status==200,(route,status)
         assert hashlib.sha256(body).hexdigest()==manifest["files"]["site/"+name],route
         results.append({"path":route,"status":status})
+        if route not in ["/404.html","/410.html"]:
+            status,_,body=req(route+"/")
+            assert status==200 and hashlib.sha256(body).hexdigest()==manifest["files"]["site/"+name],("trailing slash alias",route,status)
+            results.append({"path":route+"/","status":status})
     status,headers,body=req("/release.json")
     r=json.loads(body);assert status==200 and r["revision"]==revision and r["generator"]=="go"
     assert "no-store"in headers.get("Cache-Control","")
@@ -68,9 +94,10 @@ def verify(kind,revision,origin):
         for method in ["GET","POST"]:
             status,headers,body=req("/api/inquiries",method);assert status==503 and json.loads(body)["ready"]==False
         results.append({"inquiry_api":"disconnected in private staging; DNS cutover remains blocked"})
-    result={"result":"pass","kind":kind,"revision":revision,"verified_static_files":sum(n.startswith("site/") for n in manifest["files"]),"checks":results,"production_inquiry_sent":False}
+    result={"result":"pass","kind":kind,"revision":revision,"origin":origin,"connect_ip":connect_ip,"tls_hostname_verification":origin.startswith("https://"),"verified_static_files":reachable_files,"artifact_static_files":sum(n.startswith("site/") for n in manifest["files"]),"checks":results,"production_inquiry_sent":False}
     print(json.dumps(result,ensure_ascii=False))
     return result
 if __name__=="__main__":
     p=argparse.ArgumentParser();p.add_argument("kind",choices=["company","tourism"]);p.add_argument("revision");p.add_argument("origin")
-    a=p.parse_args();verify(a.kind,a.revision,a.origin)
+    p.add_argument("--connect-ip",help="Connect to this literal IP while retaining HTTPS hostname and certificate validation")
+    a=p.parse_args();verify(a.kind,a.revision,a.origin,a.connect_ip)

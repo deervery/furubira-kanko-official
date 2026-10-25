@@ -2,7 +2,8 @@ import { test, expect } from "@playwright/test"
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs"
 import path from "node:path"
 const kind=JSON.parse(readFileSync(new URL("../../config/site.json",import.meta.url),"utf8")).kind
-const reference="http://127.0.0.1:4173",candidate="http://127.0.0.1:4174"
+const reference="http://127.0.0.1:4173",candidate=process.env.CANDIDATE_URL||"http://127.0.0.1:4174"
+const internalHosts=new Set(["127.0.0.1","localhost",new URL(candidate).hostname])
 const externalImageFixture=readFileSync(new URL("../../public/no_photo.jpg",import.meta.url))
 const screenshotStyle="canvas{visibility:hidden!important}iframe{visibility:hidden!important}"
 test.beforeEach(async({context},info)=>{
@@ -20,7 +21,7 @@ test.beforeEach(async({context},info)=>{
   if(url.hostname==="challenges.cloudflare.com")return route.fulfill({contentType:"text/javascript",body:'window.turnstile={render(el,opts){queueMicrotask(()=>opts.callback("isolated-test-token"));return "isolated-widget"},remove(){}}'})
   // External SNS URLs can expire independently of the site. Give both renderers
   // the same image bytes; exercise the error callback separately after hydration.
-  if(url.hostname!=="127.0.0.1"&&url.hostname!=="localhost"){
+  if(!internalHosts.has(url.hostname)){
    if(req.resourceType()==="image")return route.fulfill({contentType:"image/jpeg",body:externalImageFixture})
    return route.abort("blockedbyclient")
   }

@@ -1,5 +1,12 @@
 name: Go static regression gates
 on:
+  workflow_dispatch:
+    inputs:
+      origin:
+        description: "Browser candidate: local generated files or verified VPS TLS origin"
+        type: choice
+        options: [local, vps]
+        default: local
   pull_request:
   push:
     branches: [main]
@@ -42,6 +49,10 @@ jobs:
           include-hidden-files: true
           retention-days: 7
   browsers:
+    env:
+      CANDIDATE_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.origin == 'vps' && 'https://furubira-kanko.com' || '' }}
+      VPS_ORIGIN_IP: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.origin == 'vps' && '85.131.253.88' || '' }}
+      VPS_ORIGIN_HOST: furubira-kanko.com
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     strategy:
