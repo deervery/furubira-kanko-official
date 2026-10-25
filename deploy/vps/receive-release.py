@@ -49,6 +49,7 @@ def install(kind,revision,archive,expected,root=ROOT):
             with t.extractfile(m) as source,dest.open("wb") as output:shutil.copyfileobj(source,output)
             dest.chmod(0o644)
         manifest=safe_manifest(staged,kind,revision)
+        staged.chmod(0o755)  # nginx runs as www-data, not as the root deployment user
         for folder in (staged/"site/assets").iterdir():
           if not folder.is_dir() or not re.fullmatch(r"[0-9a-f]{16}",folder.name):raise ValueError("Unexpected asset prefix")
           target=base/"shared/assets"/folder.name

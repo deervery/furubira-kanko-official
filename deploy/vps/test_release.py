@@ -27,6 +27,7 @@ class ReleaseBoundaryTests(unittest.TestCase):
   a,d=self.artifact("a"*40);receive.install("tourism","a"*40,a,d,self.root/"sites")
   b,d=self.artifact("b"*40,"b");receive.install("tourism","b"*40,b,d,self.root/"sites")
   base=self.root/"sites/tourism";receive.switch(base,"a"*40)
+  self.assertEqual((base/("releases/"+"a"*40)).stat().st_mode & 0o777,0o755)
   self.assertEqual(json.loads((base/"current/site/release.json").read_text())["revision"],"a"*40)
   self.assertTrue((base/("shared/assets/"+"b"*16+"/site.js")).exists())
  def test_manifest_rejects_modified_payload_and_immutable_revision_collision(self):
