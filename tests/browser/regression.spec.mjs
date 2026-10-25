@@ -136,6 +136,15 @@ for(const viewport of [{name:"desktop",width:1440,height:1000},{name:"mobile",wi
     await expect(page.getByText("受付内容は保存済みです。担当者への通知を確認しています。再送信は不要です。")).toBeVisible()
    })
   }else{
+   test("stored system theme follows browser preference changes",async({page,context})=>{
+    await context.addInitScript(()=>localStorage.setItem("theme","system"))
+    for(const base of [reference,candidate]){
+     await page.emulateMedia({colorScheme:"dark"});await page.goto(base+"/ja/spots")
+     await expect(page.locator("html")).toHaveClass(/dark/)
+     await page.emulateMedia({colorScheme:"light"})
+     await expect(page.locator("html")).toHaveClass(/light/)
+    }
+   })
    test("news editing, dirty protection, export and import",async({page})=>{
     await ready(page,candidate+"/admin/news")
     await page.getByLabel("記事ID（必須・URLに使用）",{exact:true}).fill("isolated-test")
