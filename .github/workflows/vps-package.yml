@@ -1,0 +1,81 @@
+name: Package and verify VPS static staging
+on:
+  pull_request:
+    paths: ['deploy/vps/**', '.github/workflows/vps-package.yml']
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.2'
+          cache: false
+      - name: Build public files outside the VPS
+        run: go run ./cmd/sitegen
+        env:
+          SITE_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+          NEXT_PUBLIC_DEERVERY_APEX_ENABLED: 'true'
+          NEXT_PUBLIC_SHOP_READY: 'true'
+          NEXT_PUBLIC_UNIFIED_FORMS_ENABLED: 'true'
+          SITE_PREVIEW: 'false'
+          CONTACT_BOT_PROTECTION_ENABLED: 'true'
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+      - name: Verify release boundary and rollback invariants
+        run: python3 -m unittest discover -s deploy/vps -p 'test_*.py'
+      - name: Package the verified static bytes
+        env:
+          REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          kind=$(python3 -c 'import json;print(json.load(open("config/site.json"))["kind"])')
+          python3 deploy/vps/package-release.py "$kind" "$REVISION"
+          sha256sum vps-release.tar.gz > vps-release.tar.gz.sha256
+      - name: Install nginx for isolated adapter verification
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y nginx
+          sudo mkdir -p /opt/static-sites
+          sudo chown "$(id -u):$(id -g)" /opt/static-sites
+      - name: Verify actual nginx responses, public hashes and disconnected staging API
+        env:
+          REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          kind=$(python3 -c 'import json;print(json.load(open("config/site.json"))["kind"])')
+          digest=$(cut -d ' ' -f1 vps-release.tar.gz.sha256)
+          python3 deploy/vps/receive-release.py "$kind" "$REVISION" --archive vps-release.tar.gz --sha256 "$digest"
+          mkdir -p "$RUNNER_TEMP/nginx"
+          cat > "$RUNNER_TEMP/nginx/nginx.conf" <<EOF
+          worker_processes 1;
+          error_log stderr warn;
+          pid $RUNNER_TEMP/nginx/nginx.pid;
+          events { worker_connections 128; }
+          http {
+            include /etc/nginx/mime.types;
+            types { text/javascript mjs; }
+            access_log off;
+            include /opt/static-sites/$kind/current/nginx.conf;
+          }
+          EOF
+          nginx -t -p "$RUNNER_TEMP/nginx/" -c "$RUNNER_TEMP/nginx/nginx.conf"
+          nginx -p "$RUNNER_TEMP/nginx/" -c "$RUNNER_TEMP/nginx/nginx.conf"
+          trap 'nginx -s quit -p "$RUNNER_TEMP/nginx/" -c "$RUNNER_TEMP/nginx/nginx.conf"' EXIT
+          port=$(python3 -c 'import json,sys;print(json.load(open("/opt/static-sites/"+sys.argv[1]+"/current/manifest.json"))["port"])' "$kind")
+          python3 deploy/vps/verify-nginx.py "$kind" "$REVISION" "http://127.0.0.1:$port" > vps-nginx-verification.json
+          cat vps-nginx-verification.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vps-static-staging
+          path: |
+            vps-release.tar.gz
+            vps-release.tar.gz.sha256
+            vps-nginx-verification.json
+          retention-days: 14
