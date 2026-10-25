@@ -1,4 +1,4 @@
-export function initFlame(canvas                   ) { const particles        = [];
+export function initFlame(canvas                   ) { const particleStore        = [];
     if (!canvas) return
     const ctx = canvas.getContext("2d")
     if (!ctx) return
@@ -38,7 +38,7 @@ export function initFlame(canvas                   ) { const particles        = 
           size: Math.random() * 3 + 2,
           color: Math.random() > 0.9 ? "#ffcc00" : Math.random() > 0.3 ? "#ff6600" : "#cc0000",
         }
-        particles.push(particle)
+        particleStore.push(particle)
       }
     }
 
@@ -46,7 +46,7 @@ export function initFlame(canvas                   ) { const particles        = 
 
     // 各フレームごとにパーティクルの位置や透明度を更新
     const update = (deltaTime        ) => {
-      const particles = particles
+      const particles = particleStore
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i]
         p.x += p.vx
@@ -65,7 +65,7 @@ export function initFlame(canvas                   ) { const particles        = 
     const draw = () => {
       if (!ctx) return
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-      particles.forEach((p) => {
+      particleStore.forEach((p) => {
         ctx.globalAlpha = p.alpha
         // 中心から外側に向かって透明になるグラデーションを作成
         const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2)
