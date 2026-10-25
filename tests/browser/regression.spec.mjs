@@ -28,14 +28,20 @@ test.beforeEach(async({context},info)=>{
  })
 })
 async function ready(page,pathname){
- await page.goto(pathname,{waitUntil:"networkidle"})
+ // Playwright discourages networkidle for readiness: Firefox can retain aborted
+ // external requests. Wait for the document plus observable UI/assets instead.
+ await page.goto(pathname,{waitUntil:"domcontentloaded",timeout:15000})
+ if(await page.locator("header").count())await expect(page.locator("header")).toHaveCSS("opacity","1",{timeout:15000})
  await page.evaluate(async()=>{
   for(const img of document.images)img.loading="eager"
   await document.fonts.ready
  })
  await expect.poll(()=>page.evaluate(()=>[...document.images].every(img=>img.complete&&img.naturalWidth>0)),{timeout:15000}).toBe(true)
  await page.evaluate(async()=>{
-  await Promise.all([...document.images].map(img=>img.decode().catch(()=>{})))
+  await Promise.race([
+   Promise.all([...document.images].map(img=>img.decode().catch(()=>{}))),
+   new Promise((_,reject)=>setTimeout(()=>reject(new Error("Image decode readiness timed out")),15000))
+  ])
  })
 }
 async function settleHome(page){
