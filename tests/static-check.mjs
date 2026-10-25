@@ -4,7 +4,7 @@ import { readFile, readdir } from "node:fs/promises"
 import http from "node:http"
 import { createStaticServer } from "../scripts/serve-static.mjs"
 
-const corporate = (await readFile("package.json","utf8")).includes('"deervery-corporate"')
+const corporate = JSON.parse(await readFile("config/site.json","utf8")).kind === "company"
 const config = JSON.parse(await readFile(".vercel/output/config.json","utf8"))
 const originalFetch = globalThis.fetch
 const server = await createStaticServer()
@@ -93,7 +93,7 @@ if(corporate){
      const html=await (await get("/"+lang+"/spots")).text()
      assert.ok(html.includes('<html lang="'+lang+'"'))
      assert.ok(html.includes('rel="canonical" href="https://furubira-kanko.com/'+lang+'/spots"'))
-     assert.ok(html.includes('hrefLang="en"'))
+     assert.match(html,/hreflang="en"/i)
    }
    assert.equal((await get("/",{headers:{"accept-language":"en-US,en;q=0.9"}})).headers.get("location"),"/en")
    assert.equal((await get("/",{headers:{cookie:"lang=ja","accept-language":"en-US"}})).headers.get("location"),"/ja")

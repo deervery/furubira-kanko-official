@@ -29,3 +29,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.build-tools/
+.sitegen-*/
+test-results/
+playwright-report/
+
+**/node_modules/
+tests/browser/*-snapshots/
+
+__pycache__/
+*.pyc

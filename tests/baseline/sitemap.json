@@ -1,0 +1,59 @@
+{
+  "https://furubira-kanko.com/en/access": {
+    "loc": "https://furubira-kanko.com/en/access"
+  },
+  "https://furubira-kanko.com/en/accommodations": {
+    "loc": "https://furubira-kanko.com/en/accommodations"
+  },
+  "https://furubira-kanko.com/en/dining": {
+    "loc": "https://furubira-kanko.com/en/dining"
+  },
+  "https://furubira-kanko.com/en/events": {
+    "loc": "https://furubira-kanko.com/en/events"
+  },
+  "https://furubira-kanko.com/en/furusato": {
+    "loc": "https://furubira-kanko.com/en/furusato"
+  },
+  "https://furubira-kanko.com/en/news": {
+    "loc": "https://furubira-kanko.com/en/news"
+  },
+  "https://furubira-kanko.com/en/shopping": {
+    "loc": "https://furubira-kanko.com/en/shopping"
+  },
+  "https://furubira-kanko.com/en/spots": {
+    "loc": "https://furubira-kanko.com/en/spots"
+  },
+  "https://furubira-kanko.com/en": {
+    "loc": "https://furubira-kanko.com/en"
+  },
+  "https://furubira-kanko.com/": {
+    "loc": "https://furubira-kanko.com/"
+  },
+  "https://furubira-kanko.com/ja/access": {
+    "loc": "https://furubira-kanko.com/ja/access"
+  },
+  "https://furubira-kanko.com/ja/accommodations": {
+    "loc": "https://furubira-kanko.com/ja/accommodations"
+  },
+  "https://furubira-kanko.com/ja/dining": {
+    "loc": "https://furubira-kanko.com/ja/dining"
+  },
+  "https://furubira-kanko.com/ja/events": {
+    "loc": "https://furubira-kanko.com/ja/events"
+  },
+  "https://furubira-kanko.com/ja/furusato": {
+    "loc": "https://furubira-kanko.com/ja/furusato"
+  },
+  "https://furubira-kanko.com/ja/news": {
+    "loc": "https://furubira-kanko.com/ja/news"
+  },
+  "https://furubira-kanko.com/ja/shopping": {
+    "loc": "https://furubira-kanko.com/ja/shopping"
+  },
+  "https://furubira-kanko.com/ja/spots": {
+    "loc": "https://furubira-kanko.com/ja/spots"
+  },
+  "https://furubira-kanko.com/ja": {
+    "loc": "https://furubira-kanko.com/ja"
+  }
+}

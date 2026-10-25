@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { newsInput, newsCollection, newsText, upsertNews, sortNews } from '../lib/news.ts'
+import { newsInput, newsCollection, newsText, upsertNews, sortNews } from '../assets/news.mjs'
 const draft = { id: '2026-10-05-news', title: '  日本語  ', body: '本文\n二行目', title_en: '', body_en: '', published_on: '2026-10-05' }
 test('validates shipped static JSON, rejects duplicates and old database state', () => {
   assert.ok(Array.isArray(newsCollection.parse(JSON.parse(readFileSync(new URL('../content/news.json', import.meta.url), 'utf8')))))

@@ -1,4 +1,4 @@
-name: Validate public site
+name: Go static regression gates
 on:
   pull_request:
   push:
@@ -6,27 +6,89 @@ on:
 permissions:
   contents: read
 jobs:
-  validate:
+  contracts:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.2'
+          cache: false
       - uses: actions/setup-node@v4
         with:
-          node-version: '24.22.1'
-          cache: npm
-      - run: npm ci --no-audit --no-fund
-      - run: npm run test:news
-      - run: npm run typecheck
-      - run: npm run build
-      - run: npm run test:static
+          node-version: '26.12.1'
+      - run: go test -race ./...
+      - run: go vet ./...
+      - run: go run ./cmd/sitegen
+        env:
+          CONTACT_BOT_PROTECTION_ENABLED: 'true'
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+      - run: node --test
+      - run: node --test tests/static-check.mjs
+      - run: python3 tests/check-dom.py
       - uses: actions/upload-artifact@v4
         with:
-          name: static-site
+          name: go-static-site
           path: |
             out/
             .vercel/output/
           include-hidden-files: true
+          retention-days: 7
+  browsers:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Build the pinned pre-migration reference
+        run: |
+          git worktree add --detach "$RUNNER_TEMP/reference" e68826e387e092540fec1a05aa0058ecc2ff4747
+          cd "$RUNNER_TEMP/reference"
+          npm ci --no-audit --no-fund
+          npm run build
+        env:
+          NEXT_PUBLIC_DEERVERY_APEX_ENABLED: 'true'
+          NEXT_PUBLIC_SHOP_READY: 'true'
+          NEXT_PUBLIC_UNIFIED_FORMS_ENABLED: 'true'
+          SITE_PREVIEW: 'false'
+          CONTACT_BOT_PROTECTION_ENABLED: 'true'
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+          NEXT_TELEMETRY_DISABLED: '1'
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.2'
+          cache: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26.12.1'
+      - run: go run ./cmd/sitegen
+        env:
+          CONTACT_BOT_PROTECTION_ENABLED: 'true'
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+      - run: npm ci --prefix tests/browser --ignore-scripts --no-audit --no-fund
+      - run: npx --prefix tests/browser playwright install --with-deps ${{ matrix.browser }}
+      - name: Compare pixels and interactions in isolated browsers
+        working-directory: tests/browser
+        run: npx playwright test --project=${{ matrix.browser }}
+        env:
+          REFERENCE_DIR: ${{ runner.temp }}/reference
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-regression-${{ matrix.browser }}
+          path: |
+            playwright-report/
+            test-results/
           retention-days: 7
