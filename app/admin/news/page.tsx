@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState, type FormEvent } from "react"
-import Link from "next/link"
+import Link from "@/components/static-link"
+import source from "@/content/news.json"
 import { NewsPublicationFlow } from "@/components/admin/news-publication-flow"
 import { newsInput, newsCollection, newsText, upsertNews, type NewsInput, type NewsItem } from "@/lib/news"
 import { Button } from "@/components/ui/button"
@@ -11,23 +12,14 @@ import { Label } from "@/components/ui/label"
 const sourceUrl = "https://github.com/deervery/furubira-kanko-official/edit/main/content/news.json"
 const emptyNews = (): NewsInput => ({ id: "", title: "", body: "", title_en: "", body_en: "", published_on: new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date()) })
 export default function NewsEditorPage() {
-  const [items, setItems] = useState<NewsItem[]>([])
+  const [items, setItems] = useState<NewsItem[]>(() => newsCollection.parse(source))
   const [draft, setDraft] = useState<NewsInput>(emptyNews)
   const [editingId, setEditingId] = useState<string>()
-  const [loaded, setLoaded] = useState(false)
+  const [loaded, setLoaded] = useState(true)
   const [message, setMessage] = useState("")
   const [preview, setPreview] = useState(false)
   const [changed, setChanged] = useState(false)
   const [formDirty, setFormDirty] = useState(false)
-  useEffect(() => {
-    const controller = new AbortController()
-    fetch("/api/news", { cache: "no-store", signal: controller.signal }).then(response => {
-      if (!response.ok) throw new Error()
-      return response.json()
-    }).then(data => { setItems(newsCollection.parse(data)); setLoaded(true) })
-      .catch(() => { if (!controller.signal.aborted) setMessage("公開データを読み込めません。再読み込みするか、GitHubの最新news.jsonを読み込んでください。") })
-    return () => controller.abort()
-  }, [])
   useEffect(() => {
     if (!changed) return
     const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = "" }

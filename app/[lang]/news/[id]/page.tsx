@@ -1,11 +1,18 @@
-import Link from "next/link"
+import Link from "@/components/static-link"
 import { notFound } from "next/navigation"
 import { Header } from "@/components/ui/header"
 import { Footer } from "@/components/ui/footer"
 import { isLang } from "@/lib/i18n/lang"
 import { getPublicNews } from "@/lib/news-service"
 import { newsText } from "@/lib/news"
-export const dynamic = "force-dynamic"
+export const dynamic = "error"
+export const dynamicParams = false
+export async function generateStaticParams() {
+  const items = await getPublicNews()
+  // Next export requires a nonempty parameter list. This reserved invalid ID renders 404;
+  // the packaging step removes its HTML and RSC files, so it is never a published article.
+  return items.length ? items.map(item => ({ id: item.id })) : [{ id: "__empty_export__" }]
+}
 export default async function NewsDetail({ params }: { params: Promise<{ lang: string; id: string }> }) {
   const { lang, id } = await params
   if (!isLang(lang) || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) notFound()

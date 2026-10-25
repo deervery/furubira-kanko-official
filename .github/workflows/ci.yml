@@ -20,5 +20,13 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm run test:news
       - run: npm run typecheck
-      - run: npm run build -- --webpack
-      - run: npm run test:routes
+      - run: npm run build
+      - run: npm run test:static
+      - uses: actions/upload-artifact@v4
+        with:
+          name: static-site
+          path: |
+            out/
+            .vercel/output/
+          include-hidden-files: true
+          retention-days: 7

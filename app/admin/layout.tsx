@@ -1,7 +1,7 @@
 "use client"
 import type { ReactNode } from "react"
 import { usePathname } from "next/navigation"
-import Link from "next/link"
+import Link from "@/components/static-link"
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   if (pathname === "/admin/news") return <main className="min-h-screen bg-gray-50">{children}</main>

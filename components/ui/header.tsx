@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import Link from "@/components/static-link"
 import { Menu, MapPin, Bed, Coffee, Calendar, Compass, ShoppingBag, Gift } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
@@ -8,7 +8,7 @@ import { useEffect, useState } from "react"
 import { useInView } from "react-intersection-observer"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
-import { usePathname, useSearchParams } from "next/navigation"
+import { usePathname } from "next/navigation"
 
 import { useI18n } from "@/components/i18n/i18n-provider"
 import { t } from "@/lib/i18n/t"
@@ -27,7 +27,8 @@ const navigationItems = [
 export const Header = ({ solid = false }: { solid?: boolean }) => {
   const { lang, messages } = useI18n()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const [search, setSearch] = useState("")
+  useEffect(() => { setSearch(window.location.search) }, [pathname])
 
   const [isScrolled, setIsScrolled] = useState(false)
   const { ref: heroRef, inView: heroInView } = useInView({
@@ -52,10 +53,10 @@ export const Header = ({ solid = false }: { solid?: boolean }) => {
     if (parts.length > 0 && isLang(parts[0])) {
       parts[0] = to
       const nextPath = "/" + parts.join("/")
-      const qs = searchParams.toString()
+      const qs = search.replace(/^\?/, "")
       return qs ? `${nextPath}?${qs}` : nextPath
     }
-    const qs = searchParams.toString()
+    const qs = search.replace(/^\?/, "")
     const nextPath = pathname === "/" ? `/${to}` : `/${to}${pathname}`
     return qs ? `${nextPath}?${qs}` : nextPath
   }
