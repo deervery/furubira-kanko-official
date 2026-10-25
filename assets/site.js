@@ -31,7 +31,7 @@ if (toggle) {
   let portal, panel, previousStyle, inertElements = [], closing = false
   const header = toggle.closest("header")
   const baseButton = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
-  const ghost = baseButton + " hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+  const ghost = baseButton.replace(" justify-center","") + " hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
   const outline = baseButton + " text-sm border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
   function el(tag,cls,text) { const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n }
   function close() {
@@ -69,7 +69,7 @@ if (toggle) {
     for(const lang of ["ja","en"]) {
       const original=[...header.querySelectorAll("a")].find(a=>a.textContent.trim()===lang.toUpperCase())
       const a=el("a","flex-1");a.href=original.href
-      const button=el("button",outline+" w-full"+(langMatch?.[1]===lang?" font-bold":""),lang.toUpperCase());button.type="button";a.append(button);row.append(a)
+      const button=el("button",(langMatch?.[1]===lang?outline.replace("font-medium","font-bold"):outline)+" w-full",lang.toUpperCase());button.type="button";a.append(button);row.append(a)
     }
     languages.append(row);links.append(languages);panel.append(links)
     const exit=el("button","absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary");exit.type="button"
