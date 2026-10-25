@@ -29,3 +29,16 @@ cutover, prepare TLS, external DNS/IPv6/alias checks, production inquiry behavio
 Cloudflare's documented test site key is used only for private staging artifacts.
 Do not promote this package into a live company form without rebuilding it with the
 real public site key and passing the separate company inquiry release gate.
+
+The isolated nginx unit and main config are included as staging-nginx.conf and
+deervery-static-staging.service. Install the config under /opt/static-sites/nginx/
+and the unit under /etc/systemd/system/. It runs as www-data, binds loopback only,
+and has a 128MiB memory limit and 50% of one CPU. Check it with systemd-analyze verify
+and start/reload only deervery-static-staging.service. The host nginx config and
+existing application containers do not need to be restarted.
+
+An artifact receipt switches files only. Validate nginx configuration before
+reloading this isolated unit; run the HTTP verifier afterward. On failure, roll
+back to the recorded previous revision, validate and reload, then verify that
+revision before resuming deployment. The initial bootstrap requires both the
+config files and at least one installed site before starting the unit.

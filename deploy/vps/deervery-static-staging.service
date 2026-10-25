@@ -1,0 +1,29 @@
+[Unit]
+Description=Private static website VPS migration preview
+After=network.target
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+RuntimeDirectory=deervery-static-staging
+RuntimeDirectoryMode=0750
+ExecStartPre=/usr/sbin/nginx -t -p /opt/static-sites/nginx/ -c /opt/static-sites/nginx/nginx.conf -e stderr
+ExecStart=/usr/sbin/nginx -p /opt/static-sites/nginx/ -c /opt/static-sites/nginx/nginx.conf -e stderr -g "daemon off;"
+ExecReload=/usr/sbin/nginx -t -p /opt/static-sites/nginx/ -c /opt/static-sites/nginx/nginx.conf -e stderr
+ExecReload=/usr/sbin/nginx -s reload -p /opt/static-sites/nginx/ -c /opt/static-sites/nginx/nginx.conf -e stderr
+KillSignal=SIGQUIT
+TimeoutStopSec=15
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=128M
+CPUQuota=50%
+TasksMax=32
+[Install]
+WantedBy=multi-user.target
