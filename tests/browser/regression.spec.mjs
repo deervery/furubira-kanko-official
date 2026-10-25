@@ -30,7 +30,6 @@ async function ready(page,pathname){
  await expect.poll(()=>page.evaluate(()=>[...document.images].every(img=>img.complete&&img.naturalWidth>0)),{timeout:15000}).toBe(true)
  await page.evaluate(async()=>{
   await Promise.all([...document.images].map(img=>img.decode().catch(()=>{})))
-  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))
  })
 }
 async function settleHome(page){
