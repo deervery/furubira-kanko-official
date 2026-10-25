@@ -155,7 +155,7 @@ for(const viewport of [{name:"desktop",width:1440,height:1000},{name:"mobile",wi
     for(const [target,base] of [[ref,reference],[page,candidate]]){
      await ready(target,base+"/en/shopping")
      await expect(target.locator("header")).toHaveCSS("opacity","1")
-     const image=target.locator('img[src^="https://scontent-"]')
+     const image=target.getByRole("img",{name:"Yamadai Fujita",exact:true})
      await expect(image).toHaveCount(1)
      await target.route("**/*isolated-image-failure=1",route=>route.abort("failed"))
      await image.evaluate(node=>{
