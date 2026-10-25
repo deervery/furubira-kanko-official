@@ -1,0 +1,6 @@
+tests/
+node_modules/
+.build-tools/
+.sitegen-*/
+playwright-report/
+test-results/

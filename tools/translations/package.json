@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "xlsx": "0.18.5"
+  },
+  "scripts": {
+    "test": "node verify.mjs"
+  }
+}

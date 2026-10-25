@@ -1,55 +1,48 @@
-# 古平町観光協会ウェブサイト
+# 古平町観光協会サイト
 
-北海道古平町の観光情報を提供する Next.js 16（App Router）/ React 19 / Tailwind CSS の日英サイトです。公開コンテンツは **Git管理の静的TS/JSONとローカル画像** から読み込みます。Supabase CMSは現行の編集・公開方式ではありません。
+Go標準ライブラリーのhtml/templateでHTML/CSS/JavaScript・画像を生成する静的サイトです。公開ページのビルド・配信にNext.js、React、Tailwind実行環境、Nodeによるサイトサーバーは使いません。htmxは追加していません。
 
-## 現在のデータと更新先
+## ビルドと確認
 
-| 用途 | 正本 | 更新方法 |
-| --- | --- | --- |
-| 観光スポット・飲食店・宿泊・買い物・イベント | `lib/hardcoded-data.ts` | GitHubのブランチで編集し、PRでレビュー |
-| 日英文言 | `locales/messages.json` | 同上 |
-| 画像 | `public/` | 同上 |
-| お知らせ | `content/news.json` | `/admin/news`で原稿/JSONを作成し、GitHubへ登録してPR |
+Go 1.27.2を使用します。Goモジュールの外部依存はありません。
 
-PRを作成しただけでは本番反映されません。レビュー後のマージとデプロイが必要です。履歴にはVercel Previewの利用が確認できますが、現在のVercelプロジェクト・本番ブランチ・自動デプロイ設定はこのリポジトリだけでは確定できません。
+    go run ./cmd/sitegen
+    go test -race ./...
+    go vet ./...
+    node --test
+    node --test tests/static-check.mjs
+    python3 tests/check-dom.py
 
-`/admin/news` はJSON編集補助です。独自ログイン・サーバー保存・即時公開はありません。保存先の権限とレビューはGitHubで管理します。旧 `/admin/login` / `/admin/dashboard` 等は旧CMSを起動せず、現行の更新方法を案内します。詳細は [お知らせ運用](docs/news-cms.md) を参照してください。
+out/が静的成果物、.vercel/output/がCDN規則と必要な関数を含む配備成果物です。JavaScriptの契約テストとローカル配信確認にはNode 26.12.1を使用します。ローカル確認はPORT=3087 node scripts/serve-static.mjsで起動できます。この検証サーバーは公開成果物に含みません。
 
-## ローカル開発・検証
+公開環境は引き続きVercelです。VPSへのDNS切替は別工程です。VPSへ移す場合も外部CIで完成したout/だけを配備し、GoやNodeによるページサーバーを常駐させません。CDN相当の転送・404/410をNginxに設定する必要があります。
 
-Node.js 24.22.1（.nvmrc）、npmを使用します。
+## 編集するファイル
 
-```sh
-npm ci
-npm run dev
-npm run test:news
-npm run typecheck
-npm run build
-npm run test:routes
-```
+- ページ：templates/pages/
+- 共通ヘッダー・フッター：templates/partials/
+- 内容：content/のJSON
+- スタイル：assets/css/。現行のCSSを保持し、Nodeによる再生成を必要としません。変更時も表示比較を通してください。
+- 画像・フォント：public/。既存ライセンスと出典を保持します。
+- 転送：config/routes.json
 
-公開サイトとお知らせ編集にSupabase/OpenAI/Geminiの環境変数は不要です。旧SDK・CMS・AIチャット・取り込み/スクレイピングコードは撤去しました。旧チャット・embedding・system_message APIは外部接続せず410を返します。旧管理URLにはGitでの更新案内を表示し、お知らせ編集だけを維持します。Next16非対応だった旧lintコマンドは削除しました。
+既存CSS・SVGに由来するライセンスはassets/licenses/、フォントのライセンスはpublic/fonts/にあります。資産は内容のハッシュを含むURLへ生成し、配備変更時の古いJavaScriptキャッシュとの混同を避けます。
 
-## 移行の根拠と残存コード
+## 観光情報・日英・お知らせ
 
-- `91dc5b4`（2026-03-14）：CSVから静的観光データを追加。
-- `a7e8429` / `5e6662c`（同日）：`cms-service` / CMS公開APIをSupabaseから静的データに切替。
-- `923211c` / `fa0f8aa`（同日）：画像参照のSupabase SDK依存を除去、ローカル画像追加。
-- `4d8064d`（同日）：トップページのチャットを非表示。
-- `dd0843f`（2026-09-03）：RAGデータ更新workflowを削除。
+施設等37件はcontent/facilities.jsonから生成します。施設一覧と互換用JSONはdisplay_order順、ホームのカルーセルは元の配列順を維持します。日英文言はlocales/messages.jsonを使います。お知らせはcontent/news.jsonから日英一覧・記事・サイトマップを生成します。記事本文はHTMLとして解釈しません。
 
-旧CMS・認証・AI実装やデータ投入/スクレイピングスクリプトのソースはGit履歴を参照してください。残存SQL・JSON・旧構成の資料は履歴であり、現行の起動手順ではありません。翻訳Excel/JSONと翻訳補助スクリプトは維持しています。
+/admin/newsはブラウザー内の入力・プレビュー・JSON書出／再読込補助です。サーバー保存・ログイン・即時公開はありません。GitHubのPRと再配備が公開手順です。旧データAPIは静的JSONへの転送、廃止APIは410です。サーバー関数は0件です。
 
-`docs/rag-chat-current.md` / `docs/runtime-fixes-env-and-next16.md` / `docs/auto_batch_processing.md` / `docs/scripts-readme.md` は旧構成の記録です。現行の必須手順として参照しないでください。
+既存のカルーセルの操作感を維持するため、Emblaコア8.5.1とAutoplay 8.5.2をローカルに同梱します。React連携部品は使いません。版、出典、SHA-256、MITライセンスはassets/vendor/に記録します。
+
+翻訳Excelの補助ツールは任意の保守作業として分離しています。必要な場合だけnpm ci --prefix tools/translationsを実行し、従来どおりリポジトリのルートからnode scripts/sync-translations-from-excel.mjs、node scripts/prune-messages-by-excel-ja.mjs等を実行します。既存のxlsx 0.18.5を維持し、通常ビルド・配信には含みません。
 
 
-## 依存削減（2026-10-25）
+## リグレッションの公開条件
 
-現在の公開ページ・日英表示・Gitによるお知らせ公開に必要な依存だけを残しました。利用しないCMS、AI SDK、スクレイピング、ドラッグ操作と未参照のUI部品を撤去しています。旧APIは外部に接続せず410を返します。公開時のNext.jsサーバー処理は撤去し、完全静的配信に変更しました。Next.js/Reactは現在もビルドとブラウザーUIに使用します。
+[比較方法と範囲](docs/go-migration-verification.md)を参照してください。固定した移行前コミットとGo版を別々にビルドし、DOM・本文・リンク・メタデータ・CSS・画像・API契約を比較します。外部CIではChromium/Firefox/WebKitのPC・スマートフォン表示を比較し、定義した状態での画像差分を0ピクセルとします。
 
-既存CSSは全要素に端末の明朝系フォントを指定しており、旧Interは表示に使われていませんでした。未使用のInter取得処理を撤去し、通常のビルドではGoogle Fontsへ接続しません。既存の解析・外部リンク等まで除去したものではありません。
+これは未知の環境・操作を含むゼロ不具合の保証ではありません。許容していない差分・操作失敗・API差分がある間は本番へ反映しません。比較元を候補版から自動更新して差分を消す運用は行いません。旧Next実装と旧ビルド手順はGit履歴に残ります。
 
-
-## 静的配信（2026-10-25）
-
-現在の構成・ビルド成果物・公開確認手順は [静的配信の運用](docs/static-delivery.md) を参照してください。上記の過去日付の移行記録は当時の状態です。
+翻訳Excel補助の互換性確認はnpm ci --prefix tools/translationsの後、npm test --prefix tools/translationsで実行できます。作業用のExcel/JSONコピーだけを更新し、Goテンプレート中で使われる翻訳キーの保護も検証します。

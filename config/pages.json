@@ -1,0 +1,162 @@
+[
+  {
+    "path": "404",
+    "template": "404.gohtml",
+    "lang": "ja"
+  },
+  {
+    "path": "admin/accommodations",
+    "template": "admin/accommodations.gohtml",
+    "lang": "ja"
+  },
+  {
+    "path": "admin/dashboard",
+    "template": "admin/dashboard.gohtml",
+    "lang": "ja"
+  },
+  {
+    "path": "admin/events",
+    "template": "admin/events.gohtml",
+    "lang": "ja"
+  },
+  {
+    "path": "admin/login",
+    "template": "admin/login.gohtml",
+    "lang": "ja"
+  },
+  {
+    "path": "admin/news",
+    "template": "admin/news.gohtml",
+    "lang": "ja"
+  },
+  {
+    "path": "admin/restaurants",
+    "template": "admin/restaurants.gohtml",
+    "lang": "ja"
+  },
+  {
+    "path": "admin/shops",
+    "template": "admin/shops.gohtml",
+    "lang": "ja"
+  },
+  {
+    "path": "admin/spots",
+    "template": "admin/spots.gohtml",
+    "lang": "ja"
+  },
+  {
+    "path": "admin/tour-categories",
+    "template": "admin/tour-categories.gohtml",
+    "lang": "ja"
+  },
+  {
+    "path": "admin",
+    "template": "admin.gohtml",
+    "lang": "ja"
+  },
+  {
+    "path": "en/access",
+    "template": "en/access.gohtml",
+    "lang": "en"
+  },
+  {
+    "path": "en/accommodations",
+    "template": "en/accommodations.gohtml",
+    "lang": "en",
+    "items": "accommodations"
+  },
+  {
+    "path": "en/dining",
+    "template": "en/dining.gohtml",
+    "lang": "en",
+    "items": "restaurants"
+  },
+  {
+    "path": "en/events",
+    "template": "en/events.gohtml",
+    "lang": "en",
+    "items": "events"
+  },
+  {
+    "path": "en/furusato",
+    "template": "en/furusato.gohtml",
+    "lang": "en"
+  },
+  {
+    "path": "en/news",
+    "template": "en/news.gohtml",
+    "lang": "en"
+  },
+  {
+    "path": "en/shopping",
+    "template": "en/shopping.gohtml",
+    "lang": "en",
+    "items": "shops"
+  },
+  {
+    "path": "en/spots",
+    "template": "en/spots.gohtml",
+    "lang": "en",
+    "items": "spots"
+  },
+  {
+    "path": "en",
+    "template": "en.gohtml",
+    "lang": "en"
+  },
+  {
+    "path": "",
+    "template": "index.gohtml",
+    "lang": "ja"
+  },
+  {
+    "path": "ja/access",
+    "template": "ja/access.gohtml",
+    "lang": "ja"
+  },
+  {
+    "path": "ja/accommodations",
+    "template": "ja/accommodations.gohtml",
+    "lang": "ja",
+    "items": "accommodations"
+  },
+  {
+    "path": "ja/dining",
+    "template": "ja/dining.gohtml",
+    "lang": "ja",
+    "items": "restaurants"
+  },
+  {
+    "path": "ja/events",
+    "template": "ja/events.gohtml",
+    "lang": "ja",
+    "items": "events"
+  },
+  {
+    "path": "ja/furusato",
+    "template": "ja/furusato.gohtml",
+    "lang": "ja"
+  },
+  {
+    "path": "ja/news",
+    "template": "ja/news.gohtml",
+    "lang": "ja"
+  },
+  {
+    "path": "ja/shopping",
+    "template": "ja/shopping.gohtml",
+    "lang": "ja",
+    "items": "shops"
+  },
+  {
+    "path": "ja/spots",
+    "template": "ja/spots.gohtml",
+    "lang": "ja",
+    "items": "spots"
+  },
+  {
+    "path": "ja",
+    "template": "ja.gohtml",
+    "lang": "ja"
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "name": "embla-carousel",
+    "version": "8.5.1",
+    "source": "https://www.npmjs.com/package/embla-carousel/v/8.5.1",
+    "sha256": "d3373f1e7bb4447b7bf7a94734f4fd9e4e300d512427f69131eaa08537b25c7d",
+    "license": "MIT",
+    "purpose": "既存と同一のドラッグ・ループ・自動再生を維持"
+  },
+  {
+    "name": "embla-carousel-autoplay",
+    "version": "8.5.2",
+    "source": "https://www.npmjs.com/package/embla-carousel-autoplay/v/8.5.2",
+    "sha256": "e9f59e353c973bfa47ca7194e69f17d34f51e617eaf3c615392fd090520a6962",
+    "license": "MIT",
+    "purpose": "既存と同一のドラッグ・ループ・自動再生を維持"
+  }
+]

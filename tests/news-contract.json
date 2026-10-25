@@ -1,0 +1,182 @@
+[
+  {
+    "name": "valid with trimming",
+    "value": [
+      {
+        "id": "2026-10-05-news",
+        "title": "  日本語  ",
+        "body": "本文\n二行目",
+        "title_en": "",
+        "body_en": "",
+        "published_on": "2026-10-05"
+      }
+    ],
+    "valid": true
+  },
+  {
+    "name": "missing optional English",
+    "value": [
+      {
+        "id": "2026-10-05-news",
+        "title": "  日本語  ",
+        "body": "本文\n二行目",
+        "published_on": "2026-10-05"
+      }
+    ],
+    "valid": true
+  },
+  {
+    "name": "empty collection",
+    "value": [],
+    "valid": true
+  },
+  {
+    "name": "duplicate IDs",
+    "value": [
+      {
+        "id": "2026-10-05-news",
+        "title": "  日本語  ",
+        "body": "本文\n二行目",
+        "title_en": "",
+        "body_en": "",
+        "published_on": "2026-10-05"
+      },
+      {
+        "id": "2026-10-05-news",
+        "title": "  日本語  ",
+        "body": "本文\n二行目",
+        "title_en": "",
+        "body_en": "",
+        "published_on": "2026-10-05"
+      }
+    ],
+    "valid": false
+  },
+  {
+    "name": "traversal",
+    "value": [
+      {
+        "id": "../secret",
+        "title": "  日本語  ",
+        "body": "本文\n二行目",
+        "title_en": "",
+        "body_en": "",
+        "published_on": "2026-10-05"
+      }
+    ],
+    "valid": false
+  },
+  {
+    "name": "blank title",
+    "value": [
+      {
+        "id": "2026-10-05-news",
+        "title": " ",
+        "body": "本文\n二行目",
+        "title_en": "",
+        "body_en": "",
+        "published_on": "2026-10-05"
+      }
+    ],
+    "valid": false
+  },
+  {
+    "name": "blank body",
+    "value": [
+      {
+        "id": "2026-10-05-news",
+        "title": "  日本語  ",
+        "body": "",
+        "title_en": "",
+        "body_en": "",
+        "published_on": "2026-10-05"
+      }
+    ],
+    "valid": false
+  },
+  {
+    "name": "HTML text",
+    "value": [
+      {
+        "id": "2026-10-05-news",
+        "title": "<img src=x onerror=alert(1)>",
+        "body": "</script><script>alert(1)</script>",
+        "title_en": "",
+        "body_en": "",
+        "published_on": "2026-10-05"
+      }
+    ],
+    "valid": true
+  },
+  {
+    "name": "invalid date",
+    "value": [
+      {
+        "id": "2026-10-05-news",
+        "title": "  日本語  ",
+        "body": "本文\n二行目",
+        "title_en": "",
+        "body_en": "",
+        "published_on": "2026-02-30"
+      }
+    ],
+    "valid": false
+  },
+  {
+    "name": "partial translation",
+    "value": [
+      {
+        "id": "2026-10-05-news",
+        "title": "  日本語  ",
+        "body": "本文\n二行目",
+        "title_en": "News",
+        "body_en": "",
+        "published_on": "2026-10-05"
+      }
+    ],
+    "valid": false
+  },
+  {
+    "name": "null English",
+    "value": [
+      {
+        "id": "2026-10-05-news",
+        "title": "  日本語  ",
+        "body": "本文\n二行目",
+        "title_en": null,
+        "body_en": "",
+        "published_on": "2026-10-05"
+      }
+    ],
+    "valid": false
+  },
+  {
+    "name": "unknown field",
+    "value": [
+      {
+        "id": "2026-10-05-news",
+        "title": "  日本語  ",
+        "body": "本文\n二行目",
+        "title_en": "",
+        "body_en": "",
+        "published_on": "2026-10-05",
+        "is_published": false
+      }
+    ],
+    "valid": false
+  },
+  {
+    "name": "UTF16 length",
+    "value": [
+      {
+        "id": "2026-10-05-news",
+        "title": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+        "body": "本文\n二行目",
+        "title_en": "",
+        "body_en": "",
+        "published_on": "2026-10-05"
+      }
+    ],
+    "valid": false
+  }
+]
