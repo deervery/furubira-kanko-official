@@ -2,7 +2,8 @@ import { test, expect } from "@playwright/test"
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs"
 import path from "node:path"
 const kind=JSON.parse(readFileSync(new URL("../../config/site.json",import.meta.url),"utf8")).kind
-const reference="http://127.0.0.1:4173",candidate=process.env.CANDIDATE_URL||"http://127.0.0.1:4174"\nconst internalHosts=new Set(["127.0.0.1","localhost",new URL(candidate).hostname])
+const reference="http://127.0.0.1:4173",candidate=process.env.CANDIDATE_URL||"http://127.0.0.1:4174"
+const internalHosts=new Set(["127.0.0.1","localhost",new URL(candidate).hostname])
 const externalImageFixture=readFileSync(new URL("../../public/no_photo.jpg",import.meta.url))
 const screenshotStyle="canvas{visibility:hidden!important}iframe{visibility:hidden!important}"
 test.beforeEach(async({context},info)=>{
