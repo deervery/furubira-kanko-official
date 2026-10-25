@@ -65,24 +65,20 @@ async function settleHome(page){
 }
 async function matchPages(ref,page,filename,info,fullPage=true){
  const options={fullPage,scale:"css",animations:"disabled",style:screenshotStyle,caret:"hide"}
- // Match toHaveScreenshot's stability rule on the pinned reference as well.
- // A first full-page WebKit capture can use a different rounded-clip raster.
- const first=await ref.screenshot(options)
- let previous=first,expected,referenceCaptures=1
- for(let attempt=0;attempt<5;attempt++){
-  const current=await ref.screenshot(options);referenceCaptures++
-  if(previous.equals(current)){expected=current;break}
-  previous=current
+ async function stableCapture(target){
+  let previous=await target.screenshot(options)
+  for(let attempt=0;attempt<5;attempt++){
+   const current=await target.screenshot(options)
+   if(previous.equals(current))return current
+   previous=current
+  }
+  throw new Error("The renderer did not produce two consecutive identical captures")
  }
- expect(expected,"the old renderer must produce two consecutive identical captures").toBeDefined()
- if(filename.includes("ja_furusato")&&!first.equals(expected)){
-  await info.attach("reference-first.png",{body:first,contentType:"image/png"})
-  await info.attach("reference-stable.png",{body:expected,contentType:"image/png"})
-  await info.attach("reference-captures.txt",{body:String(referenceCaptures),contentType:"text/plain"})
- }
+ const expected=await stableCapture(ref)
+ const actual=await stableCapture(page)
  const snapshot=info.snapshotPath(filename);mkdirSync(path.dirname(snapshot),{recursive:true});writeFileSync(snapshot,expected)
  try{
-  await expect(page).toHaveScreenshot(filename,{...options,maxDiffPixels:0,threshold:0})
+  expect(actual).toMatchSnapshot(filename,{maxDiffPixels:0,threshold:0})
  }catch(error){
   if(filename.includes("ja_furusato")){
    const measure=p=>p.locator("main").evaluate(root=>[...root.querySelectorAll("*")].map(n=>{
