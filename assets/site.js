@@ -15,7 +15,7 @@ for (const img of document.images) {
   img.addEventListener("error",fallback)
   // Next Image reassigns src after mounting when an onError handler exists.
   // Preserve that initialization, including WebKit's rounded-image repaint path.
-  if(img.hasAttribute("data-nimg"))img.src=img.src
+  img.src=img.src
   if(img.complete&&img.naturalWidth===0)fallback()
 }
 for (const header of document.querySelectorAll("[data-site-header]")) {
