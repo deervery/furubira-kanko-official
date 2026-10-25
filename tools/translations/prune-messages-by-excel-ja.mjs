@@ -101,7 +101,7 @@ function listFilesRecursive(dir, exts) {
 }
 
 function collectReferencedKeys(repoRoot) {
-  const files = listFilesRecursive(repoRoot, [".ts", ".tsx", ".js", ".mjs"]);
+  const files = listFilesRecursive(repoRoot, [".ts", ".tsx", ".js", ".mjs", ".gohtml"]);
 
   /** @type {Set<string>} */
   const keys = new Set();
@@ -112,9 +112,12 @@ function collectReferencedKeys(repoRoot) {
   // { key: "x.y" } pattern (navigation arrays)
   const keyFieldRe = /\bkey\s*:\s*["'`]([^"'`]+)["'`]/g;
 
+  // Go templates now own the visible translation references.
+  const goTemplateRe = /\{\{-?\s*t\s+(?:\$(?:\.[\w.]+)?|\.[\w.]+)\s+"([^"]+)"/g;
+
   for (const f of files) {
     const s = fs.readFileSync(f, "utf8");
-    for (const re of [tCallRe, keyFieldRe]) {
+    for (const re of [tCallRe, keyFieldRe, goTemplateRe]) {
       let m;
       while ((m = re.exec(s))) {
         const k = (m[1] ?? "").trim();

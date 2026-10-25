@@ -44,3 +44,5 @@ out/が静的成果物、.vercel/output/がCDN規則と必要な関数を含む�
 [比較方法と範囲](docs/go-migration-verification.md)を参照してください。固定した移行前コミットとGo版を別々にビルドし、DOM・本文・リンク・メタデータ・CSS・画像・API契約を比較します。外部CIではChromium/Firefox/WebKitのPC・スマートフォン表示を比較し、定義した状態での画像差分を0ピクセルとします。
 
 これは未知の環境・操作を含むゼロ不具合の保証ではありません。許容していない差分・操作失敗・API差分がある間は本番へ反映しません。比較元を候補版から自動更新して差分を消す運用は行いません。旧Next実装と旧ビルド手順はGit履歴に残ります。
+
+翻訳Excel補助の互換性確認はnpm ci --prefix tools/translationsの後、npm test --prefix tools/translationsで実行できます。作業用のExcel/JSONコピーだけを更新し、Goテンプレート中で使われる翻訳キーの保護も検証します。

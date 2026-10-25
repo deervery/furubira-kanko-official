@@ -29,6 +29,10 @@ jobs:
       - run: node --test
       - run: node --test tests/static-check.mjs
       - run: python3 tests/check-dom.py
+      - name: Verify optional Excel maintenance tools in isolated fixtures
+        run: |
+          npm ci --prefix tools/translations --ignore-scripts --no-audit --no-fund
+          npm test --prefix tools/translations
       - uses: actions/upload-artifact@v4
         with:
           name: go-static-site
