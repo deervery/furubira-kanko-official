@@ -67,7 +67,18 @@ async function matchPages(ref,page,filename,info,fullPage=true){
  const options={fullPage,animations:"disabled",style:screenshotStyle,caret:"hide"}
  const expected=await ref.screenshot(options)
  const snapshot=info.snapshotPath(filename);mkdirSync(path.dirname(snapshot),{recursive:true});writeFileSync(snapshot,expected)
- await expect(page).toHaveScreenshot(filename,{...options,maxDiffPixels:0,threshold:0})
+ try{
+  await expect(page).toHaveScreenshot(filename,{...options,maxDiffPixels:0,threshold:0})
+ }catch(error){
+  if(filename.includes("ja_furusato")){
+   const measure=p=>p.locator("main").evaluate(root=>[...root.querySelectorAll("*")].map(n=>{
+    const s=getComputedStyle(n),r=n.getBoundingClientRect()
+    return {tag:n.tagName,class:n.getAttribute("class"),rect:r.toJSON(),style:Object.fromEntries(["display","position","height","width","border-radius","border-color","box-shadow","transform","opacity","overflow","font","line-height","letter-spacing","will-change","background-color"].map(k=>[k,s.getPropertyValue(k)]))}
+   }))
+   await info.attach("furusato-layout.json",{body:Buffer.from(JSON.stringify({reference:await measure(ref),candidate:await measure(page)},null,2)),contentType:"application/json"})
+  }
+  throw error
+ }
 }
 const routes=kind==="company"
  ? ["/","/company","/news","/news/rakusika-station","/news/rakusika-facility-adoption","/news/rakusika-english-labels","/products/rakusika","/products/local-host","/security","/privacy-policy","/terms","/contact"]
