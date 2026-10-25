@@ -90,7 +90,10 @@ for(const viewport of [{name:"desktop",width:1440,height:1000},{name:"mobile",wi
     const toggle=kind==="company"?p.getByRole("button",{name:"メニューを開く"}):p.locator('button[aria-haspopup="dialog"]')
     await toggle.click()
     if(kind==="company")await expect(p.getByRole("navigation",{name:"モバイルナビゲーション"})).toBeVisible()
-    else await expect(p.getByRole("dialog")).toBeVisible()
+    else {
+     await expect(p.getByRole("dialog")).toBeVisible()
+     await expect(p.getByRole("dialog").locator("a button").first()).toBeFocused()
+    }
    }
    await matchPages(ref,page,viewport.name+"-menu.png",info,false)
    for(const p of [ref,page]){

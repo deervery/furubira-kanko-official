@@ -79,7 +79,7 @@ if (toggle) {
     inertElements=[...document.body.children].map(n=>[n,n.inert]);for(const [n] of inertElements)n.inert=true
     document.body.style.overflow="hidden";if(scrollbar)document.body.style.paddingRight=scrollbar+"px"
     portal.append(overlay,panel);document.body.append(portal);toggle.setAttribute("aria-expanded","true");toggle.dataset.state="open"
-    document.addEventListener("keydown",keyboard);panel.querySelector("a").focus()
+    document.addEventListener("keydown",keyboard);panel.querySelector("a button").focus()
   })
 }
 for (const root of document.querySelectorAll("[data-carousel]")) {
