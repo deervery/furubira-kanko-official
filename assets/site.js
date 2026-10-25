@@ -30,9 +30,9 @@ const toggle = document.querySelector("[data-menu-toggle]")
 if (toggle) {
   let portal, panel, previousStyle, inertElements = [], closing = false
   const header = toggle.closest("header")
-  const baseButton = "inline-flex items-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
-  const ghost = baseButton + " hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
-  const outline = baseButton + " justify-center text-sm border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+  const baseButton = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
+  const ghost = baseButton + " hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+  const outline = baseButton + " text-sm border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
   function el(tag,cls,text) { const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n }
   function close() {
     if (!portal || closing) return

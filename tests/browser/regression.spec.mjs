@@ -5,6 +5,8 @@ const kind=JSON.parse(readFileSync(new URL("../../config/site.json",import.meta.
 const reference="http://127.0.0.1:4173",candidate="http://127.0.0.1:4174"
 const screenshotStyle="canvas{visibility:hidden!important}iframe{visibility:hidden!important}"
 test.beforeEach(async({context},info)=>{
+ // Both renderers choose a random initial slide. Fix only this test input.
+ await context.addInitScript(()=>{Math.random=()=>0})
  let attempts=0
  await context.route("**/*",async route=>{
   const req=route.request(),url=new URL(req.url())
@@ -36,22 +38,13 @@ async function settleHome(page){
  await page.evaluate(()=>window.scrollTo(0,0))
  await page.waitForTimeout(1500)
  for(const region of await page.getByRole("region",{name:""}).filter({has:page.locator('[aria-roledescription="slide"]')}).all()){
-  await region.evaluate(el=>{el.tabIndex=0;el.focus({preventScroll:true})})
-  const slides=region.locator('[aria-roledescription="slide"]')
-  const count=await slides.count()
-  for(let step=0;step<=count;step++){
-   const selected=await region.evaluate(el=>{
-    const view=el.querySelector(".overflow-hidden").getBoundingClientRect()
-    return [...el.querySelectorAll('[aria-roledescription="slide"]')].findIndex(s=>Math.abs(s.getBoundingClientRect().left-view.left)<1)
-   })
-   if(selected===0)break
-   await region.dispatchEvent("keydown",{key:"ArrowLeft",bubbles:true})
-   await page.waitForTimeout(700)
-  }
-  await expect.poll(()=>region.evaluate(el=>{
-   const viewport=el.querySelector(".overflow-hidden").getBoundingClientRect()
-   return Math.abs(el.querySelector('[aria-roledescription="slide"]').getBoundingClientRect().left-viewport.left)
-  })).toBeLessThan(1)
+  // Exercise Embla's keyboard focus path: it selects slide zero and stops autoplay.
+  // Focusing the outer region does neither; a snap is centered, not left-aligned.
+  await region.evaluate(el=>{
+   document.dispatchEvent(new KeyboardEvent("keydown",{key:"Tab",code:"Tab",bubbles:true}))
+   const slide=el.querySelector('[aria-roledescription="slide"]')
+   slide.tabIndex=0;slide.focus({preventScroll:true});slide.blur()
+  })
  }
  await page.evaluate(()=>window.scrollTo(0,0))
 }
