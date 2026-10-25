@@ -3,6 +3,7 @@ import { readFileSync, mkdirSync, writeFileSync } from "node:fs"
 import path from "node:path"
 const kind=JSON.parse(readFileSync(new URL("../../config/site.json",import.meta.url),"utf8")).kind
 const reference="http://127.0.0.1:4173",candidate="http://127.0.0.1:4174"
+const externalImageFixture=readFileSync(new URL("../../public/no_photo.jpg",import.meta.url))
 const screenshotStyle="canvas{visibility:hidden!important}iframe{visibility:hidden!important}"
 test.beforeEach(async({context},info)=>{
  // Both renderers choose a random initial slide. Fix only this test input.
@@ -17,7 +18,12 @@ test.beforeEach(async({context},info)=>{
    return route.fulfill({status:202,json:{id:body.id,delivery:"pending"}})
   }
   if(url.hostname==="challenges.cloudflare.com")return route.fulfill({contentType:"text/javascript",body:'window.turnstile={render(el,opts){queueMicrotask(()=>opts.callback("isolated-test-token"));return "isolated-widget"},remove(){}}'})
-  if(url.hostname!=="127.0.0.1"&&url.hostname!=="localhost")return route.abort("blockedbyclient")
+  // External SNS URLs can expire independently of the site. Give both renderers
+  // the same image bytes; exercise the error callback separately after hydration.
+  if(url.hostname!=="127.0.0.1"&&url.hostname!=="localhost"){
+   if(req.resourceType()==="image")return route.fulfill({contentType:"image/jpeg",body:externalImageFixture})
+   return route.abort("blockedbyclient")
+  }
   return route.continue()
  })
 })
@@ -140,6 +146,21 @@ for(const viewport of [{name:"desktop",width:1440,height:1000},{name:"mobile",wi
      await page.emulateMedia({colorScheme:"light"})
      await expect(page.locator("html")).toHaveClass(/light/)
     }
+   })
+   test("external image failure retains the existing local fallback",async({page,context})=>{
+    const ref=await context.newPage()
+    for(const [target,base] of [[ref,reference],[page,candidate]]){
+     await ready(target,base+"/en/shopping")
+     await expect(target.locator("header")).toHaveCSS("opacity","1")
+     const image=target.locator('img[src^="https://scontent-"]')
+     await expect(image).toHaveCount(1)
+     await target.route("**/*isolated-image-failure=1",route=>route.abort("failed"))
+     await image.evaluate(node=>{
+      const url=new URL(node.src);url.searchParams.set("isolated-image-failure","1");node.src=url.href
+     })
+     await expect.poll(()=>image.evaluate(node=>new URL(node.currentSrc).pathname==="/no_photo.jpg"&&node.complete&&node.naturalWidth>0)).toBe(true)
+    }
+    await ref.close()
    })
    test("news editing, dirty protection, export and import",async({page})=>{
     await ready(page,candidate+"/admin/news")
