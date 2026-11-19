@@ -22,7 +22,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.27.2'
+          go-version: '1.27.4'
           cache: false
       - uses: actions/setup-node@v4
         with:
@@ -83,7 +83,7 @@ jobs:
           NEXT_TELEMETRY_DISABLED: '1'
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.27.2'
+          go-version: '1.27.4'
           cache: false
       - uses: actions/setup-node@v4
         with:
