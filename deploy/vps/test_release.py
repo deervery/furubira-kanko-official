@@ -7,7 +7,7 @@ class ReleaseBoundaryTests(unittest.TestCase):
  def tearDown(self):self.temp.cleanup()
  def artifact(self,revision,label="a",extra=None):
   files={"site/release.json":json.dumps({"revision":revision,"generator":"go"}).encode(),
-   "site/assets/"+label*16+"/site.js":label.encode(),"nginx.conf":b"server{}","route-config.json":b"{}"}
+   "site/assets/"+label*16+"/site.js":label.encode(),"server.json":b"{}","route-config.json":b"{}"}
   manifest={"schema":1,"kind":"tourism","revision":revision,"public_cutover_ready":False,"files":{k:hashlib.sha256(v).hexdigest() for k,v in files.items()}}
   files["manifest.json"]=json.dumps(manifest).encode()
   if extra:files.update(extra)

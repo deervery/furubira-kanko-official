@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only HTTP checks against an installed nginx release. Never sends a real inquiry."""
+"""Read-only HTTP checks against an installed Go static release. Never sends a real inquiry."""
 import argparse,hashlib,http.client,ipaddress,json,pathlib,socket,ssl,urllib.request,urllib.error,urllib.parse
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,*args):return None

@@ -43,7 +43,7 @@ def install(kind,revision,archive,expected,root=ROOT):
           for m in members:
             p=pathlib.PurePosixPath(m.name)
             if not m.isfile() or p.is_absolute() or ".."in p.parts or "\\"in m.name or m.name in names:raise ValueError("Unsafe archive member")
-            if p.parts[0] not in ["site","nginx.conf","route-config.json","manifest.json"]:raise ValueError("Unexpected archive member")
+            if p.parts[0] not in ["site","server.json","nginx.conf","route-config.json","manifest.json"]:raise ValueError("Unexpected archive member")
             names.add(m.name)
             dest=staged/m.name;dest.parent.mkdir(parents=True,exist_ok=True)
             with t.extractfile(m) as source,dest.open("wb") as output:shutil.copyfileobj(source,output)

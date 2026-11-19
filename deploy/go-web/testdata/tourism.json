@@ -1,0 +1,291 @@
+{
+  "overrides": {
+    "404.html": {
+      "contentType": "text/html; charset=utf-8"
+    },
+    "admin.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "admin"
+    },
+    "admin/accommodations.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "admin/accommodations"
+    },
+    "admin/dashboard.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "admin/dashboard"
+    },
+    "admin/events.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "admin/events"
+    },
+    "admin/login.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "admin/login"
+    },
+    "admin/news.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "admin/news"
+    },
+    "admin/restaurants.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "admin/restaurants"
+    },
+    "admin/shops.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "admin/shops"
+    },
+    "admin/spots.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "admin/spots"
+    },
+    "admin/tour-categories.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "admin/tour-categories"
+    },
+    "en.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "en"
+    },
+    "en/access.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "en/access"
+    },
+    "en/accommodations.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "en/accommodations"
+    },
+    "en/dining.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "en/dining"
+    },
+    "en/events.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "en/events"
+    },
+    "en/furusato.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "en/furusato"
+    },
+    "en/news.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "en/news"
+    },
+    "en/shopping.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "en/shopping"
+    },
+    "en/spots.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "en/spots"
+    },
+    "index.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": ""
+    },
+    "ja.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "ja"
+    },
+    "ja/access.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "ja/access"
+    },
+    "ja/accommodations.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "ja/accommodations"
+    },
+    "ja/dining.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "ja/dining"
+    },
+    "ja/events.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "ja/events"
+    },
+    "ja/furusato.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "ja/furusato"
+    },
+    "ja/news.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "ja/news"
+    },
+    "ja/shopping.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "ja/shopping"
+    },
+    "ja/spots.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "ja/spots"
+    }
+  },
+  "routes": [
+    {
+      "has": [
+        {
+          "key": "lang",
+          "type": "cookie",
+          "value": "ja"
+        }
+      ],
+      "headers": {
+        "Location": "/ja"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/",
+      "status": 307
+    },
+    {
+      "has": [
+        {
+          "key": "lang",
+          "type": "cookie",
+          "value": "en"
+        }
+      ],
+      "headers": {
+        "Location": "/en"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/",
+      "status": 307
+    },
+    {
+      "has": [
+        {
+          "key": "accept-language",
+          "type": "header",
+          "value": "[eE][nN].*"
+        }
+      ],
+      "headers": {
+        "Location": "/en"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/",
+      "status": 307
+    },
+    {
+      "headers": {
+        "Location": "/ja"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/",
+      "status": 307
+    },
+    {
+      "has": [
+        {
+          "key": "lang",
+          "type": "cookie",
+          "value": "ja"
+        }
+      ],
+      "headers": {
+        "Location": "/ja/$1"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/(spots|accommodations|dining|events|access|shopping|furusato|news(?:/.*)?)",
+      "status": 307
+    },
+    {
+      "has": [
+        {
+          "key": "lang",
+          "type": "cookie",
+          "value": "en"
+        }
+      ],
+      "headers": {
+        "Location": "/en/$1"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/(spots|accommodations|dining|events|access|shopping|furusato|news(?:/.*)?)",
+      "status": 307
+    },
+    {
+      "has": [
+        {
+          "key": "accept-language",
+          "type": "header",
+          "value": "[eE][nN].*"
+        }
+      ],
+      "headers": {
+        "Location": "/en/$1"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/(spots|accommodations|dining|events|access|shopping|furusato|news(?:/.*)?)",
+      "status": 307
+    },
+    {
+      "headers": {
+        "Location": "/ja/$1"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/(spots|accommodations|dining|events|access|shopping|furusato|news(?:/.*)?)",
+      "status": 307
+    },
+    {
+      "dest": "/data/$1.json",
+      "src": "/api/cms/(spots|restaurants|accommodations|events|shops)"
+    },
+    {
+      "dest": "/data/news.json",
+      "headers": {
+        "Cache-Control": "no-store"
+      },
+      "src": "/api/news"
+    },
+    {
+      "dest": "/retired-api.json",
+      "headers": {
+        "Cache-Control": "no-store",
+        "Content-Type": "application/json; charset=utf-8"
+      },
+      "src": "/api/(?:chat(?:/.*)?|embedding|system_message)",
+      "status": 410
+    },
+    {
+      "continue": true,
+      "headers": {
+        "Cache-Control": "public,max-age=31536000,immutable"
+      },
+      "src": "/assets/.*"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "dest": "/404.html",
+      "src": "/.*",
+      "status": 404
+    }
+  ],
+  "version": 3
+}

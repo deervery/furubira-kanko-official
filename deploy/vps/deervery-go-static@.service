@@ -1,0 +1,18 @@
+[Unit]
+Description=Go static origin %i
+After=network.target
+[Service]
+User=www-data
+Group=www-data
+ExecStart=/opt/go-web/go-web -config /etc/go-web/%i.json
+Restart=on-failure
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+MemoryMax=160M
+CPUQuota=50%
+TasksMax=64
+Environment=GOMEMLIMIT=128MiB GOMAXPROCS=1
+[Install]
+WantedBy=multi-user.target

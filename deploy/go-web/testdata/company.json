@@ -1,0 +1,4460 @@
+{
+  "overrides": {
+    "404.html": {
+      "contentType": "text/html; charset=utf-8"
+    },
+    "410.html": {
+      "contentType": "text/html; charset=utf-8"
+    },
+    "company.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "company"
+    },
+    "contact.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "contact"
+    },
+    "index.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": ""
+    },
+    "news.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "news"
+    },
+    "news/rakusika-english-labels.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "news/rakusika-english-labels"
+    },
+    "news/rakusika-facility-adoption.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "news/rakusika-facility-adoption"
+    },
+    "news/rakusika-station.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "news/rakusika-station"
+    },
+    "privacy-policy.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "privacy-policy"
+    },
+    "products/local-host.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "products/local-host"
+    },
+    "security.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "security"
+    },
+    "terms.html": {
+      "contentType": "text/html; charset=utf-8",
+      "path": "terms"
+    }
+  },
+  "routes": [
+    {
+      "has": [
+        {
+          "key": "form",
+          "type": "query",
+          "value": "corporate"
+        }
+      ],
+      "headers": {
+        "Cache-Control": "no-store",
+        "Location": "https://docs.google.com/forms/d/e/1FAIpQLSdVvI_gYGlKv1RvOpV5iJkZvObdm3EQPp0qZRUaOZmJoIBYvA/viewform"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/contact/?",
+      "status": 302,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "form",
+          "type": "query",
+          "value": "rakusika"
+        }
+      ],
+      "headers": {
+        "Cache-Control": "no-store",
+        "Location": "https://docs.google.com/forms/d/e/1FAIpQLSdzgQPxeWySAZ8OqJkB7jD1SJBb5hA2t-xw_i_ydlnvHfliow/viewform"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/contact/?",
+      "status": 302,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "form",
+          "type": "query",
+          "value": "local-host"
+        }
+      ],
+      "headers": {
+        "Cache-Control": "no-store",
+        "Location": "https://docs.google.com/forms/d/e/1FAIpQLSewMd3_zH3RnJBRYYANLGbJOK1V0LRCyfGe6x5xLwbov-Ok8g/viewform"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/contact/?",
+      "status": 302,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "form",
+          "type": "query",
+          "value": "shop"
+        }
+      ],
+      "headers": {
+        "Cache-Control": "no-store",
+        "Location": "https://docs.google.com/forms/d/e/1FAIpQLSdutdMtzIrpy337gR9aMZzLEmYeNV4KmVg6EmKecOVESBffMA/viewform"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/contact/?",
+      "status": 302,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "corporate"
+        }
+      ],
+      "headers": {
+        "Cache-Control": "no-store",
+        "Location": "https://docs.google.com/forms/d/e/1FAIpQLSdVvI_gYGlKv1RvOpV5iJkZvObdm3EQPp0qZRUaOZmJoIBYvA/viewform"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "form",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/contact/?",
+      "status": 302,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        }
+      ],
+      "headers": {
+        "Cache-Control": "no-store",
+        "Location": "https://docs.google.com/forms/d/e/1FAIpQLSdVvI_gYGlKv1RvOpV5iJkZvObdm3EQPp0qZRUaOZmJoIBYvA/viewform"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "form",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/contact/?",
+      "status": 302,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        }
+      ],
+      "headers": {
+        "Cache-Control": "no-store",
+        "Location": "https://docs.google.com/forms/d/e/1FAIpQLSdzgQPxeWySAZ8OqJkB7jD1SJBb5hA2t-xw_i_ydlnvHfliow/viewform"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "form",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/contact/?",
+      "status": 302,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        }
+      ],
+      "headers": {
+        "Cache-Control": "no-store",
+        "Location": "https://docs.google.com/forms/d/e/1FAIpQLSewMd3_zH3RnJBRYYANLGbJOK1V0LRCyfGe6x5xLwbov-Ok8g/viewform"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "form",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/contact/?",
+      "status": 302,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        }
+      ],
+      "headers": {
+        "Cache-Control": "no-store",
+        "Location": "https://docs.google.com/forms/d/e/1FAIpQLSdutdMtzIrpy337gR9aMZzLEmYeNV4KmVg6EmKecOVESBffMA/viewform"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "form",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/contact/?",
+      "status": 302,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "form",
+          "type": "query",
+          "value": "staty"
+        }
+      ],
+      "headers": {
+        "Cache-Control": "no-store",
+        "Location": "https://docs.google.com/forms/d/e/1FAIpQLSe2PkNrbCJY7H-SYDQbBuyA-OZ_2Dlek_22LrNO6ROuia-_Qg/viewform"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/contact/?",
+      "status": 302,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "staty"
+        }
+      ],
+      "headers": {
+        "Cache-Control": "no-store",
+        "Location": "https://docs.google.com/forms/d/e/1FAIpQLSe2PkNrbCJY7H-SYDQbBuyA-OZ_2Dlek_22LrNO6ROuia-_Qg/viewform"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "form",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/contact/?",
+      "status": 302,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "service"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "inquiry"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "quote"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika&type=quote"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "materials"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika&type=materials"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "partnership"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "partner"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "media"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika&type=media"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "support"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika&type=support"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "service"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "inquiry"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "quote"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika&type=quote"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "materials"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika&type=materials"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "partnership"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "partner"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "media"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika&type=media"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "support"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika&type=support"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "rakusika"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=rakusika"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "service"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "inquiry"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "quote"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host&type=quote"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "materials"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host&type=materials"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "partnership"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "partner"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "media"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host&type=media"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "support"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host&type=support"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "service"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "inquiry"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "quote"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host&type=quote"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "materials"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host&type=materials"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "partnership"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "partner"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "media"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host&type=media"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "support"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host&type=support"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "local-host"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=local-host"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "service"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "inquiry"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "quote"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=quote"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "materials"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=materials"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "partnership"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "partner"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "media"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=media"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "support"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=support"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "service"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "inquiry"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "quote"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=quote"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "materials"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=materials"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "partnership"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "partner"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "media"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=media"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "support"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=support"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "shop"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "service"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "inquiry"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "quote"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate&type=quote"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "materials"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate&type=materials"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "partnership"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "partner"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "media"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate&type=media"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        },
+        {
+          "key": "type",
+          "type": "query",
+          "value": "support"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate&type=support"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "service"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "inquiry"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "quote"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate&type=quote"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "materials"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate&type=materials"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "partnership"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "partner"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "media"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate&type=media"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        },
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "support"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate&type=support"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "product",
+          "type": "query",
+          "value": "other"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=corporate"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": "service"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": "inquiry"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": "quote"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=quote"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": "materials"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=materials"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": "partnership"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": "partner"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": "media"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=media"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": "support"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=support"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "service"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "inquiry"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=service"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "quote"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=quote"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "materials"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=materials"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "partnership"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "partner"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=partnership"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "media"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=media"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [
+        {
+          "key": "contactType",
+          "type": "query",
+          "value": "support"
+        }
+      ],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop&type=support"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "missing": [
+        {
+          "key": "type",
+          "type": "query",
+          "value": ".+"
+        }
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "has": [],
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/inquiry/?",
+      "status": 308,
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "dest": "/inquiries-retired.json",
+      "headers": {
+        "Cache-Control": "no-store",
+        "Content-Type": "application/json; charset=utf-8"
+      },
+      "src": "/api/inquiries/?",
+      "status": 410
+    },
+    {
+      "dest": "/410.html",
+      "headers": {
+        "Cache-Control": "no-store",
+        "X-Robots-Tag": "noindex, nofollow"
+      },
+      "src": "/pages/ksk/?",
+      "status": 410
+    },
+    {
+      "dest": "/410.html",
+      "headers": {
+        "Cache-Control": "no-store",
+        "X-Robots-Tag": "noindex, nofollow"
+      },
+      "src": "/pages/\u307f\u3093\u306a\u306e\u30ad\u30bb\u30ad-\u6295\u7a3f\u30d5\u30a9\u30fc\u30e0-\u9e7f\u9769\u5c02\u9580\u5e97\u30c7\u30a3\u30a2\u30d9\u30ea\u30fc/?",
+      "status": 410
+    },
+    {
+      "dest": "/410.html",
+      "headers": {
+        "Cache-Control": "no-store",
+        "X-Robots-Tag": "noindex, nofollow"
+      },
+      "src": "/pages/%E3%81%BF%E3%82%93%E3%81%AA%E3%81%AE%E3%82%AD%E3%82%BB%E3%82%AD-%E6%8A%95%E7%A8%BF%E3%83%95%E3%82%A9%E3%83%BC%E3%83%A0-%E9%B9%BF%E9%9D%A9%E5%B0%82%E9%96%80%E5%BA%97%E3%83%87%E3%82%A3%E3%82%A2%E3%83%99%E3%83%AA%E3%83%BC/?",
+      "status": 410
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/profile/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/company"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/profile/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/history/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/#history"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/history/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/founder-story/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/#history"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/founder-story/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/policy/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/#philosophy"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/policy/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/news-release/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/news"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/news-release/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/raku-sika/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://rakusika.com/"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/raku-sika/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/blogs/news/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/news"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/blogs/news/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/blogs/news\\.atom/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/news"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/blogs/news\\.atom/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/\u91ce\u751f\u3092\u5b66\u3073-\u5171\u306b\u66ae\u3089\u3059-\u30c7\u30a3\u30a2\u30d9\u30ea\u30fc\u682a\u5f0f\u4f1a\u793e/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/#history"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/\u91ce\u751f\u3092\u5b66\u3073-\u5171\u306b\u66ae\u3089\u3059-\u30c7\u30a3\u30a2\u30d9\u30ea\u30fc\u682a\u5f0f\u4f1a\u793e/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/%E9%87%8E%E7%94%9F%E3%82%92%E5%AD%A6%E3%81%B3-%E5%85%B1%E3%81%AB%E6%9A%AE%E3%82%89%E3%81%99-%E3%83%87%E3%82%A3%E3%82%A2%E3%83%99%E3%83%AA%E3%83%BC%E6%A0%AA%E5%BC%8F%E4%BC%9A%E7%A4%BE/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/#history"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/%E9%87%8E%E7%94%9F%E3%82%92%E5%AD%A6%E3%81%B3-%E5%85%B1%E3%81%AB%E6%9A%AE%E3%82%89%E3%81%99-%E3%83%87%E3%82%A3%E3%82%A2%E3%83%99%E3%83%AA%E3%83%BC%E6%A0%AA%E5%BC%8F%E4%BC%9A%E7%A4%BE/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/\u4e8b\u696d\u306e\u65b9\u91dd/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/#philosophy"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/\u4e8b\u696d\u306e\u65b9\u91dd/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/%E4%BA%8B%E6%A5%AD%E3%81%AE%E6%96%B9%E9%87%9D/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/#philosophy"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/%E4%BA%8B%E6%A5%AD%E3%81%AE%E6%96%B9%E9%87%9D/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/\u4f1a\u793e\u6982\u8981/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/company"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/\u4f1a\u793e\u6982\u8981/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/%E4%BC%9A%E7%A4%BE%E6%A6%82%E8%A6%81/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/company"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/%E4%BC%9A%E7%A4%BE%E6%A6%82%E8%A6%81/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/press-release/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/news"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/press-release/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/\u30d7\u30ec\u30b9\u30ea\u30ea\u30fc\u30b9\u4e00\u89a7-\u5831\u9053\u95a2\u4fc2\u8005\u306e\u65b9\u3078/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/news"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/\u30d7\u30ec\u30b9\u30ea\u30ea\u30fc\u30b9\u4e00\u89a7-\u5831\u9053\u95a2\u4fc2\u8005\u306e\u65b9\u3078/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/%E3%83%97%E3%83%AC%E3%82%B9%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9%E4%B8%80%E8%A6%A7-%E5%A0%B1%E9%81%93%E9%96%A2%E4%BF%82%E8%80%85%E3%81%AE%E6%96%B9%E3%81%B8/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/news"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/%E3%83%97%E3%83%AC%E3%82%B9%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9%E4%B8%80%E8%A6%A7-%E5%A0%B1%E9%81%93%E9%96%A2%E4%BF%82%E8%80%85%E3%81%AE%E6%96%B9%E3%81%B8/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/\u304a\u554f\u3044\u5408\u308f\u305b\u306f\u3053\u3061\u3089\u304b\u3089/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/\u304a\u554f\u3044\u5408\u308f\u305b\u306f\u3053\u3061\u3089\u304b\u3089/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/%E3%81%8A%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B%E3%81%AF%E3%81%93%E3%81%A1%E3%82%89%E3%81%8B%E3%82%89/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/contact?form=shop"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/pages/%E3%81%8A%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B%E3%81%AF%E3%81%93%E3%81%A1%E3%82%89%E3%81%8B%E3%82%89/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/blogs/news/.*",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "https://deervery.com/news"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/blogs/news/.*",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/products(?:/(?:zane|ezoshika))?/?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "/#services"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/products(?:/(?:zane|ezoshika))?/?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/blog(?:/.*)?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "/news"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/blog(?:/.*)?",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/admin(?:/.*)?",
+      "transforms": [
+        {
+          "op": "delete",
+          "target": {
+            "key": {
+              "pre": ""
+            }
+          },
+          "type": "request.query"
+        }
+      ]
+    },
+    {
+      "headers": {
+        "Location": "/"
+      },
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/admin(?:/.*)?",
+      "status": 307
+    },
+    {
+      "dest": "https://rakusika.com/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/products/rakusika/?",
+      "status": 308
+    },
+    {
+      "dest": "https://deervery.com/$1",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?:www|company)\\.deervery\\.com"
+        }
+      ],
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/(.*)",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/deervery-ticket-001)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/pockets)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/antler)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/album-produced-by-ynu-students)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/bracelet-produced-by-ynu-students)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/pages/makuake-product01)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/pages/material)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/antler)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/deervery-ticket-001)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/pocket)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/pocket-for-sale)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/pockets)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/pocket\u306e\u30b3\u30d4\u30fc)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/pocket%E3%81%AE%E3%82%B3%E3%83%94%E3%83%BC)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/\u4e16\u754c\u4e00\u89e6\u308a\u305f\u304f\u306a\u308b\u9e7f\u9769\u8ca1\u5e03-ticket)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/%E4%B8%96%E7%95%8C%E4%B8%80%E8%A7%A6%E3%82%8A%E3%81%9F%E3%81%8F%E3%81%AA%E3%82%8B%E9%B9%BF%E9%9D%A9%E8%B2%A1%E5%B8%83-ticket)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/\u80b2\u3066\u308b\u304c\u307e\u53e3pocket)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/%E8%82%B2%E3%81%A6%E3%82%8B%E3%81%8C%E3%81%BE%E5%8F%A3pocket)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/\u80b2\u3066\u308b\u9e7f\u9769-pocket-\u4e88\u7d04\u8ca9\u58f2)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/%E8%82%B2%E3%81%A6%E3%82%8B%E9%B9%BF%E9%9D%A9-pocket-%E4%BA%88%E7%B4%84%E8%B2%A9%E5%A3%B2)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/\u9e7f\u30c4\u30ce)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "(/products/%E9%B9%BF%E3%83%84%E3%83%8E)/?",
+      "status": 308
+    },
+    {
+      "dest": "https://shop.deervery.com/$1",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "src": "/((?:collections|blogs|policies|cart|account|customer_authentication|checkouts|apps)(?:/.*)?|checkout|search|products\\.json)",
+      "status": 308
+    },
+    {
+      "continue": true,
+      "headers": {
+        "Cache-Control": "public,max-age=31536000,immutable"
+      },
+      "src": "/assets/.*"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "dest": "/404.html",
+      "src": "/.*",
+      "status": 404
+    }
+  ],
+  "version": 3
+}

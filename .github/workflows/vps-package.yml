@@ -1,7 +1,7 @@
 name: Package and verify VPS static staging
 on:
   pull_request:
-    paths: ['deploy/vps/**', '.github/workflows/vps-package.yml']
+    paths: ['deploy/go-web/**', 'deploy/vps/**', '.github/workflows/vps-package.yml']
   push:
     branches: [main]
   workflow_dispatch:
@@ -38,13 +38,12 @@ jobs:
           kind=$(python3 -c 'import json;print(json.load(open("config/site.json"))["kind"])')
           python3 deploy/vps/package-release.py "$kind" "$REVISION"
           sha256sum vps-release.tar.gz > vps-release.tar.gz.sha256
-      - name: Install nginx for isolated adapter verification
+      - name: Build and test the Go static origin
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y nginx
+          (cd deploy/go-web && go test -race ./... && go vet ./... && CGO_ENABLED=0 go build -trimpath -o ../../go-web .)
           sudo mkdir -p /opt/static-sites
           sudo chown "$(id -u):$(id -g)" /opt/static-sites
-      - name: Verify actual nginx responses, public hashes and disconnected staging API
+      - name: Verify actual Go responses and public hashes
         env:
           REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
@@ -52,30 +51,19 @@ jobs:
           kind=$(python3 -c 'import json;print(json.load(open("config/site.json"))["kind"])')
           digest=$(cut -d ' ' -f1 vps-release.tar.gz.sha256)
           python3 deploy/vps/receive-release.py "$kind" "$REVISION" --archive vps-release.tar.gz --sha256 "$digest"
-          mkdir -p "$RUNNER_TEMP/nginx"
-          cat > "$RUNNER_TEMP/nginx/nginx.conf" <<EOF
-          worker_processes 1;
-          error_log stderr warn;
-          pid $RUNNER_TEMP/nginx/nginx.pid;
-          events { worker_connections 128; }
-          http {
-            include /etc/nginx/mime.types;
-            types { text/javascript mjs; }
-            access_log off;
-            include /opt/static-sites/$kind/current/nginx.conf;
-          }
-          EOF
-          nginx -t -p "$RUNNER_TEMP/nginx/" -c "$RUNNER_TEMP/nginx/nginx.conf"
-          nginx -p "$RUNNER_TEMP/nginx/" -c "$RUNNER_TEMP/nginx/nginx.conf"
-          trap 'nginx -s quit -p "$RUNNER_TEMP/nginx/" -c "$RUNNER_TEMP/nginx/nginx.conf"' EXIT
+          ./go-web -config "/opt/static-sites/$kind/current/server.json" &
+          server_pid=$!
+          trap 'kill "$server_pid"; wait "$server_pid" || true' EXIT
           port=$(python3 -c 'import json,sys;print(json.load(open("/opt/static-sites/"+sys.argv[1]+"/current/manifest.json"))["port"])' "$kind")
-          python3 deploy/vps/verify-nginx.py "$kind" "$REVISION" "http://127.0.0.1:$port" > vps-nginx-verification.json
-          cat vps-nginx-verification.json
+          for attempt in $(seq 1 30); do curl -fsS "http://127.0.0.1:$port/release.json" >/dev/null && break; sleep 1; done
+          python3 deploy/vps/verify-static.py "$kind" "$REVISION" "http://127.0.0.1:$port" > vps-go-verification.json
+          cat vps-go-verification.json
       - uses: actions/upload-artifact@v4
         with:
           name: vps-static-staging
           path: |
             vps-release.tar.gz
             vps-release.tar.gz.sha256
-            vps-nginx-verification.json
+            vps-go-verification.json
+            go-web
           retention-days: 14
