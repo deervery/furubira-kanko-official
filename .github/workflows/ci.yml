@@ -113,7 +113,9 @@ jobs:
           export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $auth"
           export GIT_CONFIG_KEY_1=core.hooksPath
           export GIT_CONFIG_VALUE_1=/dev/null
-          git fetch --force --prune --tags origin "+refs/heads/*:refs/remotes/origin/*"
+          depth=()
+          if [[ "$(git rev-parse --is-shallow-repository)" == true ]]; then depth+=(--unshallow); fi
+          git fetch "${depth[@]}" --force --prune --tags origin "+refs/heads/*:refs/remotes/origin/*"
           git fetch origin "$GITHUB_SHA"
           unset GIT_CONFIG_COUNT GIT_CONFIG_KEY_0 GIT_CONFIG_VALUE_0 GIT_CONFIG_KEY_1 GIT_CONFIG_VALUE_1 auth GH_TOKEN
           git -c core.hooksPath=/dev/null checkout --force --detach "$GITHUB_SHA"
