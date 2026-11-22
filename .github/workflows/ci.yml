@@ -71,7 +71,7 @@ jobs:
         run: |
           npm ci --prefix tools/translations --ignore-scripts --no-audit --no-fund
           npm test --prefix tools/translations
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, Node 24
         with:
           name: go-static-site
           path: |
@@ -165,7 +165,7 @@ jobs:
         run: npx playwright test --project=${{ matrix.browser }}
         env:
           REFERENCE_DIR: ${{ runner.temp }}/reference
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, Node 24
         if: always()
         with:
           name: browser-regression-${{ matrix.browser }}

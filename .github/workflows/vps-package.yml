@@ -85,7 +85,7 @@ jobs:
           for attempt in $(seq 1 30); do curl -fsS "http://127.0.0.1:$port/release.json" >/dev/null && break; sleep 1; done
           python3 deploy/vps/verify-static.py "$kind" "$REVISION" "http://127.0.0.1:$port" > vps-go-verification.json
           cat vps-go-verification.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, Node 24
         with:
           name: vps-static-staging
           path: |
