@@ -1,7 +1,7 @@
 name: Package and verify VPS static staging
 on:
   pull_request:
-    paths: ['deploy/go-web/**', 'deploy/vps/**', '.github/workflows/vps-package.yml']
+    paths: ['deploy/go-web/**', 'deploy/vps/**', '.github/workflows/vps-package.yml', '.github/ci/**']
   push:
     branches: [main]
   workflow_dispatch:
@@ -12,13 +12,40 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.27.4'
-          cache: false
+      - name: Checkout exact revision without Node
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Fetch exactly the event revision (including the PR merge commit).
+          test -n "$GITHUB_WORKSPACE" && test "$GITHUB_WORKSPACE" != /
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+          cd "$GITHUB_WORKSPACE"
+          git init -q
+          git remote remove origin 2>/dev/null || true
+          git remote add origin "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
+          auth=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+          echo "::add-mask::$auth"
+          # Authentication is scoped to this fetch process, never saved in .git/config.
+          export GIT_CONFIG_COUNT=2
+          export GIT_CONFIG_KEY_0="http.$GITHUB_SERVER_URL/.extraheader"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $auth"
+          export GIT_CONFIG_KEY_1=core.hooksPath
+          export GIT_CONFIG_VALUE_1=/dev/null
+          git fetch --no-tags --depth=1 origin "$GITHUB_SHA"
+          unset GIT_CONFIG_COUNT GIT_CONFIG_KEY_0 GIT_CONFIG_VALUE_0 GIT_CONFIG_KEY_1 GIT_CONFIG_VALUE_1 auth GH_TOKEN
+          git -c core.hooksPath=/dev/null checkout --force --detach "$GITHUB_SHA"
+          git clean -ffdx
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Install verified go toolchain without Node
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        env:
+          TOOL_VERSION: 1.27.4
+        run: |
+          python3 .github/ci/toolchain.py go --version "$TOOL_VERSION"
       - name: Build public files outside the VPS
         run: go run ./cmd/sitegen
         env:
@@ -58,7 +85,7 @@ jobs:
           for attempt in $(seq 1 30); do curl -fsS "http://127.0.0.1:$port/release.json" >/dev/null && break; sleep 1; done
           python3 deploy/vps/verify-static.py "$kind" "$REVISION" "http://127.0.0.1:$port" > vps-go-verification.json
           cat vps-go-verification.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, Node 24
         with:
           name: vps-static-staging
           path: |

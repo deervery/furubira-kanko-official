@@ -17,16 +17,47 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.27.4'
-          cache: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '26.12.1'
+      - name: Checkout exact revision without Node
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Fetch exactly the event revision (including the PR merge commit).
+          test -n "$GITHUB_WORKSPACE" && test "$GITHUB_WORKSPACE" != /
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+          cd "$GITHUB_WORKSPACE"
+          git init -q
+          git remote remove origin 2>/dev/null || true
+          git remote add origin "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
+          auth=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+          echo "::add-mask::$auth"
+          # Authentication is scoped to this fetch process, never saved in .git/config.
+          export GIT_CONFIG_COUNT=2
+          export GIT_CONFIG_KEY_0="http.$GITHUB_SERVER_URL/.extraheader"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $auth"
+          export GIT_CONFIG_KEY_1=core.hooksPath
+          export GIT_CONFIG_VALUE_1=/dev/null
+          git fetch --no-tags --depth=1 origin "$GITHUB_SHA"
+          unset GIT_CONFIG_COUNT GIT_CONFIG_KEY_0 GIT_CONFIG_VALUE_0 GIT_CONFIG_KEY_1 GIT_CONFIG_VALUE_1 auth GH_TOKEN
+          git -c core.hooksPath=/dev/null checkout --force --detach "$GITHUB_SHA"
+          git clean -ffdx
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Install verified go toolchain without Node
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        env:
+          TOOL_VERSION: 1.27.4
+        run: |
+          python3 .github/ci/toolchain.py go --version "$TOOL_VERSION"
+      - name: Install verified node toolchain without Node
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        env:
+          TOOL_VERSION: 26.13.1
+        run: |
+          python3 .github/ci/toolchain.py node --version "$TOOL_VERSION"
       - run: go test -race ./...
       - run: go vet ./...
       - run: go run ./cmd/sitegen
@@ -40,7 +71,7 @@ jobs:
         run: |
           npm ci --prefix tools/translations --ignore-scripts --no-audit --no-fund
           npm test --prefix tools/translations
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, Node 24
         with:
           name: go-static-site
           path: |
@@ -60,13 +91,43 @@ jobs:
       matrix:
         browser: [chromium, firefox, webkit]
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24.22.1'
+      - name: Checkout exact revision without Node
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Fetch exactly the event revision (including the PR merge commit).
+          test -n "$GITHUB_WORKSPACE" && test "$GITHUB_WORKSPACE" != /
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+          cd "$GITHUB_WORKSPACE"
+          git init -q
+          git remote remove origin 2>/dev/null || true
+          git remote add origin "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
+          auth=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+          echo "::add-mask::$auth"
+          # Authentication is scoped to this fetch process, never saved in .git/config.
+          export GIT_CONFIG_COUNT=2
+          export GIT_CONFIG_KEY_0="http.$GITHUB_SERVER_URL/.extraheader"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $auth"
+          export GIT_CONFIG_KEY_1=core.hooksPath
+          export GIT_CONFIG_VALUE_1=/dev/null
+          depth=()
+          if [[ "$(git rev-parse --is-shallow-repository)" == true ]]; then depth+=(--unshallow); fi
+          git fetch "${depth[@]}" --force --prune --tags origin "+refs/heads/*:refs/remotes/origin/*"
+          git fetch origin "$GITHUB_SHA"
+          unset GIT_CONFIG_COUNT GIT_CONFIG_KEY_0 GIT_CONFIG_VALUE_0 GIT_CONFIG_KEY_1 GIT_CONFIG_VALUE_1 auth GH_TOKEN
+          git -c core.hooksPath=/dev/null checkout --force --detach "$GITHUB_SHA"
+          git clean -ffdx
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Install verified node toolchain without Node
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        env:
+          TOOL_VERSION: 24.22.3
+        run: |
+          python3 .github/ci/toolchain.py node --version "$TOOL_VERSION"
       - name: Build the pinned pre-migration reference
         run: |
           git worktree add --detach "$RUNNER_TEMP/reference" e68826e387e092540fec1a05aa0058ecc2ff4747
@@ -81,13 +142,20 @@ jobs:
           CONTACT_BOT_PROTECTION_ENABLED: 'true'
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
           NEXT_TELEMETRY_DISABLED: '1'
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.27.4'
-          cache: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '26.12.1'
+      - name: Install verified go toolchain without Node
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        env:
+          TOOL_VERSION: 1.27.4
+        run: |
+          python3 .github/ci/toolchain.py go --version "$TOOL_VERSION"
+      - name: Install verified node toolchain without Node
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        env:
+          TOOL_VERSION: 26.13.1
+        run: |
+          python3 .github/ci/toolchain.py node --version "$TOOL_VERSION"
       - run: go run ./cmd/sitegen
         env:
           CONTACT_BOT_PROTECTION_ENABLED: 'true'
@@ -99,7 +167,7 @@ jobs:
         run: npx playwright test --project=${{ matrix.browser }}
         env:
           REFERENCE_DIR: ${{ runner.temp }}/reference
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, Node 24
         if: always()
         with:
           name: browser-regression-${{ matrix.browser }}
